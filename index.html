@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Werbeseite – Übersicht</title>
+  <title>Bildergalerie – Übersicht</title>
   <style>
     body {
       margin: 0;
@@ -18,10 +18,11 @@
 
     .container {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       grid-gap: 20px;
       width: 90%;
-      max-width: 1000px;
+      max-width: 1200px;
+      padding: 20px 0;
     }
 
     .item {
@@ -49,7 +50,6 @@
       font-size: 1rem;
     }
 
-    /* Overlay für vergrößertes Bild */
     .overlay {
       position: fixed;
       top: 0;
@@ -86,40 +86,44 @@
   </div>
 
   <div class="container">
-    <!-- Oben links -->
     <div class="item">
-      <img src="https://xanderfoxy.github.io/Ad/47F93BBE-1F7C-4D52-A0C6-9D8816FEBC1A.png" alt="TopCashback 50€ Aktion" onclick="openOverlay(this)">
-      <h3>TopCashback – 50 € geschenkt</h3>
+      <img src="https://xanderfoxy.github.io/IMG_5070.png" alt="Bild 1" onclick="openOverlay(this)">
+      <h3>Bild 1</h3>
     </div>
 
-    <!-- Oben rechts -->
     <div class="item">
-      <img src="https://xanderfoxy.github.io/Huel/2389A78F-30AA-42D2-9DA2-B843A33A34BE.png" alt="Huel Werbung" onclick="openOverlay(this)">
-      <h3>Huel – gesundes Instant-Essen</h3>
+      <img src="https://xanderfoxy.github.io/IMG_5409.png" alt="Bild 2" onclick="openOverlay(this)">
+      <h3>Bild 2</h3>
     </div>
 
-    <!-- Unten links -->
     <div class="item">
-      <img src="https://xanderfoxy.github.io/OnThatAss/IMG_4661.png" alt="On That Ass Werbung" onclick="openOverlay(this)">
-      <h3>On That Ass – kostenlose Boxershorts</h3>
+      <img src="https://xanderfoxy.github.io/IMG_5416.png" alt="Bild 3" onclick="openOverlay(this)">
+      <h3>Bild 3</h3>
     </div>
 
-    <!-- Unten rechts -->
     <div class="item">
-      <img src="https://xanderfoxy.github.io/TopCashback/23DCAA22-694B-4DB8-A700-29D06C1DE573.png" alt="TopCashback 15€ Aktion" onclick="openOverlay(this)">
-      <h3>TopCashback – 15 € Bonus</h3>
+      <img src="https://xanderfoxy.github.io/IMG_5730.png" alt="Bild 4" onclick="openOverlay(this)">
+      <h3>Bild 4</h3>
     </div>
 
-    <!-- Neue Werbung (1) -->
     <div class="item">
-      <img src="https://xanderfoxy.github.io/Werbung/B4B239B2-4C1B-4BFC-A236-8F18F60BB5FB.png" alt="Neue Werbung 1" onclick="openOverlay(this)">
-      <h3>Neue Werbung – Beispiel 1</h3>
+      <img src="https://xanderfoxy.github.io/IMG_6054.png" alt="Bild 5" onclick="openOverlay(this)">
+      <h3>Bild 5</h3>
     </div>
 
-    <!-- Neue Werbung (2) -->
     <div class="item">
-      <img src="https://xanderfoxy.github.io/Werbung/2C5F76E0-C9C4-4D0F-B177-53DCD911A761.png" alt="Neue Werbung 2" onclick="openOverlay(this)">
-      <h3>Neue Werbung – Beispiel 2</h3>
+      <img src="https://xanderfoxy.github.io/IMG_6082.png" alt="Bild 6" onclick="openOverlay(this)">
+      <h3>Bild 6</h3>
+    </div>
+
+    <div class="item">
+      <img src="https://xanderfoxy.github.io/IMG_6114.png" alt="Bild 7" onclick="openOverlay(this)">
+      <h3>Bild 7</h3>
+    </div>
+
+    <div class="item">
+      <img src="https://xanderfoxy.github.io/IMG_7193.png" alt="Bild 8" onclick="openOverlay(this)">
+      <h3>Bild 8</h3>
     </div>
   </div>
 
@@ -140,4 +144,3 @@
 
 </body>
 </html>
-
