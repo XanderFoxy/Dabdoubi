@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bildergalerie – Übersicht</title>
+  <title>Bildergalerie – Deluxe</title>
   <style>
     body {
       margin: 0;
@@ -14,6 +14,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     .container {
@@ -22,20 +23,22 @@
       grid-gap: 20px;
       width: 90%;
       max-width: 1200px;
-      padding: 20px 0;
+      padding: 40px 0;
     }
 
     .item {
-      background: #111;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      border-radius: 14px;
+      box-shadow: 0 8px 30px rgba(255,255,255,0.05);
       padding: 10px;
       text-align: center;
-      transition: transform 0.2s ease;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
     }
 
     .item:hover {
-      transform: translateY(-4px);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(255,255,255,0.08);
     }
 
     img {
@@ -43,17 +46,18 @@
       height: auto;
       border-radius: 10px;
       cursor: pointer;
-      transition: transform 0.3s ease;
       object-fit: contain;
+      transition: transform 0.3s ease;
     }
 
     h3 {
       margin: 10px 0 0;
       font-size: 1rem;
       color: #ccc;
+      font-weight: 400;
     }
 
-    /* Overlay */
+    /* Overlay für vergrößertes Bild */
     .overlay {
       position: fixed;
       top: 0;
@@ -63,12 +67,11 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(10, 10, 10, 0.85);
       z-index: 1000;
       visibility: hidden;
       opacity: 0;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-      overflow: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
     }
 
     .overlay.show {
@@ -76,38 +79,41 @@
       opacity: 1;
     }
 
-    /* Hintergrundbild (unscharf) */
-    .overlay::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-position: center;
-      background-size: cover;
-      filter: blur(30px) brightness(0.4);
-      z-index: 0;
-      transition: background-image 0.3s ease;
+    /* Leichter Glas-Glow hinter dem Bild */
+    .glass-frame {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 16px;
+      overflow: hidden;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px) saturate(140%);
+      box-shadow: 0 0 40px rgba(255,255,255,0.08);
     }
 
-    /* Das große Bild */
     .overlay img {
-      position: relative;
-      z-index: 1;
       max-width: 95%;
       max-height: 95%;
       border-radius: 12px;
-      box-shadow: 0 0 25px rgba(0,0,0,0.8);
+      box-shadow: 0 0 60px rgba(255,255,255,0.1);
       object-fit: contain;
       image-rendering: high-quality;
+      transition: transform 0.4s ease;
+    }
+
+    .overlay img:hover {
+      transform: scale(1.02);
     }
   </style>
 </head>
 <body>
 
   <div class="overlay" id="overlay" onclick="closeOverlay()">
-    <img id="overlayImg" src="" alt="Vergrößertes Bild">
+    <div class="glass-frame">
+      <img id="overlayImg" src="" alt="Vergrößertes Bild">
+    </div>
   </div>
 
   <div class="container">
@@ -159,24 +165,6 @@
     function openOverlay(img) {
       overlayImg.src = img.src;
       overlay.classList.add('show');
-      // Hintergrund unscharf mit Bild setzen
-      overlay.style.setProperty('--bg-image', `url(${img.src})`);
-      overlay.style.setProperty('background-image', `url(${img.src})`);
-      overlay.querySelector('::before');
-      overlay.style.setProperty('--blurred', img.src);
-      overlay.style.setProperty('--bg', img.src);
-      overlay.style.setProperty('background', `rgba(0,0,0,0.9)`);
-      overlay.style.setProperty('backdrop-filter', 'blur(30px)');
-      overlay.style.setProperty('-webkit-backdrop-filter', 'blur(30px)');
-      overlay.style.setProperty('--overlay-img', img.src);
-      overlay.querySelector('::before');
-      document.querySelector('.overlay::before');
-      document.querySelector('.overlay')?.style.setProperty('--blur-bg', img.src);
-      document.querySelector('.overlay::before');
-      document.querySelector('.overlay')?.setAttribute('data-bg', img.src);
-      document.querySelector('.overlay::before');
-      document.querySelector('.overlay')?.style.setProperty('background-image', `url(${img.src})`);
-      document.querySelector('.overlay')?.style.setProperty('background-size', 'cover');
     }
 
     function closeOverlay() {
