@@ -1,1 +1,143 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Werbeseite – Übersicht</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f4f6f8;
+      color: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 20px;
+      width: 90%;
+      max-width: 1000px;
+    }
+
+    .item {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 10px;
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+
+    .item:hover {
+      transform: translateY(-4px);
+    }
+
+    img {
+      width: 100%;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    h3 {
+      margin: 10px 0 0;
+      font-size: 1rem;
+    }
+
+    /* Overlay für vergrößertes Bild */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .overlay.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .overlay img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay" id="overlay" onclick="closeOverlay()">
+    <img id="overlayImg" src="" alt="Vergrößertes Bild">
+  </div>
+
+  <div class="container">
+    <!-- Oben links -->
+    <div class="item">
+      <img src="https://xanderfoxy.github.io/Ad/47F93BBE-1F7C-4D52-A0C6-9D8816FEBC1A.png" alt="TopCashback 50€ Aktion" onclick="openOverlay(this)">
+      <h3>TopCashback – 50 € geschenkt</h3>
+    </div>
+
+    <!-- Oben rechts -->
+    <div class="item">
+      <img src="https://xanderfoxy.github.io/Huel/2389A78F-30AA-42D2-9DA2-B843A33A34BE.png" alt="Huel Werbung" onclick="openOverlay(this)">
+      <h3>Huel – gesundes Instant-Essen</h3>
+    </div>
+
+    <!-- Unten links -->
+    <div class="item">
+      <img src="https://xanderfoxy.github.io/OnThatAss/IMG_4661.png" alt="On That Ass Werbung" onclick="openOverlay(this)">
+      <h3>On That Ass – kostenlose Boxershorts</h3>
+    </div>
+
+    <!-- Unten rechts -->
+    <div class="item">
+      <img src="https://xanderfoxy.github.io/TopCashback/23DCAA22-694B-4DB8-A700-29D06C1DE573.png" alt="TopCashback 15€ Aktion" onclick="openOverlay(this)">
+      <h3>TopCashback – 15 € Bonus</h3>
+    </div>
+
+    <!-- Neue Werbung (1) -->
+    <div class="item">
+      <img src="https://xanderfoxy.github.io/Werbung/B4B239B2-4C1B-4BFC-A236-8F18F60BB5FB.png" alt="Neue Werbung 1" onclick="openOverlay(this)">
+      <h3>Neue Werbung – Beispiel 1</h3>
+    </div>
+
+    <!-- Neue Werbung (2) -->
+    <div class="item">
+      <img src="https://xanderfoxy.github.io/Werbung/2C5F76E0-C9C4-4D0F-B177-53DCD911A761.png" alt="Neue Werbung 2" onclick="openOverlay(this)">
+      <h3>Neue Werbung – Beispiel 2</h3>
+    </div>
+  </div>
+
+  <script>
+    const overlay = document.getElementById('overlay');
+    const overlayImg = document.getElementById('overlayImg');
+
+    function openOverlay(img) {
+      overlayImg.src = img.src;
+      overlay.classList.add('show');
+    }
+
+    function closeOverlay() {
+      overlay.classList.remove('show');
+      overlayImg.src = '';
+    }
+  </script>
+
+</body>
+</html>
 
