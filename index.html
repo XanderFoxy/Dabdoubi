@@ -47,17 +47,12 @@ body {
 .item img {
   width:100%;
   height:auto;
-  border-radius:10px;
+  border-radius:20px;
   cursor:pointer;
-  object-fit:contain;
+  object-fit:cover;
   transition: transform 0.3s ease;
 }
-h3 {
-  margin:5px 0 0;
-  font-size:0.8rem;
-  color:#ccc;
-  font-weight:400;
-}
+h3 {margin:5px 0 0;font-size:0.8rem;color:#ccc;font-weight:400;}
 /* Overlay */
 .overlay {
   position:fixed;
@@ -79,7 +74,7 @@ h3 {
   display:flex;
   justify-content:center;
   align-items:center;
-  border-radius:20px;
+  border-radius:22px;
   overflow:hidden;
   padding:1rem;
   background: rgba(255,255,255,0.05);
@@ -91,27 +86,25 @@ h3 {
 }
 .glow-layer {
   position:absolute;
-  top:0; left:0; right:0; bottom:0;
   border-radius:20px;
   pointer-events:none;
-  box-shadow:0 0 50px 20px rgba(162,89,255,0.35);
+  box-shadow:0 0 40px 20px rgba(162,89,255,0.3);
   opacity:0;
-  animation: glowPulse 1.5s infinite alternate;
+  transition: opacity 0.3s ease;
 }
-.glass-frame.glow .glow-layer { opacity:1; }
-@keyframes glowPulse {
-  from {box-shadow:0 0 30px 15px rgba(162,89,255,0.25);}
-  to {box-shadow:0 0 50px 25px rgba(162,89,255,0.4);}
-}
+.glow-layer.active { opacity:1; animation: glowPulse 1.5s infinite alternate; }
+@keyframes glowPulse { from {box-shadow:0 0 30px 15px rgba(162,89,255,0.25);} to {box-shadow:0 0 50px 25px rgba(162,89,255,0.4);} }
+
 .overlay img {
   max-width:95%;
   max-height:95%;
   border-radius:20px;
-  object-fit:cover; /* wichtig für abgerundete Kanten sichtbar */
+  object-fit:cover;
+  position:absolute;
   transition: opacity 1.8s ease;
   cursor:pointer;
-  position:absolute;
 }
+
 /* Slider */
 #speedSlider {
   position:absolute;
@@ -119,11 +112,11 @@ h3 {
   width:60%;
   opacity:0;
   transition: opacity 0.5s ease;
-  -webkit-appearance:none;
   height:6px;
   border-radius:3px;
   background:#ccc;
   z-index:1100;
+  -webkit-appearance:none;
 }
 #speedSlider::-webkit-slider-thumb {
   -webkit-appearance:none;
@@ -146,6 +139,9 @@ h3 {
   top:50%;
   transform:translateY(-50%);
 }
+#speedSlider::-webkit-slider-runnable-track { height:6px; border-radius:3px; background:#ccc; }
+#speedSlider::-moz-range-track { height:6px; border-radius:3px; background:#ccc; }
+
 @media (max-width:600px){
   .container{grid-template-columns:repeat(auto-fit,minmax(100px,1fr));grid-gap:8px;}
   h3{font-size:0.7rem;}
@@ -156,13 +152,16 @@ h3 {
 </style>
 </head>
 <body>
+
 <button id="slideshowBtn">▶ Diashow</button>
+
 <div class="overlay" id="overlay">
   <div class="glass-frame" id="glassFrame">
-    <div class="glow-layer"></div>
+    <div class="glow-layer" id="glowLayer"></div>
   </div>
   <input type="range" min="0.5" max="2" step="0.1" value="1" id="speedSlider">
 </div>
+
 <div class="container" id="gallery">
   <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png" alt="Setz dich"><h3>Setz dich</h3></div>
   <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png" alt="Genauso"><h3>Genauso</h3></div>
@@ -173,20 +172,21 @@ h3 {
   <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png" alt="Trink"><h3>Trink</h3></div>
   <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png" alt="Tiefer"><h3>Tiefer</h3></div>
 </div>
+
 <script>
-const overlay=document.getElementById('overlay');
-const glassFrame=document.getElementById('glassFrame');
-const glowLayer=glassFrame.querySelector('.glow-layer');
-const slideshowBtn=document.getElementById('slideshowBtn');
-const speedSlider=document.getElementById('speedSlider');
-const galleryImages=Array.from(document.querySelectorAll('.container img'));
-let currentIndex=0, slideshowRunning=false, slideshowPaused=false, slideshowInterval;
+const overlay = document.getElementById('overlay');
+const glassFrame = document.getElementById('glassFrame');
+const glowLayer = document.getElementById('glowLayer');
+const slideshowBtn = document.getElementById('slideshowBtn');
+const speedSlider = document.getElementById('speedSlider');
+const galleryImages = Array.from(document.querySelectorAll('.container img'));
+let currentIndex = 0, slideshowRunning=false, slideshowPaused=false, slideshowInterval;
 
 function showOverlay(){ overlay.classList.add('show'); }
 function hideOverlay(){
   overlay.classList.remove('show');
   glassFrame.querySelectorAll('img').forEach(i=>i.remove());
-  glassFrame.classList.remove('glow');
+  glowLayer.classList.remove('active');
   clearInterval(slideshowInterval);
   slideshowRunning=false;
   slideshowPaused=false;
@@ -218,23 +218,25 @@ function startSlideshow(){
 // Diashow Button
 slideshowBtn.addEventListener('click',()=>{ startSlideshow(); });
 
-// Klick auf Bild im Overlay
-glassFrame.addEventListener('click',()=>{
+// Klick auf Glasrahmen
+glassFrame.addEventListener('click',(e)=>{
   if(slideshowRunning){
     slideshowPaused=!slideshowPaused;
     if(slideshowPaused){
-      glassFrame.classList.add('glow');
+      glowLayer.classList.add('active');
       speedSlider.style.opacity=1;
       setTimeout(()=>{ if(slideshowPaused) speedSlider.style.opacity=0; },4000);
     } else {
-      glassFrame.classList.remove('glow');
+      glowLayer.classList.remove('active');
       speedSlider.style.opacity=0;
     }
   } else { hideOverlay(); }
 });
 
 // Klick außerhalb Glasrahmen
-overlay.addEventListener('click',e=>{ if(e.target===overlay) hideOverlay(); });
+overlay.addEventListener('click',e=>{
+  if(e.target===overlay && slideshowRunning){ hideOverlay(); }
+});
 
 // Einzelbild Klick
 galleryImages.forEach((img,idx)=>{
