@@ -94,37 +94,36 @@ h3 {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
   padding: 1.5rem;
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(20px) saturate(140%);
-  box-shadow: 0 0 40px rgba(255,255,255,0.08);
   width: 90%;
   max-width: 1200px;
   height: 90%;
+  box-shadow: 0 0 40px rgba(255,255,255,0.08);
+  transition: box-shadow 0.5s ease;
+}
+
+/* Glow auf Glasrahmen bei Pausierung */
+.glow {
+  box-shadow: 0 0 40px 15px rgba(162,89,255,0.5);
+  animation: glowPulse 1.5s infinite alternate;
+}
+@keyframes glowPulse {
+  from { box-shadow:0 0 30px 10px rgba(162,89,255,0.4);}
+  to { box-shadow:0 0 50px 20px rgba(162,89,255,0.6);}
 }
 
 .overlay img {
   max-width: 95%;
   max-height: 95%;
   border-radius: 20px;
-  box-shadow: 0 0 60px rgba(255,255,255,0.1);
   object-fit: contain;
-  image-rendering: high-quality;
-  transition: opacity 1s ease, transform 0.4s ease, box-shadow 0.5s ease;
-  position: absolute;
+  transition: opacity 1s ease, transform 0.4s ease;
   cursor: pointer;
-}
-
-/* Glow beim Pausieren */
-.paused {
-  animation: glowPulse 1.5s infinite alternate;
-  box-shadow: 0 0 40px 15px rgba(162,89,255,0.5);
-}
-@keyframes glowPulse {
-  from { box-shadow:0 0 30px 10px rgba(162,89,255,0.4);}
-  to { box-shadow:0 0 50px 20px rgba(162,89,255,0.6);}
+  position: absolute;
 }
 
 /* Slider */
@@ -144,15 +143,16 @@ h3 {
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  background: #551AFF;
+  background: #8A2BE2;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+  margin-top: -6px;
 }
 #speedSlider::-moz-range-thumb {
   width: 18px;
   height: 18px;
-  background: #551AFF;
+  background: #8A2BE2;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 3px 6px rgba(0,0,0,0.5);
@@ -160,12 +160,12 @@ h3 {
 #speedSlider::-webkit-slider-runnable-track {
   height:6px;
   border-radius:3px;
-  background: #ccc;
+  background: linear-gradient(to right, #8A2BE2 0%, #ccc 0%);
 }
 #speedSlider::-moz-range-track {
   height:6px;
   border-radius:3px;
-  background: #ccc;
+  background: linear-gradient(to right, #8A2BE2 0%, #ccc 0%);
 }
 
 @media (max-width:600px){
@@ -218,109 +218,132 @@ let overlayImgs = [];
 let slideshowInterval=null;
 let paused=false;
 let current=0;
+let mode='single';
 let sliderTimeout;
-let mode='single'; // single oder slideshow
 
+// Slider-Update Funktion
+function updateSliderFill(){
+  let pct = (speedSlider.value - 0.5) / 1.5 * 100;
+  speedSlider.style.background = `linear-gradient(to right, #8A2BE2 0%, #8A2BE2 ${pct}%, #ccc ${pct}%, #ccc 100%)`;
+}
+
+// Overlay Image erstellen
 function createOverlayImg(src){
   const img = document.createElement('img');
   img.src=src;
   img.style.opacity=1;
   img.style.borderRadius="20px";
-  img.style.objectFit="contain";
-  img.style.position="absolute";
-  img.style.transition="opacity 1s ease, transform 0.4s ease, box-shadow 0.5s ease";
   img.addEventListener('click', e=>{
     e.stopPropagation();
-    if(mode==='slideshow') togglePause(img);
+    if(mode==='slideshow') togglePause();
   });
   return img;
 }
 
 // Einzelbild-Modus
 document.querySelectorAll('.container img').forEach((img,i)=>{
-  img.addEventListener('click', ()=>{
+  img.addEventListener('click',()=>{
     mode='single';
-    overlay.classList.add('show');
-    glassFrame.innerHTML='';
-    overlayImgs=[createOverlayImg(images[i])];
-    glassFrame.appendChild(overlayImgs[0]);
     paused=false;
-    speedSlider.style.opacity=0;
+    clearInterval(slideshowInterval);
+    overlay.innerHTML='';
+    glassFrame.innerHTML='';
+    const oImg = createOverlayImg(images[i]);
+    glassFrame.appendChild(oImg);
+    overlay.classList.add('show');
+    overlay.addEventListener('click', closeOverlaySingle);
   });
 });
 
-// Einzelbild schließen
-overlay.addEventListener('click', ()=>{
-  if(mode==='single') overlay.classList.remove('show');
-});
-
-// Diashow starten
-slideshowBtn.addEventListener('click', ()=>{
-  mode='slideshow';
-  overlay.classList.add('show');
+// Schließt Overlay im Einzelbild
+function closeOverlaySingle(){
+  overlay.classList.remove('show');
   glassFrame.innerHTML='';
-  overlayImgs = images.map(src=>{
-    const img = createOverlayImg(src);
-    img.style.opacity=0;
-    glassFrame.appendChild(img);
-    return img;
-  });
-  current=0;
-  overlayImgs[current].style.opacity=1;
-  paused=false;
-  overlayImgs[current].classList.remove('paused');
-  speedSlider.style.opacity=0;
-  startInterval();
-});
-
-// Interval starten
-function startInterval(){
-  clearInterval(slideshowInterval);
-  slideshowInterval=setInterval(()=>{
-    if(!paused){
-      overlayImgs[current].style.opacity=0;
-      current=(current+1)%overlayImgs.length;
-      overlayImgs[current].style.opacity=1;
-    }
-  }, 2000/speedSlider.value);
+  overlay.removeEventListener('click', closeOverlaySingle);
 }
 
-// Pause / Play
-function togglePause(img){
-  if(paused){
-    startInterval();
-    paused=false;
-    img.classList.remove('paused');
-    speedSlider.style.opacity=0;
-  }else{
-    clearInterval(slideshowInterval);
-    paused=true;
-    img.classList.add('paused');
-    speedSlider.style.opacity=1;
+// Diashow starten
+slideshowBtn.addEventListener('click',()=>{
+  mode='slideshow';
+  paused=false;
+  current=0;
+  overlay.innerHTML='';
+  glassFrame.innerHTML='';
+  overlay.classList.add('show');
+  overlay.addEventListener('click', closeOverlaySlideshow);
+  startSlideshow();
+});
+
+// Diashow Overlay schließen (nur Klick außerhalb Bild)
+function closeOverlaySlideshow(e){
+  if(e.target===glassFrame){
+    stopSlideshow();
+    overlay.classList.remove('show');
+    glassFrame.innerHTML='';
+    overlay.removeEventListener('click', closeOverlaySlideshow);
   }
 }
 
-// Slider
-speedSlider.addEventListener('input', ()=>{ if(slideshowInterval) startInterval(); });
-
-// Slider einblenden/ausblenden nach 3s
-function showSlider(){ 
-  if(mode!=='slideshow'||!paused) return;
-  speedSlider.style.opacity=1;
-  clearTimeout(sliderTimeout);
-  sliderTimeout=setTimeout(()=>{speedSlider.style.opacity=0;},3000);
-}
-overlay.addEventListener('mousemove',showSlider);
-overlay.addEventListener('touchstart',showSlider);
-
-// Overlay schließen Diashow bei Klick außerhalb des Bildes
-overlay.addEventListener('click', e=>{
-  if(mode==='slideshow'){
-    let rect=glassFrame.getBoundingClientRect();
-    if(e.clientX<rect.left||e.clientX>rect.right||e.clientY<rect.top||e.clientY>rect.bottom){
-      overlay.classList.remove('show');
-      clearInterval(slideshowInterval);
+// Slideshow starten
+function startSlideshow(){
+  paused=false;
+  updateSliderFill();
+  speedSlider.style.opacity='0';
+  showImage(current);
+  slideshowInterval=setInterval(()=>{
+    if(!paused){
+      current = (current+1)%images.length;
+      showImage(current);
     }
+  },2000/speedSlider.value);
+}
+
+// Bild anzeigen
+function showImage(index){
+  glassFrame.innerHTML='';
+  const img=createOverlayImg(images[index]);
+  glassFrame.appendChild(img);
+  updateGlow();
+}
+
+// Pause / Play toggle
+function togglePause(){
+  paused=!paused;
+  if(paused){
+    glassFrame.classList.add('glow');
+    speedSlider.style.opacity='1';
+    clearTimeout(sliderTimeout);
+    sliderTimeout = setTimeout(()=>{speedSlider.style.opacity='0';},3000);
+  } else{
+    glassFrame.classList.remove('glow');
+    speedSlider.style.opacity='0';
+  }
+}
+
+// Slider Input
+speedSlider.addEventListener('input',()=>{
+  updateSliderFill();
+  if(slideshowInterval) clearInterval(slideshowInterval);
+  if(!paused){
+    slideshowInterval=setInterval(()=>{
+      current = (current+1)%images.length;
+      showImage(current);
+    },2000/speedSlider.value);
+  }
+});
+
+function updateGlow(){
+  if(paused){
+    glassFrame.classList.add('glow');
+  } else{
+    glassFrame.classList.remove('glow');
+  }
+}
+
+// Klick auf Overlay Glasrahmen pausiert nicht
+glassFrame.addEventListener('click', e=>{
+  if(mode==='slideshow'){
+    togglePause();
   }
 });
 
