@@ -1,208 +1,336 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bildergalerie Deluxe</title>
-<style>
-body {
-  margin:0;
-  font-family:"Segoe UI",Arial,sans-serif;
-  background:#000;
-  color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  overflow-x:hidden;
-}
-.container {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:15px;
-  width:90%;
-  max-width:1200px;
-  padding:20px 0;
-}
-.item {
-  background:rgba(255,255,255,0.05);
-  border-radius:14px;
-  box-shadow:0 8px 30px rgba(255,255,255,0.05);
-  padding:10px;
-  text-align:center;
-  transition:all 0.3s ease;
-  backdrop-filter:blur(4px);
-}
-.item:hover {transform:translateY(-5px); box-shadow:0 12px 25px rgba(255,255,255,0.08);}
-img.thumb {
-  width:100%;
-  height:auto;
-  border-radius:10px;
-  cursor:pointer;
-  object-fit:cover;
-  transition:transform 0.3s ease;
-}
-h3 {margin:10px 0 0;font-size:0.95rem;color:#ccc;font-weight:400;}
-.overlay {
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  display:flex; justify-content:center; align-items:center;
-  background:rgba(10,10,10,0.85);
-  z-index:1000;
-  visibility:hidden; opacity:0;
-  transition:opacity 0.4s ease,visibility 0.4s ease;
-}
-.overlay.show {visibility:visible; opacity:1;}
-.glass-frame {
-  position:relative; display:flex; justify-content:center; align-items:center;
-  border-radius:20px;
-  overflow:hidden;
-  padding:1.5rem;
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(20px) saturate(140%);
-  box-shadow:0 0 40px rgba(255,255,255,0.08);
-  max-width:95%; max-height:95%;
-}
-.overlay img.main-img {
-  max-width:100%;
-  max-height:100%;
-  border-radius:20px;
-  box-shadow:0 0 40px rgba(255,255,255,0.1);
-  object-fit:cover;
-  opacity:1;
-  transition:opacity 1.8s ease;
-}
-#glowLayer {
-  position:absolute;
-  top:0; left:0; right:0; bottom:0;
-  border-radius:20px;
-  pointer-events:none;
-  box-shadow:0 0 20px 6px rgba(138,43,226,0.4);
-  opacity:0;
-  transition:opacity 0.6s ease;
-  animation:pulse 1.6s infinite alternate;
-}
-@keyframes pulse {0%{opacity:0.2;}100%{opacity:0.5;}}
-#speedSlider {
-  position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
-  width:200px; opacity:0; transition:opacity 0.3s ease;
-  -webkit-appearance:none;
-  height:6px; background:#666; border-radius:3px;
-}
-#speedSlider::-webkit-slider-thumb {
-  -webkit-appearance:none;
-  width:16px; height:16px;
-  background:#8a2be2;
-  border-radius:50%;
-  cursor:pointer;
-  margin-top:-5px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.4);
-}
-#speedSlider::-moz-range-thumb {
-  width:16px; height:16px; background:#8a2be2; border-radius:50%;
-  cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.4);
-}
-#slideshowBtn {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  padding:10px 20px; font-size:1rem; border:none; border-radius:8px;
-  background:#8a2be2; color:#fff; cursor:pointer;
-  z-index:1100;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bildergalerie – Deluxe</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      margin: 20px 0 10px;
+      font-weight: 400;
+    }
+
+    .diashow-button {
+      background: linear-gradient(135deg, #8e44ad, #c39bd3);
+      border: none;
+      padding: 12px 28px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .diashow-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(142,68,173,0.5);
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      width: 90%;
+      max-width: 1200px;
+      padding-bottom: 40px;
+    }
+
+    .item {
+      background: rgba(255,255,255,0.05);
+      border-radius: 14px;
+      box-shadow: 0 8px 30px rgba(255,255,255,0.05);
+      padding: 8px;
+      text-align: center;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+    }
+
+    .item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(255,255,255,0.08);
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    h3 {
+      margin: 6px 0 0;
+      font-size: 0.9rem;
+      color: #ccc;
+      font-weight: 400;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(10,10,10,0.85);
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .overlay.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .glass-frame {
+      position: relative;
+      padding: 2rem;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px) saturate(140%);
+      box-shadow: 0 0 40px rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .glass-frame img {
+      max-width: 95%;
+      max-height: 95%;
+      border-radius: 20px;
+      transition: opacity 1s ease, transform 0.3s ease;
+      object-fit: cover;
+    }
+
+    .glow {
+      position: absolute;
+      border-radius: 20px;
+      top: 0; left: 0;
+      right: 0; bottom: 0;
+      box-shadow: 0 0 30px 10px rgba(142,68,173,0.6);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: -1;
+    }
+
+    .slider-container {
+      position: absolute;
+      bottom: 20px;
+      width: 60%;
+      display: flex;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .slider-container.show {
+      opacity: 1;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: #555;
+      outline: none;
+      transition: background 0.3s;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #8e44ad;
+      cursor: pointer;
+      margin-top: -5px;
+    }
+
+    input[type=range]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #8e44ad;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 8px;
+      border-radius: 5px;
+      background: linear-gradient(to right, #8e44ad 0%, #555 100%);
+    }
+
+    input[type=range]:focus {
+      outline: none;
+    }
+  </style>
 </head>
 <body>
 
-<button id="slideshowBtn">Diashow ▶</button>
+<h1>Bildergalerie – Deluxe</h1>
+<button class="diashow-button" onclick="startDiashow()">Diashow</button>
 
-<div class="container">
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png" alt="Bild 1" class="thumb"><h3>Setz dich</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png" alt="Bild 2" class="thumb"><h3>Genauso</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png" alt="Bild 3" class="thumb"><h3>Oh ja</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png" alt="Bild 4" class="thumb"><h3>Komm</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png" alt="Bild 5" class="thumb"><h3>Lollipop</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6082.png" alt="Bild 6" class="thumb"><h3>Oh my god</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png" alt="Bild 7" class="thumb"><h3>Trink</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png" alt="Bild 8" class="thumb"><h3>Tiefer</h3></div>
+<div class="container" id="container">
+  <div class="item" onclick="openOverlay(this)">
+    <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png" alt="setz dich">
+    <h3>setz dich</h3>
+  </div>
+  <div class="item" onclick="openOverlay(this)">
+    <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png" alt="genauso">
+    <h3>genauso</h3>
+  </div>
+  <div class="item" onclick="openOverlay(this)">
+    <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png" alt="oh ja">
+    <h3>oh ja</h3>
+  </div>
+  <div class="item" onclick="openOverlay(this)">
+    <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png" alt="komm">
+    <h3>komm</h3>
+  </div>
+  <div class="item" onclick="openOverlay(this)">
+    <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png" alt="Lollipop">
+    <h3>Lollipop</h3>
+  </div>
+  <div class="item" onclick="openOverlay(this)">
+    <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6082.png" alt="oh my god">
+    <h3>oh my god</h3>
+  </div>
+  <div class="item" onclick="openOverlay(this)">
+    <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png" alt="Trink">
+    <h3>Trink</h3>
+  </div>
+  <div class="item" onclick="openOverlay(this)">
+    <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png" alt="Tiefer">
+    <h3>Tiefer</h3>
+  </div>
 </div>
 
 <div class="overlay" id="overlay">
   <div class="glass-frame" id="glassFrame">
-    <div id="glowLayer"></div>
-    <img class="main-img" id="mainImg" src="">
-    <input type="range" id="speedSlider" min="0.5" max="3" step="0.1" value="1">
+    <div class="glow" id="glow"></div>
+    <img id="overlayImg" src="" alt="">
+    <div class="slider-container" id="sliderContainer">
+      <input type="range" min="1000" max="6000" value="2000" id="speedSlider">
+    </div>
   </div>
 </div>
 
 <script>
-const overlay=document.getElementById('overlay');
-const mainImg=document.getElementById('mainImg');
-const glowLayer=document.getElementById('glowLayer');
-const speedSlider=document.getElementById('speedSlider');
-const slideshowBtn=document.getElementById('slideshowBtn');
-const glassFrame=document.getElementById('glassFrame');
-const thumbs=document.querySelectorAll('.thumb');
+  const overlay = document.getElementById('overlay');
+  const overlayImg = document.getElementById('overlayImg');
+  const glow = document.getElementById('glow');
+  const sliderContainer = document.getElementById('sliderContainer');
+  const speedSlider = document.getElementById('speedSlider');
+  const glassFrame = document.getElementById('glassFrame');
+  const items = Array.from(document.querySelectorAll('.container .item img'));
 
-let currentIndex=0;
-let interval=null;
-let running=false;
-let paused=false;
+  let currentIndex = 0;
+  let diashowInterval;
+  let paused = false;
+  let isDiashow = false;
 
-function showOverlay(){overlay.classList.add('show');}
-function hideOverlay(){overlay.classList.remove('show'); glowLayer.style.opacity=0; speedSlider.style.opacity=0; paused=false; running=false; clearInterval(interval);}
-function showImage(idx){
-  mainImg.style.opacity=0;
-  mainImg.src=thumbs[idx].src;
-  mainImg.onload=()=>{mainImg.style.opacity=1;}
-}
+  function openOverlay(img) {
+    isDiashow = false;
+    overlayImg.src = img.src;
+    overlay.classList.add('show');
+  }
 
-function startSlideshow(){
-  running=true; paused=false; currentIndex=0; showOverlay(); showImage(currentIndex); runSlideshow();
-}
-function runSlideshow(){
-  clearInterval(interval);
-  interval=setInterval(()=>{
-    if(!paused){
-      currentIndex=(currentIndex+1)%thumbs.length;
-      showImage(currentIndex);
+  overlay.addEventListener('click', (e) => {
+    if (!isDiashow || e.target === overlay) {
+      closeOverlay();
     }
-  },2000/speedSlider.value);
-}
-
-slideshowBtn.addEventListener('click',()=>{startSlideshow();});
-
-// Einzelbild Klick
-thumbs.forEach((t,i)=>{
-  t.addEventListener('click',()=>{
-    paused=false; running=false; showOverlay(); showImage(i);
   });
-});
 
-// Overlay Klick (Einzelbild: Klick auf Bild = schließen, Diashow: Klick außerhalb Glasframe = schließen)
-overlay.addEventListener('click',(e)=>{
-  if(e.target===overlay && running){hideOverlay();}
-  if(!running && e.target===mainImg){hideOverlay();}
-});
+  function closeOverlay() {
+    overlay.classList.remove('show');
+    overlayImg.src = '';
+    stopDiashow();
+    sliderContainer.classList.remove('show');
+    paused = false;
+    glow.style.opacity = 0;
+  }
 
-// Glasrahmen Klick: Diashow pausieren/fortsetzen
-glassFrame.addEventListener('click',(e)=>{
-  if(running){
-    paused=!paused;
-    if(paused){
-      glowLayer.style.opacity=1;
-      speedSlider.style.opacity=1;
-      setTimeout(()=>{ if(paused) speedSlider.style.opacity=0; },4000);
-    } else {
-      glowLayer.style.opacity=0;
-      speedSlider.style.opacity=0;
+  function startDiashow() {
+    isDiashow = true;
+    currentIndex = 0;
+    overlayImg.src = items[currentIndex].src;
+    overlay.classList.add('show');
+    paused = false;
+    glow.style.opacity = 0;
+    nextSlide();
+    diashowInterval = setInterval(nextSlide, speedSlider.value);
+  }
+
+  function stopDiashow() {
+    clearInterval(diashowInterval);
+  }
+
+  function nextSlide() {
+    if (!paused) {
+      currentIndex = (currentIndex + 1) % items.length;
+      overlayImg.style.opacity = 0;
+      setTimeout(() => {
+        overlayImg.src = items[currentIndex].src;
+        overlayImg.style.opacity = 1;
+      }, 200);
     }
   }
-});
 
-// Slider Steuerung
-speedSlider.addEventListener('input',()=>{
-  runSlideshow();
-});
+  overlayImg.addEventListener('click', (e) => {
+    if (isDiashow) {
+      paused = !paused;
+      glow.style.opacity = paused ? 1 : 0;
+      sliderContainer.classList.toggle('show', paused);
+      if (!paused) {
+        clearInterval(diashowInterval);
+        diashowInterval = setInterval(nextSlide, speedSlider.value);
+      } else {
+        clearInterval(diashowInterval);
+      }
+    } else {
+      closeOverlay();
+    }
+    e.stopPropagation();
+  });
+
+  glassFrame.addEventListener('click', (e) => {
+    if (isDiashow && e.target === glassFrame) {
+      closeOverlay();
+    }
+  });
+
+  speedSlider.addEventListener('input', () => {
+    if (diashowInterval) {
+      clearInterval(diashowInterval);
+      if (!paused) {
+        diashowInterval = setInterval(nextSlide, speedSlider.value);
+      }
+    }
+    // Update track fill
+    const val = (speedSlider.value - speedSlider.min) / (speedSlider.max - speedSlider.min) * 100;
+    speedSlider.style.background = `linear-gradient(to right, #8e44ad ${val}%, #555 ${val}%)`;
+  });
 </script>
 
 </body>
