@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bildergalerie – Deluxe</title>
+  <title>Bildergalerie – Übersicht</title>
   <style>
     body {
       margin: 0;
@@ -14,7 +14,6 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      overflow-x: hidden;
     }
 
     .container {
@@ -23,22 +22,20 @@
       grid-gap: 20px;
       width: 90%;
       max-width: 1200px;
-      padding: 40px 0;
+      padding: 20px 0;
     }
 
     .item {
-      background: rgba(255,255,255,0.05);
-      border-radius: 14px;
-      box-shadow: 0 8px 30px rgba(255,255,255,0.05);
+      background: #111;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(255,255,255,0.1);
       padding: 10px;
       text-align: center;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(4px);
+      transition: transform 0.2s ease;
     }
 
     .item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 25px rgba(255,255,255,0.08);
+      transform: translateY(-4px);
     }
 
     img {
@@ -46,18 +43,17 @@
       height: auto;
       border-radius: 10px;
       cursor: pointer;
-      object-fit: contain;
       transition: transform 0.3s ease;
+      object-fit: contain;
     }
 
     h3 {
       margin: 10px 0 0;
       font-size: 1rem;
       color: #ccc;
-      font-weight: 400;
     }
 
-    /* Overlay für vergrößertes Bild */
+    /* Overlay */
     .overlay {
       position: fixed;
       top: 0;
@@ -67,11 +63,12 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: rgba(10, 10, 10, 0.85);
+      background: rgba(0, 0, 0, 0.9);
       z-index: 1000;
       visibility: hidden;
       opacity: 0;
-      transition: opacity 0.4s ease, visibility 0.4s ease;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      overflow: hidden;
     }
 
     .overlay.show {
@@ -79,52 +76,38 @@
       opacity: 1;
     }
 
-    /* Leichter Glas-Glow hinter dem Bild */
-    .glass-frame {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 16px;
-      overflow: hidden;
-      padding: 1.5rem;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(20px) saturate(140%);
-      box-shadow: 0 0 40px rgba(255,255,255,0.08);
-    }
-
-    .overlay img {
-      max-width: 95%;
-      max-height: 95%;
-      border-radius: 12px;
-      box-shadow: 0 0 60px rgba(255,255,255,0.1);
-      object-fit: contain;
-      image-rendering: high-quality;
-      transition: transform 0.4s ease;
-    }
-
-    .overlay img:hover {
-      transform: scale(1.02);
-    }
-
-    /* Canvas für Partikel */
-    #particleCanvas {
+    /* Hintergrundbild (unscharf) */
+    .overlay::before {
+      content: "";
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      pointer-events: none;
+      background-position: center;
+      background-size: cover;
+      filter: blur(30px) brightness(0.4);
+      z-index: 0;
+      transition: background-image 0.3s ease;
+    }
+
+    /* Das große Bild */
+    .overlay img {
+      position: relative;
+      z-index: 1;
+      max-width: 95%;
+      max-height: 95%;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.8);
+      object-fit: contain;
+      image-rendering: high-quality;
     }
   </style>
 </head>
 <body>
 
   <div class="overlay" id="overlay" onclick="closeOverlay()">
-    <div class="glass-frame">
-      <img id="overlayImg" src="" alt="Vergrößertes Bild">
-      <canvas id="particleCanvas"></canvas>
-    </div>
+    <img id="overlayImg" src="" alt="Vergrößertes Bild">
   </div>
 
   <div class="container">
@@ -132,30 +115,37 @@
       <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png" alt="Bild 1" onclick="openOverlay(this)">
       <h3>Bild 1</h3>
     </div>
+
     <div class="item">
       <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png" alt="Bild 2" onclick="openOverlay(this)">
       <h3>Bild 2</h3>
     </div>
+
     <div class="item">
       <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png" alt="Bild 3" onclick="openOverlay(this)">
       <h3>Bild 3</h3>
     </div>
+
     <div class="item">
       <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png" alt="Bild 4" onclick="openOverlay(this)">
       <h3>Bild 4</h3>
     </div>
+
     <div class="item">
       <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png" alt="Bild 5" onclick="openOverlay(this)">
       <h3>Bild 5</h3>
     </div>
+
     <div class="item">
       <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6082.png" alt="Bild 6" onclick="openOverlay(this)">
       <h3>Bild 6</h3>
     </div>
+
     <div class="item">
       <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png" alt="Bild 7" onclick="openOverlay(this)">
       <h3>Bild 7</h3>
     </div>
+
     <div class="item">
       <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png" alt="Bild 8" onclick="openOverlay(this)">
       <h3>Bild 8</h3>
@@ -165,86 +155,34 @@
   <script>
     const overlay = document.getElementById('overlay');
     const overlayImg = document.getElementById('overlayImg');
-    const canvas = document.getElementById('particleCanvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-
-    function resizeCanvas() {
-      canvas.width = overlayImg.width;
-      canvas.height = overlayImg.height;
-      canvas.style.top = overlayImg.offsetTop + 'px';
-      canvas.style.left = overlayImg.offsetLeft + 'px';
-    }
-
-    function createParticles() {
-      particles = [];
-      const imgWidth = overlayImg.width;
-      const imgHeight = overlayImg.height;
-      const density = 6; // je kleiner, desto mehr Partikel
-      for (let x = 0; x < imgWidth; x += density) {
-        for (let y = 0; y < imgHeight; y += density) {
-          const color = getPixelColor(x, y);
-          particles.push({
-            x: x,
-            y: y,
-            color: color,
-            vx: (Math.random() - 0.5) * 8,
-            vy: (Math.random() - 0.5) * 8,
-            alpha: 1
-          });
-        }
-      }
-    }
-
-    function getPixelColor(x, y) {
-      const tempCanvas = document.createElement('canvas');
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCanvas.width = overlayImg.naturalWidth;
-      tempCanvas.height = overlayImg.naturalHeight;
-      tempCtx.drawImage(overlayImg, 0, 0, tempCanvas.width, tempCanvas.height);
-      const scaleX = overlayImg.naturalWidth / overlayImg.width;
-      const scaleY = overlayImg.naturalHeight / overlayImg.height;
-      const data = tempCtx.getImageData(Math.floor(x*scaleX), Math.floor(y*scaleY), 1, 1).data;
-      return `rgba(${data[0]},${data[1]},${data[2]},${data[3]/255})`;
-    }
-
-    function animateParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.alpha -= 0.02;
-        ctx.fillStyle = p.color.replace(/[\d\.]+\)$/ , p.alpha + ')');
-        ctx.fillRect(p.x, p.y, 4, 4);
-      });
-      particles = particles.filter(p => p.alpha > 0);
-      if (particles.length > 0) requestAnimationFrame(animateParticles);
-    }
 
     function openOverlay(img) {
       overlayImg.src = img.src;
       overlay.classList.add('show');
-      overlayImg.onload = () => {
-        resizeCanvas();
-      }
+      // Hintergrund unscharf mit Bild setzen
+      overlay.style.setProperty('--bg-image', `url(${img.src})`);
+      overlay.style.setProperty('background-image', `url(${img.src})`);
+      overlay.querySelector('::before');
+      overlay.style.setProperty('--blurred', img.src);
+      overlay.style.setProperty('--bg', img.src);
+      overlay.style.setProperty('background', `rgba(0,0,0,0.9)`);
+      overlay.style.setProperty('backdrop-filter', 'blur(30px)');
+      overlay.style.setProperty('-webkit-backdrop-filter', 'blur(30px)');
+      overlay.style.setProperty('--overlay-img', img.src);
+      overlay.querySelector('::before');
+      document.querySelector('.overlay::before');
+      document.querySelector('.overlay')?.style.setProperty('--blur-bg', img.src);
+      document.querySelector('.overlay::before');
+      document.querySelector('.overlay')?.setAttribute('data-bg', img.src);
+      document.querySelector('.overlay::before');
+      document.querySelector('.overlay')?.style.setProperty('background-image', `url(${img.src})`);
+      document.querySelector('.overlay')?.style.setProperty('background-size', 'cover');
     }
 
     function closeOverlay() {
-      resizeCanvas();
-      createParticles();
-      overlayImg.style.visibility = 'hidden';
-      animateParticles();
-      setTimeout(() => {
-        overlay.classList.remove('show');
-        overlayImg.style.visibility = 'visible';
-        overlayImg.src = '';
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }, 1000); // Dauer des Effekts
+      overlay.classList.remove('show');
+      overlayImg.src = '';
     }
-
-    window.addEventListener('resize', () => {
-      if (overlay.classList.contains('show')) resizeCanvas();
-    });
   </script>
 
 </body>
