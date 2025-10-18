@@ -5,158 +5,182 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bildergalerie – Deluxe</title>
 <style>
-  body {
-    margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: #000;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #000;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-  /* Diashow-Button */
-  #slideshowBtn {
-    margin: 20px 0;
-    padding: 10px 20px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid #fff;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    color: #fff;
-    transition: all 0.3s ease;
-  }
-  #slideshowBtn:hover {
-    background: rgba(255,255,255,0.2);
-    transform: scale(1.05);
-  }
+/* Diashow-Button */
+#slideshowBtn {
+  margin: 20px 0;
+  padding: 10px 20px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+#slideshowBtn:hover {
+  background: rgba(255,255,255,0.2);
+  transform: scale(1.05);
+}
 
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-gap: 10px;
+  width: 90%;
+  max-width: 1200px;
+  padding: 20px 0;
+}
+
+.item {
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(255,255,255,0.05);
+  padding: 5px;
+  text-align: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+.item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(255,255,255,0.08);
+}
+
+img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  cursor: pointer;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+h3 {
+  margin: 5px 0 0;
+  font-size: 0.8rem;
+  color: #ccc;
+  font-weight: 400;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(10, 10, 10, 0.85);
+  z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+.overlay.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.glass-frame {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
+  overflow: hidden;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 0 40px rgba(255,255,255,0.08);
+  width: 90%;
+  max-width: 1200px;
+  height: 90%;
+}
+
+.overlay img {
+  max-width: 95%;
+  max-height: 95%;
+  border-radius: 20px;
+  box-shadow: 0 0 60px rgba(255,255,255,0.1);
+  object-fit: contain;
+  image-rendering: high-quality;
+  transition: opacity 1s ease, transform 0.4s ease, box-shadow 0.5s ease;
+  position: absolute;
+  cursor: pointer;
+}
+
+/* Glow beim Pausieren */
+.paused {
+  animation: glowPulse 1.5s infinite alternate;
+  box-shadow: 0 0 40px 15px rgba(162,89,255,0.5);
+}
+@keyframes glowPulse {
+  from { box-shadow: 0 0 30px 10px rgba(162,89,255,0.4); }
+  to { box-shadow: 0 0 50px 20px rgba(162,89,255,0.6); }
+}
+
+/* Slider Styling */
+#speedSlider {
+  position: absolute;
+  bottom: 20px;
+  width: 60%;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: #ccc;
+}
+#speedSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #000;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+#speedSlider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #000;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+#speedSlider::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #A259FF 0%, #A259FF 50%, #ccc 50%, #ccc 100%);
+  border-radius: 3px;
+  height: 6px;
+}
+#speedSlider::-moz-range-track {
+  background: linear-gradient(to right, #A259FF 0%, #A259FF 50%, #ccc 50%, #ccc 100%);
+  border-radius: 3px;
+  height: 6px;
+}
+
+@media (max-width: 600px) {
   .container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    grid-gap: 10px;
-    width: 90%;
-    max-width: 1200px;
-    padding: 20px 0;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-gap: 8px;
   }
-
-  .item {
-    background: rgba(255,255,255,0.05);
-    border-radius: 14px;
-    box-shadow: 0 8px 30px rgba(255,255,255,0.05);
-    padding: 5px;
-    text-align: center;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(4px);
-  }
-  .item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 25px rgba(255,255,255,0.08);
-  }
-
-  img {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    cursor: pointer;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-  }
-
-  h3 {
-    margin: 5px 0 0;
-    font-size: 0.8rem;
-    color: #ccc;
-    font-weight: 400;
-  }
-
-  .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgba(10, 10, 10, 0.85);
-    z-index: 1000;
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.4s ease, visibility 0.4s ease;
-  }
-  .overlay.show {
-    visibility: visible;
-    opacity: 1;
-  }
-
-  .glass-frame {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 16px;
-    overflow: hidden;
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px) saturate(140%);
-    box-shadow: 0 0 40px rgba(255,255,255,0.08);
-    width: 90%;
-    max-width: 1200px;
-    height: 90%;
-  }
-
-  .overlay img {
-    max-width: 95%;
-    max-height: 95%;
-    border-radius: 12px;
-    box-shadow: 0 0 60px rgba(255,255,255,0.1);
-    object-fit: contain;
-    image-rendering: high-quality;
-    transition: opacity 1s ease, transform 0.4s ease, box-shadow 0.5s ease;
-    position: absolute;
-  }
-
-  /* Glow beim Pausieren */
-  .paused {
-    box-shadow: 0 0 40px 15px rgba(162,89,255,0.5);
-  }
-
-  /* Slider für Geschwindigkeit */
-  #speedSlider {
-    position: absolute;
-    bottom: 20px;
-    width: 60%;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  .overlay:hover #speedSlider {
-    opacity: 1;
-  }
-
-  @media (max-width: 600px) {
-    .container {
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      grid-gap: 8px;
-    }
-    h3 {
-      font-size: 0.7rem;
-    }
-    #slideshowBtn {
-      font-size: 0.9rem;
-      padding: 8px 16px;
-    }
-    .glass-frame {
-      width: 95%;
-      height: 80%;
-    }
-    #speedSlider {
-      width: 80%;
-    }
-  }
+  h3 { font-size: 0.7rem; }
+  #slideshowBtn { font-size: 0.9rem; padding: 8px 16px; }
+  .glass-frame { width: 95%; height: 80%; }
+  #speedSlider { width: 80%; }
+}
 </style>
 </head>
 <body>
@@ -200,71 +224,52 @@ let slideshowInterval = null;
 let overlayImgs = [];
 let paused = false;
 let current = 0;
+let sliderTimeout;
+let mode = 'single'; // "single" oder "slideshow"
 
-// Overlay-Styling anwenden
-function applyOverlayStyles(imgEl){
+// Overlay-Styling
+function createOverlayImg(src){
+  const imgEl = document.createElement('img');
+  imgEl.src = src;
   imgEl.style.maxWidth = "95%";
   imgEl.style.maxHeight = "95%";
-  imgEl.style.borderRadius = "12px";
+  imgEl.style.borderRadius = "20px";
   imgEl.style.boxShadow = "0 0 60px rgba(255,255,255,0.1)";
   imgEl.style.objectFit = "contain";
   imgEl.style.transition = "opacity 1s ease, transform 0.4s ease, box-shadow 0.5s ease";
   imgEl.style.position = "absolute";
   imgEl.addEventListener('click', e => {
     e.stopPropagation();
-    togglePause(imgEl);
+    if(mode === 'slideshow') togglePause(imgEl);
   });
+  return imgEl;
 }
 
-// Einzelbild öffnen
+// Einzelbild-Modus
 document.querySelectorAll('.container img').forEach((img, i) => {
-  img.addEventListener('click', () => openOverlaySingle(i));
+  img.addEventListener('click', () => {
+    mode = 'single';
+    overlay.classList.add('show');
+    glassFrame.innerHTML = '';
+    overlayImgs = [createOverlayImg(images[i])];
+    glassFrame.appendChild(overlayImgs[0]);
+    paused = false;
+    speedSlider.style.opacity = 0;
+  });
 });
 
-function openOverlaySingle(index){
-  clearSlideshow();
-  overlay.classList.add('show');
-  glassFrame.innerHTML = '';
-  current = index;
-  const imgEl = document.createElement('img');
-  imgEl.src = images[index];
-  applyOverlayStyles(imgEl);
-  overlayImgs = [imgEl];
-  glassFrame.appendChild(imgEl);
-  paused = false;
-}
-
-// Overlay schließen
+// Overlay schließen (Einzelbild)
 overlay.addEventListener('click', () => {
-  overlay.classList.remove('show');
-  clearSlideshow();
+  if(mode === 'single') overlay.classList.remove('show');
 });
-
-// Toggle Pause
-function togglePause(imgEl){
-  if(slideshowInterval){
-    if(paused){
-      startInterval(imgEl);
-      paused = false;
-      imgEl.classList.remove('paused');
-    } else {
-      clearInterval(slideshowInterval);
-      paused = true;
-      imgEl.classList.add('paused');
-    }
-  }
-}
 
 // Slideshow starten
-slideshowBtn.addEventListener('click', startSlideshow);
-
-function startSlideshow(){
+slideshowBtn.addEventListener('click', () => {
+  mode = 'slideshow';
   overlay.classList.add('show');
   glassFrame.innerHTML = '';
   overlayImgs = images.map(src => {
-    const imgEl = document.createElement('img');
-    imgEl.src = src;
-    applyOverlayStyles(imgEl);
+    const imgEl = createOverlayImg(src);
     imgEl.style.opacity = 0;
     glassFrame.appendChild(imgEl);
     return imgEl;
@@ -273,12 +278,12 @@ function startSlideshow(){
   overlayImgs[current].style.opacity = 1;
   paused = false;
   overlayImgs[current].classList.remove('paused');
+  speedSlider.style.opacity = 1;
   startInterval();
-}
+});
 
-// Intervall starten
 function startInterval(){
-  clearSlideshow();
+  clearInterval(slideshowInterval);
   slideshowInterval = setInterval(() => {
     if(!paused){
       overlayImgs[current].style.opacity = 0;
@@ -288,19 +293,32 @@ function startInterval(){
   }, 2000 / speedSlider.value);
 }
 
-// Slider Geschwindigkeit
-speedSlider.addEventListener('input', () => {
-  if(slideshowInterval){
+function togglePause(imgEl){
+  if(paused){
     startInterval();
+    paused = false;
+    imgEl.classList.remove('paused');
+  } else {
+    clearInterval(slideshowInterval);
+    paused = true;
+    imgEl.classList.add('paused');
   }
+}
+
+// Slider
+speedSlider.addEventListener('input', () => {
+  if(slideshowInterval) startInterval();
 });
 
-// Clear Slideshow
-function clearSlideshow(){
-  if(slideshowInterval) clearInterval(slideshowInterval);
-  slideshowInterval = null;
+function showSlider() {
+  if(mode !== 'slideshow') return;
+  speedSlider.style.opacity = 1;
+  clearTimeout(sliderTimeout);
+  sliderTimeout = setTimeout(()=>{ speedSlider.style.opacity = 0; }, 3000);
 }
-</script>
+overlay.addEventListener('mousemove', showSlider);
+overlay.addEventListener('touchstart', showSlider);
 
+</script>
 </body>
 </html>
