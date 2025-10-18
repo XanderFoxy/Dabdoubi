@@ -53,7 +53,6 @@ body {
   transition: transform 0.3s ease;
 }
 h3 {margin:5px 0 0;font-size:0.8rem;color:#ccc;font-weight:400;}
-/* Overlay */
 .overlay {
   position:fixed;
   top:0; left:0;
@@ -68,7 +67,6 @@ h3 {margin:5px 0 0;font-size:0.8rem;color:#ccc;font-weight:400;}
   transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 .overlay.show { visibility:visible; opacity:1; }
-/* Glasrahmen */
 .glass-frame {
   position:relative;
   display:flex;
@@ -83,6 +81,7 @@ h3 {margin:5px 0 0;font-size:0.8rem;color:#ccc;font-weight:400;}
   max-width:1200px;
   height:90%;
   box-shadow:0 0 40px rgba(255,255,255,0.08);
+  cursor:pointer;
 }
 .glow-layer {
   position:absolute;
@@ -94,7 +93,6 @@ h3 {margin:5px 0 0;font-size:0.8rem;color:#ccc;font-weight:400;}
 }
 .glow-layer.active { opacity:1; animation: glowPulse 1.5s infinite alternate; }
 @keyframes glowPulse { from {box-shadow:0 0 30px 15px rgba(162,89,255,0.25);} to {box-shadow:0 0 50px 25px rgba(162,89,255,0.4);} }
-
 .overlay img {
   max-width:95%;
   max-height:95%;
@@ -102,10 +100,7 @@ h3 {margin:5px 0 0;font-size:0.8rem;color:#ccc;font-weight:400;}
   object-fit:cover;
   position:absolute;
   transition: opacity 1.8s ease;
-  cursor:pointer;
 }
-
-/* Slider */
 #speedSlider {
   position:absolute;
   bottom:20px;
@@ -116,7 +111,6 @@ h3 {margin:5px 0 0;font-size:0.8rem;color:#ccc;font-weight:400;}
   border-radius:3px;
   background:#ccc;
   z-index:1100;
-  -webkit-appearance:none;
 }
 #speedSlider::-webkit-slider-thumb {
   -webkit-appearance:none;
@@ -141,7 +135,6 @@ h3 {margin:5px 0 0;font-size:0.8rem;color:#ccc;font-weight:400;}
 }
 #speedSlider::-webkit-slider-runnable-track { height:6px; border-radius:3px; background:#ccc; }
 #speedSlider::-moz-range-track { height:6px; border-radius:3px; background:#ccc; }
-
 @media (max-width:600px){
   .container{grid-template-columns:repeat(auto-fit,minmax(100px,1fr));grid-gap:8px;}
   h3{font-size:0.7rem;}
@@ -174,39 +167,42 @@ h3 {margin:5px 0 0;font-size:0.8rem;color:#ccc;font-weight:400;}
 </div>
 
 <script>
-const overlay = document.getElementById('overlay');
-const glassFrame = document.getElementById('glassFrame');
-const glowLayer = document.getElementById('glowLayer');
-const slideshowBtn = document.getElementById('slideshowBtn');
-const speedSlider = document.getElementById('speedSlider');
-const galleryImages = Array.from(document.querySelectorAll('.container img'));
-let currentIndex = 0, slideshowRunning=false, slideshowPaused=false, slideshowInterval;
+const overlay=document.getElementById('overlay');
+const glassFrame=document.getElementById('glassFrame');
+const glowLayer=document.getElementById('glowLayer');
+const speedSlider=document.getElementById('speedSlider');
+const slideshowBtn=document.getElementById('slideshowBtn');
+const galleryImages=document.querySelectorAll('.container img');
 
-function showOverlay(){ overlay.classList.add('show'); }
-function hideOverlay(){
-  overlay.classList.remove('show');
-  glassFrame.querySelectorAll('img').forEach(i=>i.remove());
-  glowLayer.classList.remove('active');
-  clearInterval(slideshowInterval);
-  slideshowRunning=false;
-  slideshowPaused=false;
-  speedSlider.style.opacity=0;
-}
-function showImage(index){
-  const img=document.createElement('img');
-  img.src=galleryImages[index].src;
-  img.style.opacity=0;
+let currentIndex=0;
+let slideshowInterval=null;
+let slideshowRunning=false;
+let slideshowPaused=false;
+
+function showOverlay(){overlay.classList.add('show');}
+function hideOverlay(){overlay.classList.remove('show'); glowLayer.classList.remove('active'); speedSlider.style.opacity=0;}
+function showImage(idx){
+  galleryImages.forEach(img=>img.style.opacity=0);
+  const img=new Image();
+  img.src=galleryImages[idx].src;
+  img.style.borderRadius='20px';
+  img.style.position='absolute';
+  img.style.opacity=1;
+  img.style.transition='opacity 1.8s ease';
+  glassFrame.innerHTML='';
+  glassFrame.appendChild(glowLayer);
   glassFrame.appendChild(img);
-  setTimeout(()=>{ img.style.opacity=1; },50);
-  glassFrame.querySelectorAll('img').forEach((i,idx)=>{ if(idx!==glassFrame.children.length-1)i.style.opacity=0; });
 }
-
 function startSlideshow(){
   slideshowRunning=true;
   slideshowPaused=false;
   showOverlay();
   currentIndex=0;
   showImage(currentIndex);
+  runSlideshow();
+}
+function runSlideshow(){
+  clearInterval(slideshowInterval);
   slideshowInterval=setInterval(()=>{
     if(!slideshowPaused){
       currentIndex=(currentIndex+1)%galleryImages.length;
@@ -215,10 +211,9 @@ function startSlideshow(){
   },2000/speedSlider.value);
 }
 
-// Diashow Button
 slideshowBtn.addEventListener('click',()=>{ startSlideshow(); });
 
-// Klick auf Glasrahmen
+// Klick auf Glasrahmen Diashow
 glassFrame.addEventListener('click',(e)=>{
   if(slideshowRunning){
     slideshowPaused=!slideshowPaused;
@@ -250,15 +245,8 @@ galleryImages.forEach((img,idx)=>{
 });
 
 // Slider Steuerung
-speedSlider.addEventListener('input',()=>{ 
-  if(slideshowRunning && !slideshowPaused){
-    clearInterval(slideshowInterval);
-    slideshowInterval=setInterval(()=>{
-      currentIndex=(currentIndex+1)%galleryImages.length;
-      showImage(currentIndex);
-    },2000/speedSlider.value);
-  }
-});
+speedSlider.addEventListener('input',()=>{ runSlideshow(); });
+
 </script>
 </body>
 </html>
