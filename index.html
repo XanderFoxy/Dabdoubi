@@ -112,7 +112,7 @@ h3 {
 .overlay img {
   max-width: 95%;
   max-height: 95%;
-  border-radius: 20px;
+  border-radius: 20px; /* weiche abgerundete Ecken */
   box-shadow: 0 0 60px rgba(255,255,255,0.1);
   object-fit: contain;
   image-rendering: high-quality;
@@ -225,51 +225,71 @@ let overlayImgs = [];
 let paused = false;
 let current = 0;
 let sliderTimeout;
-let mode = 'single'; // "single" oder "slideshow"
 
 // Overlay-Styling
-function createOverlayImg(src){
-  const imgEl = document.createElement('img');
-  imgEl.src = src;
+function applyOverlayStyles(imgEl){
   imgEl.style.maxWidth = "95%";
   imgEl.style.maxHeight = "95%";
-  imgEl.style.borderRadius = "20px";
+  imgEl.style.borderRadius = "20px"; // abgerundet
   imgEl.style.boxShadow = "0 0 60px rgba(255,255,255,0.1)";
   imgEl.style.objectFit = "contain";
   imgEl.style.transition = "opacity 1s ease, transform 0.4s ease, box-shadow 0.5s ease";
   imgEl.style.position = "absolute";
   imgEl.addEventListener('click', e => {
     e.stopPropagation();
-    if(mode === 'slideshow') togglePause(imgEl);
+    togglePause(imgEl); // klick pausiert sofort
   });
-  return imgEl;
 }
 
-// Einzelbild-Modus
+// Einzelbild öffnen
 document.querySelectorAll('.container img').forEach((img, i) => {
-  img.addEventListener('click', () => {
-    mode = 'single';
-    overlay.classList.add('show');
-    glassFrame.innerHTML = '';
-    overlayImgs = [createOverlayImg(images[i])];
-    glassFrame.appendChild(overlayImgs[0]);
-    paused = false;
-    speedSlider.style.opacity = 0;
-  });
+  img.addEventListener('click', () => openOverlaySingle(i));
 });
 
-// Overlay schließen (Einzelbild)
+function openOverlaySingle(index){
+  clearSlideshow();
+  overlay.classList.add('show');
+  glassFrame.innerHTML = '';
+  current = index;
+  const imgEl = document.createElement('img');
+  imgEl.src = images[index];
+  applyOverlayStyles(imgEl);
+  overlayImgs = [imgEl];
+  glassFrame.appendChild(imgEl);
+  paused = false;
+}
+
+// Overlay schließen
 overlay.addEventListener('click', () => {
-  if(mode === 'single') overlay.classList.remove('show');
+  overlay.classList.remove('show');
+  clearSlideshow();
 });
+
+// Pause / Play
+function togglePause(imgEl){
+  if(slideshowInterval){
+    if(paused){
+      startInterval();
+      paused = false;
+      imgEl.classList.remove('paused');
+    } else {
+      clearInterval(slideshowInterval);
+      paused = true;
+      imgEl.classList.add('paused');
+    }
+  }
+}
 
 // Slideshow starten
-slideshowBtn.addEventListener('click', () => {
-  mode = 'slideshow';
+slideshowBtn.addEventListener('click', startSlideshow);
+
+function startSlideshow(){
   overlay.classList.add('show');
   glassFrame.innerHTML = '';
   overlayImgs = images.map(src => {
-    const imgEl = createOverlayImg(src);
+    const imgEl = document.createElement('img');
+    imgEl.src = src;
+    applyOverlayStyles(imgEl);
     imgEl.style.opacity = 0;
     glassFrame.appendChild(imgEl);
     return imgEl;
@@ -278,12 +298,12 @@ slideshowBtn.addEventListener('click', () => {
   overlayImgs[current].style.opacity = 1;
   paused = false;
   overlayImgs[current].classList.remove('paused');
-  speedSlider.style.opacity = 1;
   startInterval();
-});
+}
 
+// Intervall starten
 function startInterval(){
-  clearInterval(slideshowInterval);
+  clearSlideshow();
   slideshowInterval = setInterval(() => {
     if(!paused){
       overlayImgs[current].style.opacity = 0;
@@ -293,32 +313,29 @@ function startInterval(){
   }, 2000 / speedSlider.value);
 }
 
-function togglePause(imgEl){
-  if(paused){
-    startInterval();
-    paused = false;
-    imgEl.classList.remove('paused');
-  } else {
-    clearInterval(slideshowInterval);
-    paused = true;
-    imgEl.classList.add('paused');
-  }
-}
-
-// Slider
+// Slider Geschwindigkeit
 speedSlider.addEventListener('input', () => {
-  if(slideshowInterval) startInterval();
+  if(slideshowInterval){
+    startInterval();
+  }
 });
 
+// Slider sichtbar beim Hover / Touch & automatisch ausblenden
 function showSlider() {
-  if(mode !== 'slideshow') return;
   speedSlider.style.opacity = 1;
   clearTimeout(sliderTimeout);
-  sliderTimeout = setTimeout(()=>{ speedSlider.style.opacity = 0; }, 3000);
+  sliderTimeout = setTimeout(() => {
+    speedSlider.style.opacity = 0;
+  }, 3000);
 }
 overlay.addEventListener('mousemove', showSlider);
 overlay.addEventListener('touchstart', showSlider);
 
+// Clear Slideshow
+function clearSlideshow(){
+  if(slideshowInterval) clearInterval(slideshowInterval);
+  slideshowInterval = null;
+}
 </script>
 </body>
 </html>
