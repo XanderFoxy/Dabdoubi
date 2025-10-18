@@ -116,8 +116,25 @@
     box-shadow: 0 0 60px rgba(255,255,255,0.1);
     object-fit: contain;
     image-rendering: high-quality;
-    transition: opacity 1s ease, transform 0.4s ease;
+    transition: opacity 1s ease, transform 0.4s ease, box-shadow 0.5s ease;
     position: absolute;
+  }
+
+  /* Glow beim Pausieren */
+  .paused {
+    box-shadow: 0 0 40px 15px rgba(162,89,255,0.5);
+  }
+
+  /* Slider für Geschwindigkeit */
+  #speedSlider {
+    position: absolute;
+    bottom: 20px;
+    width: 60%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .overlay:hover #speedSlider {
+    opacity: 1;
   }
 
   @media (max-width: 600px) {
@@ -136,6 +153,9 @@
       width: 95%;
       height: 80%;
     }
+    #speedSlider {
+      width: 80%;
+    }
   }
 </style>
 </head>
@@ -143,25 +163,27 @@
 
 <button id="slideshowBtn">▶ Diashow</button>
 
-<div class="overlay" id="overlay" onclick="closeOverlay()">
+<div class="overlay" id="overlay">
   <div class="glass-frame"></div>
+  <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1">
 </div>
 
 <div class="container" id="gallery">
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png" alt="Setz dich" onclick="openOverlaySingle(this)"><h3>Setz dich</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png" alt="Genauso" onclick="openOverlaySingle(this)"><h3>Genauso</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png" alt="Oh ja" onclick="openOverlaySingle(this)"><h3>Oh ja</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png" alt="Komm" onclick="openOverlaySingle(this)"><h3>Komm</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png" alt="Lollipop" onclick="openOverlaySingle(this)"><h3>Lollipop</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6082.png" alt="Oh my god" onclick="openOverlaySingle(this)"><h3>Oh my god</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png" alt="Trink" onclick="openOverlaySingle(this)"><h3>Trink</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png" alt="Tiefer" onclick="openOverlaySingle(this)"><h3>Tiefer</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png" alt="Setz dich"><h3>Setz dich</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png" alt="Genauso"><h3>Genauso</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png" alt="Oh ja"><h3>Oh ja</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png" alt="Komm"><h3>Komm</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png" alt="Lollipop"><h3>Lollipop</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6082.png" alt="Oh my god"><h3>Oh my god</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png" alt="Trink"><h3>Trink</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png" alt="Tiefer"><h3>Tiefer</h3></div>
 </div>
 
 <script>
 const overlay = document.getElementById('overlay');
 const glassFrame = overlay.querySelector('.glass-frame');
 const slideshowBtn = document.getElementById('slideshowBtn');
+const speedSlider = document.getElementById('speedSlider');
 
 const images = [
   "https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png",
@@ -176,46 +198,67 @@ const images = [
 
 let slideshowInterval = null;
 let overlayImgs = [];
-
-// Einzelbild öffnen
-function openOverlaySingle(img) {
-  clearSlideshow();
-  overlay.classList.add('show');
-  glassFrame.innerHTML = '';
-  const imgEl = document.createElement('img');
-  imgEl.src = img.src;
-  applyOverlayStyles(imgEl);
-  overlayImgs = [imgEl];
-  glassFrame.appendChild(imgEl);
-}
-
-// Overlay schließen
-function closeOverlay() {
-  overlay.classList.remove('show');
-  clearSlideshow();
-}
+let paused = false;
+let current = 0;
 
 // Overlay-Styling anwenden
-function applyOverlayStyles(imgEl) {
+function applyOverlayStyles(imgEl){
   imgEl.style.maxWidth = "95%";
   imgEl.style.maxHeight = "95%";
   imgEl.style.borderRadius = "12px";
   imgEl.style.boxShadow = "0 0 60px rgba(255,255,255,0.1)";
   imgEl.style.objectFit = "contain";
-  imgEl.style.transition = "opacity 1s ease, transform 0.4s ease";
+  imgEl.style.transition = "opacity 1s ease, transform 0.4s ease, box-shadow 0.5s ease";
   imgEl.style.position = "absolute";
+  imgEl.addEventListener('click', e => {
+    e.stopPropagation();
+    togglePause(imgEl);
+  });
 }
 
-// Slideshow starten/stoppen
-slideshowBtn.addEventListener('click', () => {
-  if(slideshowInterval) {
-    clearSlideshow();
-    return;
-  }
-  startSlideshow();
+// Einzelbild öffnen
+document.querySelectorAll('.container img').forEach((img, i) => {
+  img.addEventListener('click', () => openOverlaySingle(i));
 });
 
-function startSlideshow() {
+function openOverlaySingle(index){
+  clearSlideshow();
+  overlay.classList.add('show');
+  glassFrame.innerHTML = '';
+  current = index;
+  const imgEl = document.createElement('img');
+  imgEl.src = images[index];
+  applyOverlayStyles(imgEl);
+  overlayImgs = [imgEl];
+  glassFrame.appendChild(imgEl);
+  paused = false;
+}
+
+// Overlay schließen
+overlay.addEventListener('click', () => {
+  overlay.classList.remove('show');
+  clearSlideshow();
+});
+
+// Toggle Pause
+function togglePause(imgEl){
+  if(slideshowInterval){
+    if(paused){
+      startInterval(imgEl);
+      paused = false;
+      imgEl.classList.remove('paused');
+    } else {
+      clearInterval(slideshowInterval);
+      paused = true;
+      imgEl.classList.add('paused');
+    }
+  }
+}
+
+// Slideshow starten
+slideshowBtn.addEventListener('click', startSlideshow);
+
+function startSlideshow(){
   overlay.classList.add('show');
   glassFrame.innerHTML = '';
   overlayImgs = images.map(src => {
@@ -226,21 +269,36 @@ function startSlideshow() {
     glassFrame.appendChild(imgEl);
     return imgEl;
   });
-
-  let current = 0;
+  current = 0;
   overlayImgs[current].style.opacity = 1;
-
-  slideshowInterval = setInterval(() => {
-    overlayImgs[current].style.opacity = 0;
-    current = (current + 1) % overlayImgs.length;
-    overlayImgs[current].style.opacity = 1;
-  }, 2000); // 2 Sekunden pro Bild
+  paused = false;
+  overlayImgs[current].classList.remove('paused');
+  startInterval();
 }
 
-function clearSlideshow() {
+// Intervall starten
+function startInterval(){
+  clearSlideshow();
+  slideshowInterval = setInterval(() => {
+    if(!paused){
+      overlayImgs[current].style.opacity = 0;
+      current = (current + 1) % overlayImgs.length;
+      overlayImgs[current].style.opacity = 1;
+    }
+  }, 2000 / speedSlider.value);
+}
+
+// Slider Geschwindigkeit
+speedSlider.addEventListener('input', () => {
+  if(slideshowInterval){
+    startInterval();
+  }
+});
+
+// Clear Slideshow
+function clearSlideshow(){
   if(slideshowInterval) clearInterval(slideshowInterval);
   slideshowInterval = null;
-  slideshowBtn.textContent = "▶ Diashow";
 }
 </script>
 
