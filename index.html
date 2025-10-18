@@ -6,69 +6,69 @@
 <title>Bildergalerie – Deluxe</title>
 <style>
 body {
-  margin: 0;
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #000;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
+  margin:0;
+  font-family:"Segoe UI",Arial,sans-serif;
+  background:#000;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
 
 #slideshowBtn {
-  margin: 20px 0;
-  padding: 10px 20px;
+  margin:20px 0;
+  padding:10px 20px;
   background: rgba(255,255,255,0.1);
-  border: 1px solid #fff;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  color: #fff;
+  border:1px solid #fff;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:1rem;
+  color:#fff;
   transition: all 0.3s ease;
 }
-#slideshowBtn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+#slideshowBtn:hover {background: rgba(255,255,255,0.2); transform:scale(1.05);}
 
 .container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px,1fr));
-  grid-gap: 10px;
-  width: 90%;
-  max-width: 1200px;
-  padding: 20px 0;
+  display:grid;
+  grid-template-columns: repeat(auto-fit,minmax(120px,1fr));
+  grid-gap:10px;
+  width:90%;
+  max-width:1200px;
+  padding:20px 0;
 }
 
 .item {
   background: rgba(255,255,255,0.05);
-  border-radius: 14px;
-  box-shadow: 0 8px 30px rgba(255,255,255,0.05);
-  padding: 5px;
-  text-align: center;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
+  border-radius:14px;
+  box-shadow:0 8px 30px rgba(255,255,255,0.05);
+  padding:5px;
+  text-align:center;
+  transition:all 0.3s ease;
+  backdrop-filter:blur(4px);
 }
-.item:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(255,255,255,0.08); }
+.item:hover { transform:translateY(-5px); box-shadow:0 12px 25px rgba(255,255,255,0.08); }
 
 img {
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-  cursor: pointer;
-  object-fit: contain;
+  width:100%;
+  height:auto;
+  border-radius:10px;
+  cursor:pointer;
+  object-fit:contain;
   transition: transform 0.3s ease;
 }
 
 h3 {
-  margin: 5px 0 0;
-  font-size: 0.8rem;
-  color: #ccc;
-  font-weight: 400;
+  margin:5px 0 0;
+  font-size:0.8rem;
+  color:#ccc;
+  font-weight:400;
 }
 
 /* Overlay */
 .overlay {
-  position: fixed;
-  top:0; left:0; width:100%; height:100%;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -78,62 +78,62 @@ h3 {
   opacity:0;
   transition: opacity 0.4s ease, visibility 0.4s ease;
 }
-.overlay.show { visibility: visible; opacity:1; }
+.overlay.show { visibility:visible; opacity:1; }
 
 /* Glasrahmen */
 .glass-frame {
-  position: relative;
-  display: flex;
+  position:relative;
+  display:flex;
   justify-content:center;
   align-items:center;
-  border-radius: 20px;
-  overflow: hidden;
-  padding: 1rem;
+  border-radius:20px;
+  overflow:hidden;
+  padding:1rem;
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(20px) saturate(140%);
-  width: 90%;
-  max-width: 1200px;
-  height: 90%;
-  box-shadow: 0 0 40px rgba(255,255,255,0.08);
+  width:90%;
+  max-width:1200px;
+  height:90%;
+  box-shadow:0 0 40px rgba(255,255,255,0.08);
 }
 
-/* Glow nur um das Bild */
+/* Glow nur im Pausenmodus */
 .glass-frame.glow::after {
-  content: '';
-  position: absolute;
+  content:'';
+  position:absolute;
   top:0; left:0; right:0; bottom:0;
-  border-radius: 20px;
-  box-shadow: 0 0 60px 20px rgba(162,89,255,0.35);
+  border-radius:20px;
+  box-shadow:0 0 40px 20px rgba(162,89,255,0.35);
   pointer-events:none;
   animation: glowPulse 1.5s infinite alternate;
 }
 
 @keyframes glowPulse {
-  from { box-shadow:0 0 40px 15px rgba(162,89,255,0.25);}
-  to { box-shadow:0 0 60px 25px rgba(162,89,255,0.4);}
+  from {box-shadow:0 0 30px 15px rgba(162,89,255,0.25);}
+  to {box-shadow:0 0 50px 25px rgba(162,89,255,0.4);}
 }
 
 .overlay img {
-  max-width: 95%;
-  max-height: 95%;
-  border-radius: 20px;
-  object-fit: contain;
+  max-width:95%;
+  max-height:95%;
+  border-radius:20px;
+  object-fit:contain;
   transition: opacity 1s ease;
-  cursor: pointer;
-  position: absolute;
+  cursor:pointer;
+  position:absolute;
 }
 
 /* Slider */
 #speedSlider {
-  position: absolute;
-  bottom: 20px;
-  width: 60%;
-  opacity: 0;
+  position:absolute;
+  bottom:20px;
+  width:60%;
+  opacity:0;
   transition: opacity 0.5s ease;
   -webkit-appearance:none;
   height:6px;
   border-radius:3px;
-  background: linear-gradient(to right,#8A2BE2 0%, #ccc 0%);
+  background:#ccc;
   z-index:1100;
 }
 #speedSlider::-webkit-slider-thumb {
@@ -144,8 +144,6 @@ h3 {
   cursor:pointer;
   box-shadow:0 3px 6px rgba(0,0,0,0.5);
   transform: translateY(-50%);
-  margin-top:0;
-  position: relative;
 }
 #speedSlider::-moz-range-thumb {
   width:18px; height:18px;
@@ -154,8 +152,6 @@ h3 {
   cursor:pointer;
   box-shadow:0 3px 6px rgba(0,0,0,0.5);
   transform: translateY(-50%);
-  margin-top:0;
-  position: relative;
 }
 
 @media (max-width:600px){
@@ -193,69 +189,77 @@ const glassFrame = document.getElementById('glassFrame');
 const slideshowBtn = document.getElementById('slideshowBtn');
 const speedSlider = document.getElementById('speedSlider');
 const galleryImages = Array.from(document.querySelectorAll('.container img'));
+
 let currentIndex = 0;
 let slideshowRunning = false;
 let slideshowPaused = false;
 let slideshowInterval;
 
-function showOverlay() {
-  overlay.classList.add('show');
-}
+// Funktionen
+function showOverlay() { overlay.classList.add('show'); }
 function hideOverlay() {
   overlay.classList.remove('show');
-  glassFrame.innerHTML = '';
+  glassFrame.innerHTML='';
+  glassFrame.classList.remove('glow');
   clearInterval(slideshowInterval);
-  slideshowRunning = false;
-  slideshowPaused = false;
+  slideshowRunning=false;
+  slideshowPaused=false;
   speedSlider.style.opacity=0;
 }
-
 function showImage(index) {
-  glassFrame.innerHTML = '';
+  glassFrame.innerHTML='';
   const img = galleryImages[index].cloneNode();
   img.style.opacity=0;
+  img.style.borderRadius='20px';
   glassFrame.appendChild(img);
   setTimeout(()=>{img.style.opacity=1;},50);
 }
-
-function startSlideshow() {
-  slideshowRunning = true;
-  slideshowPaused = false;
+function nextImage() {
+  currentIndex = (currentIndex+1)%galleryImages.length;
+  showImage(currentIndex);
+}
+function startSlideshow(){
+  slideshowRunning=true;
+  slideshowPaused=false;
   glassFrame.classList.remove('glow');
   speedSlider.style.opacity=0;
   showOverlay();
   showImage(currentIndex);
   clearInterval(slideshowInterval);
-  slideshowInterval = setInterval(()=> {
+  slideshowInterval=setInterval(()=>{
     if(!slideshowPaused) nextImage();
-  }, 3000/speedSlider.value);
+  },3000/speedSlider.value);
 }
 
-function nextImage() {
-  currentIndex = (currentIndex+1) % galleryImages.length;
-  showImage(currentIndex);
-}
-
-slideshowBtn.addEventListener('click', ()=>{
+// Diashow Button
+slideshowBtn.addEventListener('click',()=>{
   startSlideshow();
 });
 
+// Slider
 speedSlider.addEventListener('input', ()=>{
-  if(slideshowRunning && !slideshowPaused){
+  if(slideshowRunning){
     clearInterval(slideshowInterval);
-    slideshowInterval = setInterval(()=> {
+    slideshowInterval = setInterval(()=>{
       if(!slideshowPaused) nextImage();
-    }, 3000/speedSlider.value);
+    },3000/speedSlider.value);
+    updateSliderFill();
   }
 });
+function updateSliderFill(){
+  const pct = ((speedSlider.value-0.5)/(2-0.5))*100;
+  speedSlider.style.background=`linear-gradient(to right,#8A2BE2 ${pct}%, #ccc ${pct}%)`;
+}
 
+// Klick auf GlasFrame
 glassFrame.addEventListener('click',(e)=>{
   e.stopPropagation();
   if(slideshowRunning){
-    slideshowPaused = !slideshowPaused;
+    slideshowPaused=!slideshowPaused;
     if(slideshowPaused){
       glassFrame.classList.add('glow');
       speedSlider.style.opacity=1;
+      updateSliderFill();
       setTimeout(()=>{ if(slideshowPaused) speedSlider.style.opacity=0; },4000);
     } else {
       glassFrame.classList.remove('glow');
@@ -266,10 +270,9 @@ glassFrame.addEventListener('click',(e)=>{
   }
 });
 
+// Klick auf Overlay außerhalb GlasFrame
 overlay.addEventListener('click',(e)=>{
-  if(e.target===overlay){
-    hideOverlay();
-  }
+  if(e.target===overlay) hideOverlay();
 });
 
 // Einzelbilder
