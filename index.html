@@ -1,197 +1,191 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bildergalerie – Deluxe</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: #000;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diashow</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #000;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-    h1 {
-      margin: 20px 0 10px;
-      font-weight: 400;
-    }
+  .diashow-button {
+    background: linear-gradient(135deg, #8e44ad, #c39bd3);
+    border: none;
+    padding: 12px 28px;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    margin: 20px 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
 
-    .diashow-button {
-      background: linear-gradient(135deg, #8e44ad, #c39bd3);
-      border: none;
-      padding: 12px 28px;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-bottom: 20px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+  .diashow-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(142,68,173,0.5);
+  }
 
-    .diashow-button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 20px rgba(142,68,173,0.5);
-    }
+  .container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    width: 90%;
+    max-width: 1200px;
+    padding-bottom: 40px;
+  }
 
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
-      width: 90%;
-      max-width: 1200px;
-      padding-bottom: 40px;
-    }
+  .item {
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(255,255,255,0.05);
+    padding: 8px;
+    text-align: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+  }
 
-    .item {
-      background: rgba(255,255,255,0.05);
-      border-radius: 14px;
-      box-shadow: 0 8px 30px rgba(255,255,255,0.05);
-      padding: 8px;
-      text-align: center;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(4px);
-      cursor: pointer;
-    }
+  .item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(255,255,255,0.08);
+  }
 
-    .item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 25px rgba(255,255,255,0.08);
-    }
+  img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
 
-    img {
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
+  h3 {
+    margin: 6px 0 0;
+    font-size: 0.9rem;
+    color: #ccc;
+    font-weight: 400;
+  }
 
-    h3 {
-      margin: 6px 0 0;
-      font-size: 0.9rem;
-      color: #ccc;
-      font-weight: 400;
-    }
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(10,10,10,0.85);
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
 
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: rgba(10,10,10,0.85);
-      z-index: 1000;
-      visibility: hidden;
-      opacity: 0;
-      transition: opacity 0.4s ease, visibility 0.4s ease;
-    }
+  .overlay.show {
+    visibility: visible;
+    opacity: 1;
+  }
 
-    .overlay.show {
-      visibility: visible;
-      opacity: 1;
-    }
+  .glass-frame {
+    position: relative;
+    width: 90%;
+    height: 90%;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px) saturate(140%);
+    box-shadow: 0 0 40px rgba(255,255,255,0.08);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
 
-    .glass-frame {
-      position: relative;
-      padding: 2rem;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(20px) saturate(140%);
-      box-shadow: 0 0 40px rgba(255,255,255,0.08);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+  .glass-frame img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 20px;
+    object-fit: cover;
+    transition: opacity 1s ease;
+  }
 
-    .glass-frame img {
-      max-width: 95%;
-      max-height: 95%;
-      border-radius: 20px;
-      transition: opacity 1s ease, transform 0.3s ease;
-      object-fit: cover;
-    }
+  .glow {
+    position: absolute;
+    top: 0; left: 0; right:0; bottom:0;
+    border-radius: 20px;
+    box-shadow: 0 0 30px 15px rgba(142,68,173,0.5);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 1;
+  }
 
-    .glow {
-      position: absolute;
-      border-radius: 20px;
-      top: 0; left: 0;
-      right: 0; bottom: 0;
-      box-shadow: 0 0 30px 10px rgba(142,68,173,0.6);
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      z-index: -1;
-    }
+  .slider-container {
+    position: absolute;
+    bottom: 20px;
+    width: 60%;
+    display: flex;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 2;
+  }
 
-    .slider-container {
-      position: absolute;
-      bottom: 20px;
-      width: 60%;
-      display: flex;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
+  .slider-container.show {
+    opacity: 1;
+  }
 
-    .slider-container.show {
-      opacity: 1;
-    }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: #555;
+    outline: none;
+    transition: background 0.3s;
+  }
 
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 8px;
-      border-radius: 5px;
-      background: #555;
-      outline: none;
-      transition: background 0.3s;
-    }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #8e44ad;
+    cursor: pointer;
+    margin-top: -5px;
+    z-index: 3;
+    position: relative;
+  }
 
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #8e44ad;
-      cursor: pointer;
-      margin-top: -5px;
-    }
+  input[type=range]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #8e44ad;
+    cursor: pointer;
+  }
 
-    input[type=range]::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #8e44ad;
-      cursor: pointer;
-    }
-
-    input[type=range]::-webkit-slider-runnable-track {
-      height: 8px;
-      border-radius: 5px;
-      background: linear-gradient(to right, #8e44ad 0%, #555 100%);
-    }
-
-    input[type=range]:focus {
-      outline: none;
-    }
-  </style>
+  input[type=range]::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 5px;
+    background: linear-gradient(to right, #555 0%, #555 100%);
+  }
+</style>
 </head>
 <body>
 
-<h1>Bildergalerie – Deluxe</h1>
 <button class="diashow-button" onclick="startDiashow()">Diashow</button>
 
-<div class="container" id="container">
+<div class="container">
   <div class="item" onclick="openOverlay(this)">
     <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png" alt="setz dich">
     <h3>setz dich</h3>
@@ -231,106 +225,104 @@
     <div class="glow" id="glow"></div>
     <img id="overlayImg" src="" alt="">
     <div class="slider-container" id="sliderContainer">
-      <input type="range" min="1000" max="6000" value="2000" id="speedSlider">
+      <input type="range" min="1000" max="6000" value="6000" id="speedSlider">
     </div>
   </div>
 </div>
 
 <script>
-  const overlay = document.getElementById('overlay');
-  const overlayImg = document.getElementById('overlayImg');
-  const glow = document.getElementById('glow');
-  const sliderContainer = document.getElementById('sliderContainer');
-  const speedSlider = document.getElementById('speedSlider');
-  const glassFrame = document.getElementById('glassFrame');
-  const items = Array.from(document.querySelectorAll('.container .item img'));
+const overlay = document.getElementById('overlay');
+const overlayImg = document.getElementById('overlayImg');
+const glow = document.getElementById('glow');
+const sliderContainer = document.getElementById('sliderContainer');
+const speedSlider = document.getElementById('speedSlider');
+const glassFrame = document.getElementById('glassFrame');
+const items = Array.from(document.querySelectorAll('.container .item img'));
 
-  let currentIndex = 0;
-  let diashowInterval;
-  let paused = false;
-  let isDiashow = false;
+let currentIndex = 0;
+let diashowInterval;
+let paused = false;
+let isDiashow = false;
 
-  function openOverlay(img) {
-    isDiashow = false;
-    overlayImg.src = img.src;
-    overlay.classList.add('show');
+function openOverlay(img) {
+  isDiashow = false;
+  overlayImg.src = img.src;
+  overlay.classList.add('show');
+}
+
+overlay.addEventListener('click', (e) => {
+  if (!isDiashow || e.target === overlay) {
+    closeOverlay();
   }
+});
 
-  overlay.addEventListener('click', (e) => {
-    if (!isDiashow || e.target === overlay) {
-      closeOverlay();
-    }
-  });
+function closeOverlay() {
+  overlay.classList.remove('show');
+  overlayImg.src = '';
+  stopDiashow();
+  sliderContainer.classList.remove('show');
+  paused = false;
+  glow.style.opacity = 0;
+}
 
-  function closeOverlay() {
-    overlay.classList.remove('show');
-    overlayImg.src = '';
-    stopDiashow();
-    sliderContainer.classList.remove('show');
-    paused = false;
-    glow.style.opacity = 0;
+function startDiashow() {
+  isDiashow = true;
+  currentIndex = 0;
+  overlayImg.src = items[currentIndex].src;
+  overlay.classList.add('show');
+  paused = false;
+  glow.style.opacity = 0;
+  nextSlide();
+  diashowInterval = setInterval(nextSlide, speedSlider.value);
+}
+
+function stopDiashow() {
+  clearInterval(diashowInterval);
+}
+
+function nextSlide() {
+  if (!paused) {
+    currentIndex = (currentIndex + 1) % items.length;
+    overlayImg.style.opacity = 0;
+    setTimeout(() => {
+      overlayImg.src = items[currentIndex].src;
+      overlayImg.style.opacity = 1;
+    }, 500);
   }
+}
 
-  function startDiashow() {
-    isDiashow = true;
-    currentIndex = 0;
-    overlayImg.src = items[currentIndex].src;
-    overlay.classList.add('show');
-    paused = false;
-    glow.style.opacity = 0;
-    nextSlide();
-    diashowInterval = setInterval(nextSlide, speedSlider.value);
-  }
-
-  function stopDiashow() {
+overlayImg.addEventListener('click', (e) => {
+  if (isDiashow) {
+    paused = !paused;
+    glow.style.opacity = paused ? 1 : 0;
+    sliderContainer.classList.toggle('show', paused);
     clearInterval(diashowInterval);
-  }
-
-  function nextSlide() {
     if (!paused) {
-      currentIndex = (currentIndex + 1) % items.length;
-      overlayImg.style.opacity = 0;
-      setTimeout(() => {
-        overlayImg.src = items[currentIndex].src;
-        overlayImg.style.opacity = 1;
-      }, 200);
+      diashowInterval = setInterval(nextSlide, 7000 - (speedSlider.value - 1000));
+    }
+  } else {
+    closeOverlay();
+  }
+  e.stopPropagation();
+});
+
+glassFrame.addEventListener('click', (e) => {
+  if (isDiashow && e.target === glassFrame) {
+    closeOverlay();
+  }
+});
+
+speedSlider.addEventListener('input', () => {
+  const inverted = 7000 - (speedSlider.value - 1000); // invert
+  if (diashowInterval) {
+    clearInterval(diashowInterval);
+    if (!paused) {
+      diashowInterval = setInterval(nextSlide, inverted);
     }
   }
-
-  overlayImg.addEventListener('click', (e) => {
-    if (isDiashow) {
-      paused = !paused;
-      glow.style.opacity = paused ? 1 : 0;
-      sliderContainer.classList.toggle('show', paused);
-      if (!paused) {
-        clearInterval(diashowInterval);
-        diashowInterval = setInterval(nextSlide, speedSlider.value);
-      } else {
-        clearInterval(diashowInterval);
-      }
-    } else {
-      closeOverlay();
-    }
-    e.stopPropagation();
-  });
-
-  glassFrame.addEventListener('click', (e) => {
-    if (isDiashow && e.target === glassFrame) {
-      closeOverlay();
-    }
-  });
-
-  speedSlider.addEventListener('input', () => {
-    if (diashowInterval) {
-      clearInterval(diashowInterval);
-      if (!paused) {
-        diashowInterval = setInterval(nextSlide, speedSlider.value);
-      }
-    }
-    // Update track fill
-    const val = (speedSlider.value - speedSlider.min) / (speedSlider.max - speedSlider.min) * 100;
-    speedSlider.style.background = `linear-gradient(to right, #8e44ad ${val}%, #555 ${val}%)`;
-  });
+  const val = (speedSlider.value - speedSlider.min) / (speedSlider.max - speedSlider.min) * 100;
+  speedSlider.style.background = `linear-gradient(to right, #8e44ad ${val}%, #555 ${val}%)`;
+});
 </script>
 
 </body>
