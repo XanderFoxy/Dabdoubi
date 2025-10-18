@@ -89,16 +89,18 @@ h3 {
   height:90%;
   box-shadow:0 0 40px rgba(255,255,255,0.08);
 }
-/* Glow */
-.glass-frame.glow::after {
+.glass-frame::before {
   content:'';
   position:absolute;
   top:0; left:0; right:0; bottom:0;
   border-radius:20px;
-  box-shadow:0 0 40px 20px rgba(162,89,255,0.35);
   pointer-events:none;
+  opacity:0;
+  box-shadow:0 0 40px 20px rgba(162,89,255,0.35);
+  transition: opacity 0.3s ease;
   animation: glowPulse 1.5s infinite alternate;
 }
+.glass-frame.glow::before { opacity:1; }
 @keyframes glowPulse {
   from {box-shadow:0 0 30px 15px rgba(162,89,255,0.25);}
   to {box-shadow:0 0 50px 25px rgba(162,89,255,0.4);}
@@ -201,9 +203,9 @@ function showImage(index){
   img.style.position='absolute';
   glassFrame.appendChild(img);
   if(oldImg){
-    oldImg.style.transition='opacity 1s ease';
+    oldImg.style.transition='opacity 1.2s ease';
     oldImg.style.opacity=0;
-    setTimeout(()=>{ oldImg.remove(); },1000);
+    setTimeout(()=>{ oldImg.remove(); },1200);
   }
   setTimeout(()=>{ img.style.opacity=1; },50);
 }
@@ -234,15 +236,10 @@ speedSlider.addEventListener('input', ()=>{
     slideshowInterval=setInterval(()=>{
       if(!slideshowPaused) nextImage();
     },3000/speedSlider.value);
-    updateSliderFill();
   }
 });
-function updateSliderFill(){
-  const pct=((speedSlider.value-0.5)/(2-0.5))*100;
-  speedSlider.style.background=`linear-gradient(to right,#8A2BE2 ${pct}%, #ccc ${pct}%)`;
-}
 
-// Einzelbilder öffnen
+// Einzelbild Klick
 galleryImages.forEach((img,i)=>{
   img.addEventListener('click',()=>{
     currentIndex=i;
@@ -254,7 +251,7 @@ galleryImages.forEach((img,i)=>{
   });
 });
 
-// Klick-Logik Overlay
+// Klick auf Bild im Overlay
 glassFrame.addEventListener('click',()=>{
   if(slideshowRunning){
     slideshowPaused=!slideshowPaused;
@@ -270,12 +267,11 @@ glassFrame.addEventListener('click',()=>{
     hideOverlay();
   }
 });
+
+// Klick außerhalb Glasrahmen bei Diashow
 overlay.addEventListener('click',(e)=>{
   if(e.target===overlay) hideOverlay();
 });
-
-// Initial Slider Fill
-updateSliderFill();
 </script>
 </body>
 </html>
