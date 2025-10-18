@@ -44,7 +44,7 @@ body {
   backdrop-filter:blur(4px);
 }
 .item:hover { transform:translateY(-5px); box-shadow:0 12px 25px rgba(255,255,255,0.08); }
-img {
+.item img {
   width:100%;
   height:auto;
   border-radius:10px;
@@ -107,7 +107,7 @@ h3 {
   max-width:95%;
   max-height:95%;
   border-radius:20px;
-  object-fit:contain;
+  object-fit:cover; /* wichtig für abgerundete Kanten sichtbar */
   transition: opacity 1.8s ease;
   cursor:pointer;
   position:absolute;
@@ -174,17 +174,13 @@ h3 {
   <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png" alt="Tiefer"><h3>Tiefer</h3></div>
 </div>
 <script>
-const overlay = document.getElementById('overlay');
-const glassFrame = document.getElementById('glassFrame');
-const glowLayer = glassFrame.querySelector('.glow-layer');
-const slideshowBtn = document.getElementById('slideshowBtn');
-const speedSlider = document.getElementById('speedSlider');
-const galleryImages = Array.from(document.querySelectorAll('.container img'));
-
-let currentIndex=0;
-let slideshowRunning=false;
-let slideshowPaused=false;
-let slideshowInterval;
+const overlay=document.getElementById('overlay');
+const glassFrame=document.getElementById('glassFrame');
+const glowLayer=glassFrame.querySelector('.glow-layer');
+const slideshowBtn=document.getElementById('slideshowBtn');
+const speedSlider=document.getElementById('speedSlider');
+const galleryImages=Array.from(document.querySelectorAll('.container img'));
+let currentIndex=0, slideshowRunning=false, slideshowPaused=false, slideshowInterval;
 
 function showOverlay(){ overlay.classList.add('show'); }
 function hideOverlay(){
@@ -197,56 +193,30 @@ function hideOverlay(){
   speedSlider.style.opacity=0;
 }
 function showImage(index){
-  const oldImg = glassFrame.querySelector('img');
-  const img = galleryImages[index].cloneNode();
+  const img=document.createElement('img');
+  img.src=galleryImages[index].src;
   img.style.opacity=0;
-  img.style.borderRadius='20px';
-  img.style.position='absolute';
   glassFrame.appendChild(img);
-  if(oldImg){
-    oldImg.style.transition='opacity 1.8s ease';
-    oldImg.style.opacity=0;
-    setTimeout(()=>{ oldImg.remove(); },1800);
-  }
   setTimeout(()=>{ img.style.opacity=1; },50);
+  glassFrame.querySelectorAll('img').forEach((i,idx)=>{ if(idx!==glassFrame.children.length-1)i.style.opacity=0; });
 }
-function nextImage(){
-  currentIndex=(currentIndex+1)%galleryImages.length;
-  showImage(currentIndex);
-}
+
 function startSlideshow(){
   slideshowRunning=true;
   slideshowPaused=false;
-  glassFrame.classList.remove('glow');
-  speedSlider.style.opacity=0;
   showOverlay();
+  currentIndex=0;
   showImage(currentIndex);
-  clearInterval(slideshowInterval);
   slideshowInterval=setInterval(()=>{
-    if(!slideshowPaused) nextImage();
-  },3000/speedSlider.value);
+    if(!slideshowPaused){
+      currentIndex=(currentIndex+1)%galleryImages.length;
+      showImage(currentIndex);
+    }
+  },2000/speedSlider.value);
 }
-slideshowBtn.addEventListener('click',()=>{ startSlideshow(); });
-speedSlider.addEventListener('input', ()=>{
-  if(slideshowRunning){
-    clearInterval(slideshowInterval);
-    slideshowInterval=setInterval(()=>{
-      if(!slideshowPaused) nextImage();
-    },3000/speedSlider.value);
-  }
-});
 
-// Einzelbild Klick
-galleryImages.forEach((img,i)=>{
-  img.addEventListener('click',()=>{
-    currentIndex=i;
-    slideshowRunning=false;
-    slideshowPaused=false;
-    speedSlider.style.opacity=0;
-    showOverlay();
-    showImage(currentIndex);
-  });
-});
+// Diashow Button
+slideshowBtn.addEventListener('click',()=>{ startSlideshow(); });
 
 // Klick auf Bild im Overlay
 glassFrame.addEventListener('click',()=>{
@@ -260,14 +230,32 @@ glassFrame.addEventListener('click',()=>{
       glassFrame.classList.remove('glow');
       speedSlider.style.opacity=0;
     }
-  } else {
-    hideOverlay();
-  }
+  } else { hideOverlay(); }
 });
 
 // Klick außerhalb Glasrahmen
-overlay.addEventListener('click',(e)=>{
-  if(e.target===overlay) hideOverlay();
+overlay.addEventListener('click',e=>{ if(e.target===overlay) hideOverlay(); });
+
+// Einzelbild Klick
+galleryImages.forEach((img,idx)=>{
+  img.addEventListener('click',()=>{
+    currentIndex=idx;
+    slideshowRunning=false;
+    slideshowPaused=false;
+    showOverlay();
+    showImage(currentIndex);
+  });
+});
+
+// Slider Steuerung
+speedSlider.addEventListener('input',()=>{ 
+  if(slideshowRunning && !slideshowPaused){
+    clearInterval(slideshowInterval);
+    slideshowInterval=setInterval(()=>{
+      currentIndex=(currentIndex+1)%galleryImages.length;
+      showImage(currentIndex);
+    },2000/speedSlider.value);
+  }
 });
 </script>
 </body>
