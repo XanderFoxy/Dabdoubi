@@ -104,6 +104,9 @@
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(20px) saturate(140%);
     box-shadow: 0 0 40px rgba(255,255,255,0.08);
+    width: 90%;
+    max-width: 1200px;
+    height: 90%;
   }
 
   .overlay img {
@@ -113,7 +116,7 @@
     box-shadow: 0 0 60px rgba(255,255,255,0.1);
     object-fit: contain;
     image-rendering: high-quality;
-    transition: opacity 1s ease;
+    transition: opacity 1s ease, transform 0.4s ease;
     position: absolute;
   }
 
@@ -129,6 +132,10 @@
       font-size: 0.9rem;
       padding: 8px 16px;
     }
+    .glass-frame {
+      width: 95%;
+      height: 80%;
+    }
   }
 </style>
 </head>
@@ -137,9 +144,7 @@
 <button id="slideshowBtn">▶ Diashow</button>
 
 <div class="overlay" id="overlay" onclick="closeOverlay()">
-  <div class="glass-frame">
-    <!-- Bilder werden hier dynamisch eingefügt -->
-  </div>
+  <div class="glass-frame"></div>
 </div>
 
 <div class="container" id="gallery">
@@ -176,9 +181,10 @@ let overlayImgs = [];
 function openOverlaySingle(img) {
   clearSlideshow();
   overlay.classList.add('show');
-  glassFrame.innerHTML = ''; // alten Inhalt entfernen
+  glassFrame.innerHTML = '';
   const imgEl = document.createElement('img');
   imgEl.src = img.src;
+  applyOverlayStyles(imgEl);
   overlayImgs = [imgEl];
   glassFrame.appendChild(imgEl);
 }
@@ -187,6 +193,17 @@ function openOverlaySingle(img) {
 function closeOverlay() {
   overlay.classList.remove('show');
   clearSlideshow();
+}
+
+// Overlay-Styling anwenden
+function applyOverlayStyles(imgEl) {
+  imgEl.style.maxWidth = "95%";
+  imgEl.style.maxHeight = "95%";
+  imgEl.style.borderRadius = "12px";
+  imgEl.style.boxShadow = "0 0 60px rgba(255,255,255,0.1)";
+  imgEl.style.objectFit = "contain";
+  imgEl.style.transition = "opacity 1s ease, transform 0.4s ease";
+  imgEl.style.position = "absolute";
 }
 
 // Slideshow starten/stoppen
@@ -204,6 +221,7 @@ function startSlideshow() {
   overlayImgs = images.map(src => {
     const imgEl = document.createElement('img');
     imgEl.src = src;
+    applyOverlayStyles(imgEl);
     imgEl.style.opacity = 0;
     glassFrame.appendChild(imgEl);
     return imgEl;
