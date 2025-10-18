@@ -1,209 +1,230 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bildergalerie – Deluxe</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: #000;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bildergalerie – Deluxe</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #000;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-    /* Diashow-Button */
-    #slideshowBtn {
-      margin: 20px 0;
-      padding: 10px 20px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid #fff;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      color: #fff;
-      transition: all 0.3s ease;
-    }
+  /* Diashow-Button */
+  #slideshowBtn {
+    margin: 20px 0;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #fff;
+    transition: all 0.3s ease;
+  }
+  #slideshowBtn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.05);
+  }
 
-    #slideshowBtn:hover {
-      background: rgba(255,255,255,0.2);
-      transform: scale(1.05);
-    }
+  .container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-gap: 10px;
+    width: 90%;
+    max-width: 1200px;
+    padding: 20px 0;
+  }
 
+  .item {
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(255,255,255,0.05);
+    padding: 5px;
+    text-align: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+  }
+  .item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(255,255,255,0.08);
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    cursor: pointer;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  h3 {
+    margin: 5px 0 0;
+    font-size: 0.8rem;
+    color: #ccc;
+    font-weight: 400;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(10, 10, 10, 0.85);
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+  .overlay.show {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .glass-frame {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 16px;
+    overflow: hidden;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px) saturate(140%);
+    box-shadow: 0 0 40px rgba(255,255,255,0.08);
+  }
+
+  .overlay img {
+    max-width: 95%;
+    max-height: 95%;
+    border-radius: 12px;
+    box-shadow: 0 0 60px rgba(255,255,255,0.1);
+    object-fit: contain;
+    image-rendering: high-quality;
+    transition: opacity 1s ease;
+    position: absolute;
+  }
+
+  @media (max-width: 600px) {
     .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      grid-gap: 10px;
-      width: 90%;
-      max-width: 1200px;
-      padding: 20px 0;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      grid-gap: 8px;
     }
-
-    .item {
-      background: rgba(255,255,255,0.05);
-      border-radius: 14px;
-      box-shadow: 0 8px 30px rgba(255,255,255,0.05);
-      padding: 5px;
-      text-align: center;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(4px);
-      opacity: 1;
-    }
-
-    .item.hide {
-      opacity: 0;
-      transition: opacity 0.8s ease;
-    }
-
-    .item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 25px rgba(255,255,255,0.08);
-    }
-
-    img {
-      width: 100%;
-      height: auto;
-      border-radius: 10px;
-      cursor: pointer;
-      object-fit: contain;
-      transition: transform 0.3s ease;
-    }
-
     h3 {
-      margin: 5px 0 0;
-      font-size: 0.8rem;
-      color: #ccc;
-      font-weight: 400;
+      font-size: 0.7rem;
     }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: rgba(10, 10, 10, 0.85);
-      z-index: 1000;
-      visibility: hidden;
-      opacity: 0;
-      transition: opacity 0.4s ease, visibility 0.4s ease;
+    #slideshowBtn {
+      font-size: 0.9rem;
+      padding: 8px 16px;
     }
-
-    .overlay.show {
-      visibility: visible;
-      opacity: 1;
-    }
-
-    .glass-frame {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 16px;
-      overflow: hidden;
-      padding: 1.5rem;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(20px) saturate(140%);
-      box-shadow: 0 0 40px rgba(255,255,255,0.08);
-    }
-
-    .overlay img {
-      max-width: 95%;
-      max-height: 95%;
-      border-radius: 12px;
-      box-shadow: 0 0 60px rgba(255,255,255,0.1);
-      object-fit: contain;
-      image-rendering: high-quality;
-      transition: transform 0.4s ease;
-    }
-
-    .overlay img:hover {
-      transform: scale(1.02);
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        grid-gap: 8px;
-      }
-      h3 {
-        font-size: 0.7rem;
-      }
-      #slideshowBtn {
-        font-size: 0.9rem;
-        padding: 8px 16px;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
 
-  <button id="slideshowBtn">▶ Diashow</button>
+<button id="slideshowBtn">▶ Diashow</button>
 
-  <div class="overlay" id="overlay" onclick="closeOverlay()">
-    <div class="glass-frame">
-      <img id="overlayImg" src="" alt="Vergrößertes Bild">
-    </div>
+<div class="overlay" id="overlay" onclick="closeOverlay()">
+  <div class="glass-frame">
+    <!-- Bilder werden hier dynamisch eingefügt -->
   </div>
+</div>
 
-  <div class="container" id="gallery">
-    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png" alt="Setz dich" onclick="openOverlay(this)"><h3>Setz dich</h3></div>
-    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png" alt="Genauso" onclick="openOverlay(this)"><h3>Genauso</h3></div>
-    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png" alt="Oh ja" onclick="openOverlay(this)"><h3>Oh ja</h3></div>
-    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png" alt="Komm" onclick="openOverlay(this)"><h3>Komm</h3></div>
-    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png" alt="Lollipop" onclick="openOverlay(this)"><h3>Lollipop</h3></div>
-    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6082.png" alt="Oh my god" onclick="openOverlay(this)"><h3>Oh my god</h3></div>
-    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png" alt="Trink" onclick="openOverlay(this)"><h3>Trink</h3></div>
-    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png" alt="Tiefer" onclick="openOverlay(this)"><h3>Tiefer</h3></div>
-  </div>
+<div class="container" id="gallery">
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png" alt="Setz dich" onclick="openOverlaySingle(this)"><h3>Setz dich</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png" alt="Genauso" onclick="openOverlaySingle(this)"><h3>Genauso</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png" alt="Oh ja" onclick="openOverlaySingle(this)"><h3>Oh ja</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png" alt="Komm" onclick="openOverlaySingle(this)"><h3>Komm</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png" alt="Lollipop" onclick="openOverlaySingle(this)"><h3>Lollipop</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6082.png" alt="Oh my god" onclick="openOverlaySingle(this)"><h3>Oh my god</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png" alt="Trink" onclick="openOverlaySingle(this)"><h3>Trink</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png" alt="Tiefer" onclick="openOverlaySingle(this)"><h3>Tiefer</h3></div>
+</div>
 
-  <script>
-    const overlay = document.getElementById('overlay');
-    const overlayImg = document.getElementById('overlayImg');
-    const slideshowBtn = document.getElementById('slideshowBtn');
-    const galleryItems = document.querySelectorAll('.container .item');
+<script>
+const overlay = document.getElementById('overlay');
+const glassFrame = overlay.querySelector('.glass-frame');
+const slideshowBtn = document.getElementById('slideshowBtn');
 
-    function openOverlay(img) {
-      overlayImg.src = img.src;
-      overlay.classList.add('show');
-    }
+const images = [
+  "https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png",
+  "https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png",
+  "https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png",
+  "https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png",
+  "https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png",
+  "https://xanderfoxy.github.io/Dabdoubi/IMG_6082.png",
+  "https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png",
+  "https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png"
+];
 
-    function closeOverlay() {
-      overlay.classList.remove('show');
-      overlayImg.src = '';
-    }
+let slideshowInterval = null;
+let overlayImgs = [];
 
-    // Diashow-Logik
-    let slideshowInterval = null;
-    slideshowBtn.addEventListener('click', () => {
-      if (slideshowInterval) {
-        clearInterval(slideshowInterval);
-        slideshowInterval = null;
-        slideshowBtn.textContent = "▶ Diashow";
-        // Alle Bilder wieder sichtbar machen
-        galleryItems.forEach(item => item.classList.remove('hide'));
-      } else {
-        let current = 0;
-        slideshowBtn.textContent = "⏸ Stop";
-        galleryItems.forEach((item, i) => item.classList.add('hide')); // Start mit allen versteckt
-        galleryItems[current].classList.remove('hide');
+// Einzelbild öffnen
+function openOverlaySingle(img) {
+  clearSlideshow();
+  overlay.classList.add('show');
+  glassFrame.innerHTML = ''; // alten Inhalt entfernen
+  const imgEl = document.createElement('img');
+  imgEl.src = img.src;
+  overlayImgs = [imgEl];
+  glassFrame.appendChild(imgEl);
+}
 
-        slideshowInterval = setInterval(() => {
-          galleryItems[current].classList.add('hide');
-          current = (current + 1) % galleryItems.length;
-          galleryItems[current].classList.remove('hide');
-        }, 1500); // 1,5 Sekunden pro Bild
-      }
-    });
-  </script>
+// Overlay schließen
+function closeOverlay() {
+  overlay.classList.remove('show');
+  clearSlideshow();
+}
+
+// Slideshow starten/stoppen
+slideshowBtn.addEventListener('click', () => {
+  if(slideshowInterval) {
+    clearSlideshow();
+    return;
+  }
+  startSlideshow();
+});
+
+function startSlideshow() {
+  overlay.classList.add('show');
+  glassFrame.innerHTML = '';
+  overlayImgs = images.map(src => {
+    const imgEl = document.createElement('img');
+    imgEl.src = src;
+    imgEl.style.opacity = 0;
+    glassFrame.appendChild(imgEl);
+    return imgEl;
+  });
+
+  let current = 0;
+  overlayImgs[current].style.opacity = 1;
+
+  slideshowInterval = setInterval(() => {
+    overlayImgs[current].style.opacity = 0;
+    current = (current + 1) % overlayImgs.length;
+    overlayImgs[current].style.opacity = 1;
+  }, 2000); // 2 Sekunden pro Bild
+}
+
+function clearSlideshow() {
+  if(slideshowInterval) clearInterval(slideshowInterval);
+  slideshowInterval = null;
+  slideshowBtn.textContent = "▶ Diashow";
+}
+</script>
 
 </body>
 </html>
