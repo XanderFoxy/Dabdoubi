@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bildergalerie – Deluxe</title>
+<title>Bildergalerie Deluxe</title>
 <style>
 body {
   margin:0;
@@ -11,242 +11,188 @@ body {
   background:#000;
   color:#fff;
   display:flex;
-  flex-direction:column;
+  justify-content:center;
   align-items:center;
+  min-height:100vh;
+  overflow-x:hidden;
 }
-#slideshowBtn {
-  margin:20px 0;
-  padding:10px 20px;
-  background: rgba(255,255,255,0.1);
-  border:1px solid #fff;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:1rem;
-  color:#fff;
-  transition: all 0.3s ease;
-}
-#slideshowBtn:hover {background: rgba(255,255,255,0.2); transform:scale(1.05);}
 .container {
   display:grid;
-  grid-template-columns: repeat(auto-fit,minmax(120px,1fr));
-  grid-gap:10px;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:15px;
   width:90%;
   max-width:1200px;
   padding:20px 0;
 }
 .item {
-  background: rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.05);
   border-radius:14px;
   box-shadow:0 8px 30px rgba(255,255,255,0.05);
-  padding:5px;
+  padding:10px;
   text-align:center;
   transition:all 0.3s ease;
   backdrop-filter:blur(4px);
 }
-.item:hover { transform:translateY(-5px); box-shadow:0 12px 25px rgba(255,255,255,0.08); }
-.item img {
+.item:hover {transform:translateY(-5px); box-shadow:0 12px 25px rgba(255,255,255,0.08);}
+img.thumb {
   width:100%;
   height:auto;
-  border-radius:20px;
+  border-radius:10px;
   cursor:pointer;
   object-fit:cover;
-  transition: transform 0.3s ease;
+  transition:transform 0.3s ease;
 }
-h3 {margin:5px 0 0;font-size:0.8rem;color:#ccc;font-weight:400;}
+h3 {margin:10px 0 0;font-size:0.95rem;color:#ccc;font-weight:400;}
 .overlay {
   position:fixed;
   top:0; left:0;
   width:100%; height:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background: rgba(10,10,10,0.85);
+  display:flex; justify-content:center; align-items:center;
+  background:rgba(10,10,10,0.85);
   z-index:1000;
-  visibility:hidden;
-  opacity:0;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
+  visibility:hidden; opacity:0;
+  transition:opacity 0.4s ease,visibility 0.4s ease;
 }
-.overlay.show { visibility:visible; opacity:1; }
+.overlay.show {visibility:visible; opacity:1;}
 .glass-frame {
-  position:relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  border-radius:22px;
+  position:relative; display:flex; justify-content:center; align-items:center;
+  border-radius:20px;
   overflow:hidden;
-  padding:1rem;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px) saturate(140%);
-  width:90%;
-  max-width:1200px;
-  height:90%;
+  padding:1.5rem;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px) saturate(140%);
   box-shadow:0 0 40px rgba(255,255,255,0.08);
-  cursor:pointer;
 }
-.glow-layer {
+.overlay img.main-img {
+  max-width:95%; max-height:95%;
+  border-radius:20px;
+  box-shadow:0 0 60px rgba(255,255,255,0.1);
+  object-fit:cover;
+  transition:opacity 1.8s ease;
+}
+#glowLayer {
   position:absolute;
+  top:0; left:0; right:0; bottom:0;
   border-radius:20px;
   pointer-events:none;
-  box-shadow:0 0 40px 20px rgba(162,89,255,0.3);
+  box-shadow:0 0 20px 6px rgba(128,0,128,0.5);
   opacity:0;
-  transition: opacity 0.3s ease;
+  transition:opacity 0.6s ease;
+  animation:pulse 1.6s infinite alternate;
 }
-.glow-layer.active { opacity:1; animation: glowPulse 1.5s infinite alternate; }
-@keyframes glowPulse { from {box-shadow:0 0 30px 15px rgba(162,89,255,0.25);} to {box-shadow:0 0 50px 25px rgba(162,89,255,0.4);} }
-.overlay img {
-  max-width:95%;
-  max-height:95%;
-  border-radius:20px;
-  object-fit:cover;
-  position:absolute;
-  transition: opacity 1.8s ease;
-}
+@keyframes pulse {0%{opacity:0.2;}100%{opacity:0.5;}}
 #speedSlider {
-  position:absolute;
-  bottom:20px;
-  width:60%;
-  opacity:0;
-  transition: opacity 0.5s ease;
-  height:6px;
-  border-radius:3px;
-  background:#ccc;
-  z-index:1100;
+  position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+  width:200px; opacity:0; transition:opacity 0.3s ease;
+  -webkit-appearance:none;
+  height:6px; background:#666; border-radius:3px;
 }
 #speedSlider::-webkit-slider-thumb {
   -webkit-appearance:none;
-  width:18px; height:18px;
-  background:#8A2BE2;
+  width:16px; height:16px;
+  background:#8a2be2;
   border-radius:50%;
   cursor:pointer;
-  box-shadow:0 3px 6px rgba(0,0,0,0.5);
-  position:relative;
-  top:50%;
-  transform:translateY(-50%);
+  margin-top:-5px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.4);
 }
 #speedSlider::-moz-range-thumb {
-  width:18px; height:18px;
-  background:#8A2BE2;
-  border-radius:50%;
-  cursor:pointer;
-  box-shadow:0 3px 6px rgba(0,0,0,0.5);
-  position:relative;
-  top:50%;
-  transform:translateY(-50%);
+  width:16px; height:16px; background:#8a2be2; border-radius:50%;
+  cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.4);
 }
-#speedSlider::-webkit-slider-runnable-track { height:6px; border-radius:3px; background:#ccc; }
-#speedSlider::-moz-range-track { height:6px; border-radius:3px; background:#ccc; }
-@media (max-width:600px){
-  .container{grid-template-columns:repeat(auto-fit,minmax(100px,1fr));grid-gap:8px;}
-  h3{font-size:0.7rem;}
-  #slideshowBtn{font-size:0.9rem;padding:8px 16px;}
-  .glass-frame{width:95%;height:80%;}
-  #speedSlider{width:80%;}
+#slideshowBtn {
+  position:fixed; top:20px; right:20px;
+  padding:10px 15px; font-size:1rem; border:none; border-radius:8px;
+  background:#8a2be2; color:#fff; cursor:pointer;
+  z-index:1100;
 }
 </style>
 </head>
 <body>
 
-<button id="slideshowBtn">▶ Diashow</button>
+<button id="slideshowBtn">Diashow ▶</button>
+
+<div class="container">
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png" alt="Bild 1" class="thumb"><h3>Setz dich</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png" alt="Bild 2" class="thumb"><h3>Genauso</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png" alt="Bild 3" class="thumb"><h3>Oh ja</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png" alt="Bild 4" class="thumb"><h3>Komm</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png" alt="Bild 5" class="thumb"><h3>Lollipop</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6082.png" alt="Bild 6" class="thumb"><h3>Oh my god</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png" alt="Bild 7" class="thumb"><h3>Trink</h3></div>
+  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png" alt="Bild 8" class="thumb"><h3>Tiefer</h3></div>
+</div>
 
 <div class="overlay" id="overlay">
   <div class="glass-frame" id="glassFrame">
-    <div class="glow-layer" id="glowLayer"></div>
+    <div id="glowLayer"></div>
+    <img class="main-img" id="mainImg" src="">
+    <input type="range" id="speedSlider" min="0.5" max="3" step="0.1" value="1">
   </div>
-  <input type="range" min="0.5" max="2" step="0.1" value="1" id="speedSlider">
-</div>
-
-<div class="container" id="gallery">
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png" alt="Setz dich"><h3>Setz dich</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png" alt="Genauso"><h3>Genauso</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png" alt="Oh ja"><h3>Oh ja</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png" alt="Komm"><h3>Komm</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png" alt="Lollipop"><h3>Lollipop</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6082.png" alt="Oh my god"><h3>Oh my god</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png" alt="Trink"><h3>Trink</h3></div>
-  <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png" alt="Tiefer"><h3>Tiefer</h3></div>
 </div>
 
 <script>
 const overlay=document.getElementById('overlay');
-const glassFrame=document.getElementById('glassFrame');
+const mainImg=document.getElementById('mainImg');
 const glowLayer=document.getElementById('glowLayer');
 const speedSlider=document.getElementById('speedSlider');
 const slideshowBtn=document.getElementById('slideshowBtn');
-const galleryImages=document.querySelectorAll('.container img');
+const glassFrame=document.getElementById('glassFrame');
+const thumbs=document.querySelectorAll('.thumb');
 
 let currentIndex=0;
-let slideshowInterval=null;
-let slideshowRunning=false;
-let slideshowPaused=false;
+let interval=null;
+let running=false;
+let paused=false;
 
 function showOverlay(){overlay.classList.add('show');}
-function hideOverlay(){overlay.classList.remove('show'); glowLayer.classList.remove('active'); speedSlider.style.opacity=0;}
+function hideOverlay(){overlay.classList.remove('show'); glowLayer.style.opacity=0; speedSlider.style.opacity=0;}
 function showImage(idx){
-  galleryImages.forEach(img=>img.style.opacity=0);
-  const img=new Image();
-  img.src=galleryImages[idx].src;
-  img.style.borderRadius='20px';
-  img.style.position='absolute';
-  img.style.opacity=1;
-  img.style.transition='opacity 1.8s ease';
-  glassFrame.innerHTML='';
-  glassFrame.appendChild(glowLayer);
-  glassFrame.appendChild(img);
+  mainImg.style.opacity=0;
+  mainImg.src=thumbs[idx].src;
+  mainImg.onload=()=>{mainImg.style.opacity=1;}
 }
+
 function startSlideshow(){
-  slideshowRunning=true;
-  slideshowPaused=false;
-  showOverlay();
-  currentIndex=0;
-  showImage(currentIndex);
-  runSlideshow();
+  running=true; paused=false; currentIndex=0; showOverlay(); showImage(currentIndex); runSlideshow();
 }
 function runSlideshow(){
-  clearInterval(slideshowInterval);
-  slideshowInterval=setInterval(()=>{
-    if(!slideshowPaused){
-      currentIndex=(currentIndex+1)%galleryImages.length;
+  clearInterval(interval);
+  interval=setInterval(()=>{
+    if(!paused){
+      currentIndex=(currentIndex+1)%thumbs.length;
       showImage(currentIndex);
     }
   },2000/speedSlider.value);
 }
 
-slideshowBtn.addEventListener('click',()=>{ startSlideshow(); });
-
-// Klick auf Glasrahmen Diashow
-glassFrame.addEventListener('click',(e)=>{
-  if(slideshowRunning){
-    slideshowPaused=!slideshowPaused;
-    if(slideshowPaused){
-      glowLayer.classList.add('active');
-      speedSlider.style.opacity=1;
-      setTimeout(()=>{ if(slideshowPaused) speedSlider.style.opacity=0; },4000);
-    } else {
-      glowLayer.classList.remove('active');
-      speedSlider.style.opacity=0;
-    }
-  } else { hideOverlay(); }
-});
-
-// Klick außerhalb Glasrahmen
-overlay.addEventListener('click',e=>{
-  if(e.target===overlay && slideshowRunning){ hideOverlay(); }
-});
+slideshowBtn.addEventListener('click',()=>{startSlideshow();});
 
 // Einzelbild Klick
-galleryImages.forEach((img,idx)=>{
-  img.addEventListener('click',()=>{
-    currentIndex=idx;
-    slideshowRunning=false;
-    slideshowPaused=false;
-    showOverlay();
-    showImage(currentIndex);
+thumbs.forEach((t,i)=>{
+  t.addEventListener('click',()=>{
+    paused=false; running=false; showOverlay(); showImage(i);
   });
+});
+
+// Overlay Klick (Einzelbild: Klick auf Bild = schließen, Diashow: Klick außerhalb Glasframe = schließen)
+overlay.addEventListener('click',(e)=>{
+  if(e.target===overlay && running){hideOverlay(); running=false;}
+  if(!running && e.target===mainImg){hideOverlay();}
+});
+
+// Glasrahmen Klick
+glassFrame.addEventListener('click',(e)=>{
+  if(running){
+    paused=!paused;
+    if(paused){glowLayer.style.opacity=1; speedSlider.style.opacity=1; setTimeout(()=>{ if(paused) speedSlider.style.opacity=0; },4000);}
+    else {glowLayer.style.opacity=0; speedSlider.style.opacity=0;}
+  }
 });
 
 // Slider Steuerung
 speedSlider.addEventListener('input',()=>{ runSlideshow(); });
-
 </script>
+
 </body>
 </html>
