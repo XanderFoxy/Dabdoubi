@@ -56,7 +56,6 @@
       color: #ccc;
     }
 
-    /* Overlay */
     .overlay {
       position: fixed;
       top: 0;
@@ -78,7 +77,6 @@
       opacity: 1;
     }
 
-    /* Glasrahmen */
     .glass-frame {
       position: relative;
       display: flex;
@@ -104,7 +102,6 @@
       transition: opacity 1s ease;
     }
 
-    /* Slider */
     .slider-container {
       position: absolute;
       bottom: 15px;
@@ -142,7 +139,7 @@
       border-radius: 50%;
       background: #800080;
       cursor: pointer;
-      margin-top: -6px; /* bündig auf Linie */
+      margin-top: -6px;
       box-shadow: 0 0 4px rgba(0,0,0,0.5);
     }
 
@@ -155,7 +152,6 @@
       box-shadow: 0 0 4px rgba(0,0,0,0.5);
     }
 
-    /* Play Button */
     #playButton {
       margin-top: 20px;
       padding: 10px 20px;
@@ -195,6 +191,33 @@
     <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4657.png" alt="4657"><h3>4657</h3></div>
     <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6115.png" alt="6115"><h3>6115</h3></div>
     <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4501.jpeg" alt="4501"><h3>4501</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5733.png" alt="5733"><h3>5733</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4540.png" alt="4540"><h3>4540</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4555.png" alt="4555"><h3>4555</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4637.png" alt="4637"><h3>4637</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4703.png" alt="4703"><h3>4703</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4992.png" alt="4992"><h3>4992</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5037.png" alt="5037"><h3>5037</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5075.png" alt="5075"><h3>5075</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5279.png" alt="5279"><h3>5279</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5665.png" alt="5665"><h3>5665</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5036.png" alt="5036"><h3>5036</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5051.png" alt="5051"><h3>5051</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6253.png" alt="6253"><h3>6253</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6299.png" alt="6299"><h3>6299</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6504.png" alt="6504"><h3>6504</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6510.png" alt="6510"><h3>6510</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6512.png" alt="6512"><h3>6512</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6514.png" alt="6514"><h3>6514</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6517.png" alt="6517"><h3>6517</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6518.png" alt="6518"><h3>6518</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6519.png" alt="6519"><h3>6519</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6539.png" alt="6539"><h3>6539</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6554.png" alt="6554"><h3>6554</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6745.png" alt="6745"><h3>6745</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7056.png" alt="7056"><h3>7056</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp" alt="4418"><h3>4418</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7138.webp" alt="7138"><h3>7138</h3></div>
   </div>
 
   <div class="overlay" id="overlay">
@@ -260,12 +283,10 @@
       }, 400);
     }
 
-    // Einzelbilder
     items.forEach((img, idx) => {
       img.addEventListener('click', () => showOverlay(idx));
     });
 
-    // Klick auf Glasrahmen
     glassFrame.addEventListener('click', (e) => {
       if(slideshow){
         paused = !paused;
@@ -277,7 +298,6 @@
       e.stopPropagation();
     });
 
-    // Klick außerhalb Glasrahmen
     overlay.addEventListener('click', (e) => {
       if(slideshow && e.target === overlay){
         hideOverlay();
@@ -286,12 +306,9 @@
       }
     });
 
-    // Diashow-Button
     playButton.addEventListener('click', () => showOverlay(0,true));
 
-    // Slider
     speedSlider.addEventListener('input', () => {
-      // invertiert: links = langsam, rechts = schnell
       const val = 101 - speedSlider.value; 
       slideSpeed = 500 + val*10; 
       startSlideshow();
