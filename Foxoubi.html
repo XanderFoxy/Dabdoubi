@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diashow</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      grid-gap: 15px;
+      width: 90%;
+      max-width: 1200px;
+      margin-top: 20px;
+    }
+
+    .item {
+      position: relative;
+      background: rgba(255,255,255,0.05);
+      border-radius: 14px;
+      box-shadow: 0 8px 30px rgba(255,255,255,0.05);
+      padding: 5px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 25px rgba(255,255,255,0.08);
+    }
+
+    .item img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .item h3 {
+      margin: 5px 0 0;
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #ccc;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(10, 10, 10, 0.85);
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .overlay.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .glass-frame {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 20px;
+      overflow: hidden;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px) saturate(140%);
+      box-shadow: 0 0 40px rgba(255,255,255,0.08);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .glass-frame.glow {
+      box-shadow: 0 0 40px 12px rgba(128,0,128,0.5);
+    }
+
+    .overlay img {
+      max-width: 90vw;
+      max-height: 80vh;
+      border-radius: 16px;
+      transition: opacity 1s ease;
+    }
+
+    .slider-container {
+      position: absolute;
+      bottom: 15px;
+      width: 70%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .slider-container.show {
+      opacity: 1;
+    }
+
+    .slider {
+      width: 100%;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #555;
+      outline: none;
+      transition: background 0.3s;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #800080;
+      cursor: pointer;
+      margin-top: -6px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    }
+
+    input[type=range]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #800080;
+      cursor: pointer;
+      box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    }
+
+    #playButton {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: rgba(128,0,128,0.7);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #playButton:hover {
+      background: rgba(128,0,128,0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <button id="playButton">Diashow</button>
+
+  <div class="container">
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7319.jpeg" alt="setz dich"><h3>setz dich</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7320.jpeg" alt="genauso"><h3>genauso</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7321.jpeg" alt="oh ja"><h3>oh ja</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/MG_7323.jpeg" alt="komm"><h3>komm</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7324.jpeg" alt="Lollipop"><h3>Lollipop</h3></div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="glass-frame" id="glassFrame">
+      <img id="overlayImg" src="" alt="Vergrößertes Bild">
+      <div class="slider-container" id="sliderContainer">
+        <input type="range" id="speedSlider" min="1" max="100" value="50">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const overlay = document.getElementById('overlay');
+    const overlayImg = document.getElementById('overlayImg');
+    const glassFrame = document.getElementById('glassFrame');
+    const playButton = document.getElementById('playButton');
+    const sliderContainer = document.getElementById('sliderContainer');
+    const speedSlider = document.getElementById('speedSlider');
+
+    const items = document.querySelectorAll('.item img');
+    let slideshow = false;
+    let paused = false;
+    let currentIndex = 0;
+    let slideInterval = null;
+    let slideSpeed = 1500;
+
+    function showOverlay(index, isSlideshow=false) {
+      overlay.classList.add('show');
+      overlayImg.src = items[index].src;
+      currentIndex = index;
+      if(isSlideshow){
+        slideshow = true;
+        paused = false;
+        startSlideshow();
+      }
+    }
+
+    function hideOverlay() {
+      overlay.classList.remove('show');
+      overlayImg.src = '';
+      clearInterval(slideInterval);
+      slideshow = false;
+      paused = false;
+      glassFrame.classList.remove('glow');
+      sliderContainer.classList.remove('show');
+    }
+
+    function startSlideshow() {
+      clearInterval(slideInterval);
+      slideInterval = setInterval(() => {
+        if(!paused){
+          nextSlide();
+        }
+      }, slideSpeed);
+    }
+
+    function nextSlide() {
+      overlayImg.style.opacity = 0;
+      setTimeout(()=>{
+        currentIndex = (currentIndex + 1) % items.length;
+        overlayImg.src = items[currentIndex].src;
+        overlayImg.style.opacity = 1;
+      }, 400);
+    }
+
+    items.forEach((img, idx) => {
+      img.addEventListener('click', () => showOverlay(idx));
+    });
+
+    glassFrame.addEventListener('click', (e) => {
+      if(slideshow){
+        paused = !paused;
+        sliderContainer.classList.toggle('show', paused);
+        glassFrame.classList.toggle('glow', paused);
+      } else {
+        hideOverlay();
+      }
+      e.stopPropagation();
+    });
+
+    overlay.addEventListener('click', (e) => {
+      if(slideshow && e.target === overlay){
+        hideOverlay();
+      } else if(!slideshow && e.target === overlay){
+        hideOverlay();
+      }
+    });
+
+    playButton.addEventListener('click', () => showOverlay(0,true));
+
+    speedSlider.addEventListener('input', () => {
+      const val = 101 - speedSlider.value; 
+      slideSpeed = 500 + val*10; 
+      startSlideshow();
+    });
+
+  </script>
+
+</body>
+</html>
