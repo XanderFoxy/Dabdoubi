@@ -167,6 +167,51 @@
     #playButton:hover {
       background: rgba(128,0,128,0.9);
     }
+
+    /* === Neuer Musikplayer === */
+    #musicPlayer {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(40, 40, 40, 0.85);
+      border-radius: 14px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 1500;
+      font-size: 0.9rem;
+    }
+
+    #musicPlayer img {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: rgba(255,255,255,0.1);
+    }
+
+    #musicPlayer button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    #playlist {
+      background: rgba(0,0,0,0.5);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      padding: 3px 6px;
+    }
+
+    #volume {
+      width: 60px;
+    }
   </style>
 </head>
 <body>
@@ -190,14 +235,29 @@
     </div>
   </div>
 
+  <!-- 🎵 Musikplayer (neu) -->
+  <div id="musicPlayer">
+    <img id="cover" src="https://via.placeholder.com/50x50?text=Cover" alt="Cover">
+    <select id="playlist">
+      <option value="https://github.com/XanderFoxy/Dabdoubi/raw/main/Musik/So%20schoen%20ist%20die%20Weihnacht.mp3">
+        So schön ist die Weihnacht
+      </option>
+    </select>
+    <button id="prev">⏮️</button>
+    <button id="playPause">▶️</button>
+    <button id="stop">⏹️</button>
+    <button id="next">⏭️</button>
+    <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+  </div>
+
   <script>
+    /* === Diashow (unverändert) === */
     const overlay = document.getElementById('overlay');
     const overlayImg = document.getElementById('overlayImg');
     const glassFrame = document.getElementById('glassFrame');
     const playButton = document.getElementById('playButton');
     const sliderContainer = document.getElementById('sliderContainer');
     const speedSlider = document.getElementById('speedSlider');
-
     const items = document.querySelectorAll('.item img');
     let slideshow = false;
     let paused = false;
@@ -275,6 +335,78 @@
       startSlideshow();
     });
 
+    /* === Musikplayer === */
+    const audio = new Audio();
+    const playPauseBtn = document.getElementById('playPause');
+    const stopBtn = document.getElementById('stop');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const playlist = document.getElementById('playlist');
+    const volume = document.getElementById('volume');
+    const cover = document.getElementById('cover');
+
+    const tracks = [
+      {
+        title: "So schön ist die Weihnacht",
+        src: "https://github.com/XanderFoxy/Dabdoubi/raw/main/Musik/So%20schoen%20ist%20die%20Weihnacht.mp3",
+        cover: "https://github.com/XanderFoxy/Dabdoubi/raw/main/Bilder/So%20schoen%20ist%20die%20Weihnacht.jpg"
+      }
+    ];
+    let currentTrack = 0;
+
+    function loadTrack(index) {
+      const track = tracks[index];
+      audio.src = track.src;
+      cover.src = track.cover || "https://via.placeholder.com/50x50?text=Cover";
+      playlist.value = track.src;
+    }
+
+    function playTrack() {
+      audio.play();
+      playPauseBtn.textContent = "⏸️";
+    }
+
+    function pauseTrack() {
+      audio.pause();
+      playPauseBtn.textContent = "▶️";
+    }
+
+    function stopTrack() {
+      audio.pause();
+      audio.currentTime = 0;
+      playPauseBtn.textContent = "▶️";
+    }
+
+    playPauseBtn.addEventListener('click', () => {
+      if(audio.paused) playTrack();
+      else pauseTrack();
+    });
+
+    stopBtn.addEventListener('click', stopTrack);
+
+    nextBtn.addEventListener('click', () => {
+      currentTrack = (currentTrack + 1) % tracks.length;
+      loadTrack(currentTrack);
+      playTrack();
+    });
+
+    prevBtn.addEventListener('click', () => {
+      currentTrack = (currentTrack - 1 + tracks.length) % tracks.length;
+      loadTrack(currentTrack);
+      playTrack();
+    });
+
+    playlist.addEventListener('change', (e) => {
+      currentTrack = tracks.findIndex(t => t.src === e.target.value);
+      loadTrack(currentTrack);
+      playTrack();
+    });
+
+    volume.addEventListener('input', () => {
+      audio.volume = volume.value;
+    });
+
+    loadTrack(currentTrack);
   </script>
 
 </body>
