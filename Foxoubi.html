@@ -1,333 +1,382 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diashow & Player</title>
-<style>
-body {
-  margin: 0;
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #000;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow-x: hidden;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diashow</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
 
-/* === Galerie === */
-.container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  grid-gap: 15px;
-  width: 90%;
-  max-width: 1200px;
-  margin-top: 20px;
-}
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      grid-gap: 15px;
+      width: 90%;
+      max-width: 1200px;
+      margin-top: 20px;
+    }
 
-.item {
-  position: relative;
-  background: rgba(255,255,255,0.05);
-  border-radius: 14px;
-  box-shadow: 0 8px 30px rgba(255,255,255,0.05);
-  padding: 5px;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  backdrop-filter: blur(4px);
-}
+    .item {
+      position: relative;
+      background: rgba(255,255,255,0.05);
+      border-radius: 14px;
+      box-shadow: 0 8px 30px rgba(255,255,255,0.05);
+      padding: 5px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
 
-.item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 25px rgba(255,255,255,0.08);
-}
+    .item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 25px rgba(255,255,255,0.08);
+    }
 
-.item img {
-  width: 100%;
-  height: auto;
-  border-radius: 12px;
-  object-fit: cover;
-}
+    .item img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      object-fit: cover;
+    }
 
-.item h3 {
-  margin: 5px 0 0;
-  font-size: 0.9rem;
-  font-weight: 400;
-  color: #ccc;
-}
+    .item h3 {
+      margin: 5px 0 0;
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #ccc;
+    }
 
-/* === Overlay für Diashow === */
-.overlay {
-  position: fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background: rgba(10,10,10,0.85);
-  z-index:1000;
-  visibility:hidden;
-  opacity:0;
-  transition: opacity 0.4s, visibility 0.4s;
-}
-.overlay.show { visibility: visible; opacity: 1; }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(10, 10, 10, 0.85);
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
 
-.glass-frame {
-  position: relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  border-radius:20px;
-  overflow:hidden;
-  padding:20px;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px) saturate(140%);
-  box-shadow:0 0 40px rgba(255,255,255,0.08);
-  transition: box-shadow 0.3s;
-}
-.glass-frame.glow { box-shadow: 0 0 40px 12px rgba(128,0,128,0.5); }
+    .overlay.show {
+      visibility: visible;
+      opacity: 1;
+    }
 
-.overlay img {
-  max-width: 90vw;
-  max-height: 80vh;
-  border-radius: 16px;
-  transition: opacity 1s ease;
-}
+    .glass-frame {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 20px;
+      overflow: hidden;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px) saturate(140%);
+      box-shadow: 0 0 40px rgba(255,255,255,0.08);
+      transition: box-shadow 0.3s ease;
+    }
 
-.slider-container {
-  position: absolute;
-  bottom:15px;
-  width:70%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  opacity:0;
-  transition:opacity 0.5s;
-}
-.slider-container.show { opacity:1; }
+    .glass-frame.glow {
+      box-shadow: 0 0 40px 12px rgba(128,0,128,0.5);
+    }
 
-input[type=range] {
-  -webkit-appearance:none;
-  width:100%;
-  height:8px;
-  border-radius:4px;
-  background:#555;
-  outline:none;
-  transition:background 0.3s;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance:none;
-  appearance:none;
-  width:20px; height:20px;
-  border-radius:50%;
-  background:#800080;
-  cursor:pointer;
-  margin-top:-6px;
-  box-shadow:0 0 4px rgba(0,0,0,0.5);
-}
-input[type=range]::-moz-range-thumb {
-  width:20px; height:20px;
-  border-radius:50%;
-  background:#800080;
-  cursor:pointer;
-  box-shadow:0 0 4px rgba(0,0,0,0.5);
-}
+    .overlay img {
+      max-width: 90vw;
+      max-height: 80vh;
+      border-radius: 16px;
+      transition: opacity 1s ease;
+    }
 
-#playButton {
-  margin-top: 20px;
-  padding:10px 20px;
-  font-size:1rem;
-  background: rgba(128,0,128,0.7);
-  border:none;
-  border-radius:12px;
-  color:white;
-  cursor:pointer;
-  transition:background 0.3s;
-}
-#playButton:hover { background: rgba(128,0,128,0.9); }
+    .slider-container {
+      position: absolute;
+      bottom: 15px;
+      width: 70%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
 
-/* === Kleiner Player === */
-#musicPlayer {
-  position: fixed;
-  bottom: 15px;
-  right: 15px;
-  background: rgba(40,40,40,0.85);
-  border-radius: 12px;
-  padding: 8px 12px;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  backdrop-filter: blur(8px);
-  font-size:0.85rem;
-  z-index:200;
-  cursor:pointer;
-  transition: all 0.3s;
-}
+    .slider-container.show {
+      opacity: 1;
+    }
 
-#musicPlayer.open {
-  width: 280px;
-  padding: 12px 16px;
-  flex-direction: column;
-  align-items: center;
-}
+    .slider {
+      width: 100%;
+    }
 
-#musicPlayer img {
-  width: 40px; height:40px;
-  border-radius:8px;
-  object-fit:cover;
-  cursor:pointer;
-}
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #555;
+      outline: none;
+      transition: background 0.3s;
+    }
 
-#musicPlayer button {
-  background:#800080;
-  border:none;
-  border-radius:6px;
-  color:white;
-  padding:4px 8px;
-  cursor:pointer;
-  font-size:0.9rem;
-  transition:all 0.2s;
-}
-#musicPlayer button:hover { background:#a64ca6; }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #800080;
+      cursor: pointer;
+      margin-top: -6px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    }
 
-#musicPlayer span {
-  color:white;
-  margin-left:5px;
-}
+    input[type=range]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #800080;
+      cursor: pointer;
+      box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    }
 
-#musicPlayer select {
-  margin-top:5px;
-  width:90%;
-  border-radius:6px;
-  border:none;
-  padding:3px 6px;
-  background: rgba(255,255,255,0.1);
-  color:white;
-}
+    #playButton {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: rgba(128,0,128,0.7);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
 
-#musicPlayer input[type=range] {
-  width:90%;
-  margin-top:5px;
-}
-</style>
+    #playButton:hover {
+      background: rgba(128,0,128,0.9);
+    }
+
+    /* --- Kleiner Player --- */
+    #musicPlayer {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(40,40,40,0.85);
+      border-radius: 12px;
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+      font-size: 0.85rem;
+      z-index: 100;
+    }
+
+    #musicPlayer img {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    #musicPlayer button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0;
+    }
+
+    #musicPlayer span {
+      color: #fff;
+      font-size: 0.85rem;
+    }
+
+    #volume {
+      width: 50px;
+    }
+
+  </style>
 </head>
 <body>
 
-<button id="playButton">Diashow</button>
+  <button id="playButton">Diashow</button>
 
-<div class="container">
-  <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7319.jpeg" alt="Ich Und Meine Eltern"><h3>Ich Und Meine Eltern</h3></div>
-  <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7320.jpeg" alt="Ich Und Meine Neffen"><h3>Ich Und Meine Neffen</h3></div>
-  <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7321.jpeg" alt="Good Night Baby"><h3>Good Night Baby</h3></div>
-  <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7323.jpeg" alt="Dreaming Of You"><h3>Dreaming Of You</h3></div>
-  <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7324.jpeg" alt="Ich Und Meine Mutti"><h3>Ich Und Meine Mutti</h3></div>
-</div>
+  <div class="container">
+    <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7319.jpeg" alt="Ich Und Meine Eltern"><h3>Ich Und Meine Eltern</h3></div>
+    <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7320.jpeg" alt="Ich Und Meine Neffen"><h3>Ich Und Meine Neffen</h3></div>
+    <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7321.jpeg" alt="Good Night Baby"><h3>Good Night Baby</h3></div>
+    <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7323.jpeg" alt="Dreaming Of You"><h3>Dreaming Of You</h3></div>
+    <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7324.jpeg" alt="Ich Und Meine Mutti"><h3>Ich Und Meine Mutti</h3></div>
+  </div>
 
-<div class="overlay" id="overlay">
-  <div class="glass-frame" id="glassFrame">
-    <img id="overlayImg" src="" alt="Vergrößertes Bild">
-    <div class="slider-container" id="sliderContainer">
-      <input type="range" id="speedSlider" min="1" max="100" value="50">
+  <div class="overlay" id="overlay">
+    <div class="glass-frame" id="glassFrame">
+      <img id="overlayImg" src="" alt="Vergrößertes Bild">
+      <div class="slider-container" id="sliderContainer">
+        <input type="range" id="speedSlider" min="1" max="100" value="50">
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Kleiner Player -->
-<div id="musicPlayer">
-  <img id="cover" src="https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" alt="Cover">
-  <span id="trackTitle">So schön ist die Weihnacht</span>
-  <div style="display:flex; gap:5px; margin-top:5px;">
-    <button id="playPause">Play</button>
-    <button id="stop">Stop</button>
+  <!-- Kleiner Player -->
+  <div id="musicPlayer">
+    <img id="cover" src="https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" alt="Cover">
+    <span id="trackTitle">So schön ist die Weihnacht</span>
+    <button id="playPause">▶️</button>
+    <button id="stop">⏹️</button>
+    <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+    <select id="playlist">
+      <option value="https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3">So schön ist die Weihnacht</option>
+      <option value="https://XanderFoxy.github.io/Dabdoubi/Musik/Lied2.mp3">Lied 2</option>
+      <option value="https://XanderFoxy.github.io/Dabdoubi/Musik/Lied3.mp3">Lied 3</option>
+    </select>
   </div>
-  <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-  <select id="playlist">
-    <option value="https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3">So schön ist die Weihnacht</option>
-    <option value="https://XanderFoxy.github.io/Dabdoubi/Musik/Lied2.mp3">Lied 2</option>
-    <option value="https://XanderFoxy.github.io/Dabdoubi/Musik/Lied3.mp3">Lied 3</option>
-  </select>
-</div>
 
-<script>
-// === Diashow ===
-const overlay = document.getElementById('overlay');
-const overlayImg = document.getElementById('overlayImg');
-const glassFrame = document.getElementById('glassFrame');
-const playButton = document.getElementById('playButton');
-const sliderContainer = document.getElementById('sliderContainer');
-const speedSlider = document.getElementById('speedSlider');
-const items = document.querySelectorAll('.item img');
-let slideshow = false;
-let paused = false;
-let currentIndex = 0;
-let slideInterval = null;
-let slideSpeed = 1500;
+  <script>
+    // === Diashow (unverändert) ===
+    const overlay = document.getElementById('overlay');
+    const overlayImg = document.getElementById('overlayImg');
+    const glassFrame = document.getElementById('glassFrame');
+    const playButton = document.getElementById('playButton');
+    const sliderContainer = document.getElementById('sliderContainer');
+    const speedSlider = document.getElementById('speedSlider');
+    const items = document.querySelectorAll('.item img');
+    let slideshow = false;
+    let paused = false;
+    let currentIndex = 0;
+    let slideInterval = null;
+    let slideSpeed = 1500;
 
-function showOverlay(index, isSlideshow=false){
-  overlay.classList.add('show');
-  overlayImg.src = items[index].src;
-  currentIndex=index;
-  if(isSlideshow){ slideshow=true; paused=false; startSlideshow(); }
-}
-function hideOverlay(){
-  overlay.classList.remove('show');
-  overlayImg.src='';
-  clearInterval(slideInterval);
-  slideshow=false;
-  paused=false;
-  glassFrame.classList.remove('glow');
-  sliderContainer.classList.remove('show');
-}
-function startSlideshow(){
-  clearInterval(slideInterval);
-  slideInterval=setInterval(()=>{ if(!paused){ nextSlide(); }}, slideSpeed);
-}
-function nextSlide(){
-  overlayImg.style.opacity=0;
-  setTimeout(()=>{ currentIndex=(currentIndex+1)%items.length; overlayImg.src=items[currentIndex].src; overlayImg.style.opacity=1;},400);
-}
-items.forEach((img,idx)=>{ img.addEventListener('click',()=>showOverlay(idx)); });
-glassFrame.addEventListener('click',(e)=>{ if(slideshow){ paused=!paused; sliderContainer.classList.toggle('show',paused); glassFrame.classList.toggle('glow',paused); } else{ hideOverlay(); } e.stopPropagation(); });
-overlay.addEventListener('click',(e)=>{ if(e.target===overlay){ hideOverlay(); } });
-playButton.addEventListener('click',()=>showOverlay(0,true));
-speedSlider.addEventListener('input',()=>{ const val=101-speedSlider.value; slideSpeed=500+val*10; startSlideshow(); });
+    function showOverlay(index, isSlideshow=false) {
+      overlay.classList.add('show');
+      overlayImg.src = items[index].src;
+      currentIndex = index;
+      if(isSlideshow){
+        slideshow = true;
+        paused = false;
+        startSlideshow();
+      }
+    }
 
-// === Player ===
-const audio = new Audio("https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3");
-const playPauseBtn = document.getElementById('playPause');
-const stopBtn = document.getElementById('stop');
-const volume = document.getElementById('volume');
-const cover = document.getElementById('cover');
-const trackTitle = document.getElementById('trackTitle');
-const playlist = document.getElementById('playlist');
-const musicPlayer = document.getElementById('musicPlayer');
+    function hideOverlay() {
+      overlay.classList.remove('show');
+      overlayImg.src = '';
+      clearInterval(slideInterval);
+      slideshow = false;
+      paused = false;
+      glassFrame.classList.remove('glow');
+      sliderContainer.classList.remove('show');
+    }
 
-playPauseBtn.addEventListener('click', ()=>{
-  if(audio.paused){ audio.play(); playPauseBtn.textContent="Pause"; } 
-  else{ audio.pause(); playPauseBtn.textContent="Play"; }
-});
+    function startSlideshow() {
+      clearInterval(slideInterval);
+      slideInterval = setInterval(() => {
+        if(!paused){
+          nextSlide();
+        }
+      }, slideSpeed);
+    }
 
-stopBtn.addEventListener('click', ()=>{
-  audio.pause(); audio.currentTime=0; playPauseBtn.textContent="Play";
-});
+    function nextSlide() {
+      overlayImg.style.opacity = 0;
+      setTimeout(()=>{
+        currentIndex = (currentIndex + 1) % items.length;
+        overlayImg.src = items[currentIndex].src;
+        overlayImg.style.opacity = 1;
+      }, 400);
+    }
 
-volume.addEventListener('input',()=>{ audio.volume = volume.value; });
+    items.forEach((img, idx) => {
+      img.addEventListener('click', () => showOverlay(idx));
+    });
 
-playlist.addEventListener('change',(e)=>{
-  audio.src = e.target.value;
-  audio.play();
-  playPauseBtn.textContent="Pause";
-  trackTitle.textContent = e.target.options[e.target.selectedIndex].text;
-  cover.src = "https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg"; // optional für jedes Lied anpassen
-});
+    glassFrame.addEventListener('click', (e) => {
+      if(slideshow){
+        paused = !paused;
+        sliderContainer.classList.toggle('show', paused);
+        glassFrame.classList.toggle('glow', paused);
+      } else {
+        hideOverlay();
+      }
+      e.stopPropagation();
+    });
 
-// Cover anklicken -> Panel aufklappen
-cover.addEventListener('click',()=>{
-  musicPlayer.classList.toggle('open');
-});
-</script>
+    overlay.addEventListener('click', (e) => {
+      if(e.target === overlay){
+        hideOverlay();
+      }
+    });
+
+    playButton.addEventListener('click', () => showOverlay(0,true));
+
+    speedSlider.addEventListener('input', () => {
+      const val = 101 - speedSlider.value; 
+      slideSpeed = 500 + val*10; 
+      startSlideshow();
+    });
+
+    // === Player ===
+    const audio = new Audio("https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3");
+    const playPauseBtn = document.getElementById('playPause');
+    const stopBtn = document.getElementById('stop');
+    const volume = document.getElementById('volume');
+    const playlist = document.getElementById('playlist');
+    const trackTitle = document.getElementById('trackTitle');
+    const cover = document.getElementById('cover');
+
+    playPauseBtn.addEventListener('click', () => {
+      if(audio.paused){
+        audio.play();
+        playPauseBtn.textContent = "⏸️";
+      } else {
+        audio.pause();
+        playPauseBtn.textContent = "▶️";
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      audio.pause();
+      audio.currentTime = 0;
+      playPauseBtn.textContent = "▶️";
+    });
+
+    audio.addEventListener('ended', () => {
+      playPauseBtn.textContent = "▶️";
+    });
+
+    volume.addEventListener('input', () => {
+      audio.volume = volume.value;
+    });
+
+    playlist.addEventListener('change', (e) => {
+      audio.src = e.target.value;
+      audio.play();
+      playPauseBtn.textContent = "⏸️";
+      trackTitle.textContent = e.target.options[e.target.selectedIndex].text;
+      cover.src = "https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg";
+    });
+
+    // Cover anklickbar -> Panel öffnen
+    cover.addEventListener('click', ()=>{
+      alert("Hier könnte man das Cover größer anzeigen oder Player erweitern.");
+    });
+
+  </script>
+
 </body>
 </html>
