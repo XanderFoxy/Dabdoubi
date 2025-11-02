@@ -168,7 +168,6 @@
       background: rgba(128,0,128,0.9);
     }
 
-    /* === Neuer Musikplayer === */
     #musicPlayer {
       position: fixed;
       bottom: 10px;
@@ -235,11 +234,10 @@
     </div>
   </div>
 
-  <!-- 🎵 Musikplayer (neu) -->
   <div id="musicPlayer">
-    <img id="cover" src="https://via.placeholder.com/50x50?text=Cover" alt="Cover">
+    <img id="cover" src="https://xanderfoxy.github.io/Dabdoubi/Bilder/So schön ist die Weihnacht.jpg" alt="Cover">
     <select id="playlist">
-      <option value="https://github.com/XanderFoxy/Dabdoubi/Musik/So schön ist die Weihnacht.mp3">
+      <option value="https://xanderfoxy.github.io/Dabdoubi/Musik/So schön ist die Weihnacht (Demo1).mp3">
         So schön ist die Weihnacht
       </option>
     </select>
@@ -251,7 +249,6 @@
   </div>
 
   <script>
-    /* === Diashow (unverändert) === */
     const overlay = document.getElementById('overlay');
     const overlayImg = document.getElementById('overlayImg');
     const glassFrame = document.getElementById('glassFrame');
@@ -335,7 +332,6 @@
       startSlideshow();
     });
 
-    /* === Musikplayer === */
     const audio = new Audio();
     const playPauseBtn = document.getElementById('playPause');
     const stopBtn = document.getElementById('stop');
@@ -348,8 +344,8 @@
     const tracks = [
       {
         title: "So schön ist die Weihnacht",
-        src: "https://github.com/XanderFoxy/Dabdoubi/Musik/So schön ist die Weihnacht.mp3",
-        cover: "https://github.com/XanderFoxy/Dabdoubi/Bilder/So schön ist die Weihnacht.jpg"
+        src: "https://xanderfoxy.github.io/Dabdoubi/Musik/So schön ist die Weihnacht (Demo1).mp3",
+        cover: "https://xanderfoxy.github.io/Dabdoubi/Bilder/So schön ist die Weihnacht.jpg"
       }
     ];
     let currentTrack = 0;
@@ -357,7 +353,7 @@
     function loadTrack(index) {
       const track = tracks[index];
       audio.src = track.src;
-      cover.src = track.cover || "https://via.placeholder.com/50x50?text=Cover";
+      cover.src = track.cover || "https://xanderfoxy.github.io/Dabdoubi/Bilder/So schön ist die Weihnacht.jpg";
       playlist.value = track.src;
     }
 
