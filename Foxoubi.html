@@ -99,7 +99,7 @@
       max-width: 90vw;
       max-height: 80vh;
       border-radius: 16px;
-      transition: opacity 0.3s ease;
+      transition: opacity 1s ease;
     }
 
     .slider-container {
@@ -168,21 +168,20 @@
       background: rgba(128,0,128,0.9);
     }
 
-    /* === Kompakter moderner Musikplayer === */
+    /* --- Kleiner Player --- */
     #musicPlayer {
       position: fixed;
       bottom: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(30,30,30,0.85);
-      padding: 8px 12px;
-      border-radius: 14px;
+      right: 15px;
+      background: rgba(40,40,40,0.85);
+      border-radius: 12px;
+      padding: 5px 10px;
       display: flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-      font-family: "Segoe UI", Arial, sans-serif;
-      z-index: 1200;
+      backdrop-filter: blur(8px);
+      font-size: 0.85rem;
+      z-index: 100;
     }
 
     #musicPlayer img {
@@ -191,49 +190,24 @@
       border-radius: 8px;
       object-fit: cover;
       cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-
-    #musicPlayer .controls {
-      display: flex;
-      gap: 6px;
-      align-items: center;
     }
 
     #musicPlayer button {
-      background: linear-gradient(145deg, #444, #222);
+      background: none;
       border: none;
-      color: #fff;
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
+      color: white;
       cursor: pointer;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-      transition: background 0.2s;
+      font-size: 1rem;
+      padding: 0;
     }
 
-    #musicPlayer button:hover {
-      background: linear-gradient(145deg, #555, #333);
-    }
-
-    #musicPlayer select {
-      background: rgba(0,0,0,0.3);
+    #musicPlayer span {
       color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 2px 6px;
       font-size: 0.85rem;
-      cursor: pointer;
     }
 
-    #musicPlayer input[type=range] {
-      width: 70px;
-      height: 6px;
-      background: rgba(255,255,255,0.2);
+    #volume {
+      width: 50px;
     }
 
   </style>
@@ -243,11 +217,11 @@
   <button id="playButton">Diashow</button>
 
   <div class="container">
-    <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7319.jpeg" alt="Ich Und Meine Eltern"><h3>Ich Und Meine Eltern</h3></div>
-    <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7320.jpeg" alt="Ich Und Meine Neffen"><h3>Ich Und Meine Neffen</h3></div>
-    <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7321.jpeg" alt="Good Night Baby"><h3>Good Night Baby</h3></div>
-    <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7323.jpeg" alt="Dreaming Of You"><h3>Dreaming Of You</h3></div>
-    <div class="item"><img src="https://XanderFoxy.github.io/Dabdoubi/IMG_7324.jpeg" alt="Ich Und Meine Mutti"><h3>Ich Und Meine Mutti</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7319.jpeg" alt="Ich Und Meine Eltern"><h3>Ich Und Meine Eltern</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7320.jpeg" alt="Ich Und Meine Neffen"><h3>Ich Und Meine Neffen</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7321.jpeg" alt="Good Night Baby"><h3>Good Night Baby</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7323.jpeg" alt="Dreaming Of You"><h3>Dreaming Of You</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7324.jpeg" alt="Ich Und Meine Mutti"><h3>Ich Und Meine Mutti</h3></div>
   </div>
 
   <div class="overlay" id="overlay">
@@ -259,22 +233,17 @@
     </div>
   </div>
 
+  <!-- Kleiner Player -->
   <div id="musicPlayer">
-    <img id="cover" src="https://XanderFoxy.github.io/Dabdoubi/Bilder/Weihnacht.jpg" alt="Cover">
-    <div class="controls">
-      <button id="prev">⏮</button>
-      <button id="playPause">▶</button>
-      <button id="stop">⏹</button>
-      <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-    </div>
-    <select id="playlist">
-      <option value="Weihnacht.mp3">Weihnacht</option>
-      <option value="Platzhalter1.mp3">Platzhalter1</option>
-      <option value="Platzhalter2.mp3">Platzhalter2</option>
-    </select>
+    <img id="cover" src="https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" alt="Cover">
+    <span id="trackTitle">So schön ist die Weihnacht</span>
+    <button id="playPause">▶️</button>
+    <button id="stop">⏹️</button>
+    <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
   </div>
 
   <script>
+    // === Diashow (unverändert) ===
     const overlay = document.getElementById('overlay');
     const overlayImg = document.getElementById('overlayImg');
     const glassFrame = document.getElementById('glassFrame');
@@ -358,84 +327,31 @@
       startSlideshow();
     });
 
-    // === Musikplayer ===
-    const audio = new Audio();
+    // === Einfacher Player ===
+    const audio = new Audio("https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3");
     const playPauseBtn = document.getElementById('playPause');
     const stopBtn = document.getElementById('stop');
-    const prevBtn = document.getElementById('prev');
-    const nextBtn = document.getElementById('next');
-    const playlist = document.getElementById('playlist');
     const volume = document.getElementById('volume');
-    const cover = document.getElementById('cover');
 
-    const tracks = [
-      {title: "Weihnacht", src:"https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3", cover:"https://XanderFoxy.github.io/Dabdoubi/Bilder/Weihnacht.jpg"},
-      {title: "Platzhalter1", src:"https://XanderFoxy.github.io/Dabdoubi/Musik/Platzhalter1.mp3", cover:"https://XanderFoxy.github.io/Dabdoubi/Bilder/Platzhalter1.jpg"},
-      {title: "Platzhalter2", src:"https://XanderFoxy.github.io/Dabdoubi/Musik/Platzhalter2.mp3", cover:"https://XanderFoxy.github.io/Dabdoubi/Bilder/Platzhalter2.jpg"}
-    ];
+    playPauseBtn.addEventListener('click', () => {
+      if(audio.paused){
+        audio.play();
+        playPauseBtn.textContent = "⏸️";
+      } else {
+        audio.pause();
+        playPauseBtn.textContent = "▶️";
+      }
+    });
 
-    let currentTrack = 0;
-
-    function loadTrack(index){
-      const track = tracks[index];
-      audio.src = track.src;
-      cover.src = track.cover;
-      playlist.value = track.src;
-    }
-
-    function playTrack(){
-      audio.play();
-      playPauseBtn.textContent = "⏸";
-    }
-
-    function pauseTrack(){
-      audio.pause();
-      playPauseBtn.textContent = "▶";
-    }
-
-    function stopTrack(){
+    stopBtn.addEventListener('click', () => {
       audio.pause();
       audio.currentTime = 0;
-      playPauseBtn.textContent = "▶";
-    }
-
-    audio.addEventListener('ended', ()=>{ playPauseBtn.textContent = "▶"; });
-
-    playPauseBtn.addEventListener('click', ()=>{
-      if(audio.paused) playTrack(); else pauseTrack();
+      playPauseBtn.textContent = "▶️";
     });
 
-    stopBtn.addEventListener('click', stopTrack);
-
-    prevBtn.addEventListener('click', ()=>{
-      currentTrack = (currentTrack-1+tracks.length)%tracks.length;
-      loadTrack(currentTrack);
-      playTrack();
-    });
-
-    nextBtn.addEventListener('click', ()=>{
-      currentTrack = (currentTrack+1)%tracks.length;
-      loadTrack(currentTrack);
-      playTrack();
-    });
-
-    playlist.addEventListener('change',(e)=>{
-      currentTrack = tracks.findIndex(t=>t.src===e.target.value);
-      loadTrack(currentTrack);
-      playTrack();
-    });
-
-    volume.addEventListener('input', ()=>{
+    volume.addEventListener('input', () => {
       audio.volume = volume.value;
     });
-
-    cover.addEventListener('click', ()=>{
-      overlay.classList.add('show');
-      overlayImg.src = cover.src;
-    });
-
-    loadTrack(currentTrack);
-
   </script>
 
 </body>
