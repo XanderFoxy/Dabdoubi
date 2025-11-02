@@ -1,472 +1,419 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Stylischer Musikplayer — Compact</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diashow</title>
   <style>
-    :root{
-      --bg:#0b0810;
-      --panel:#0f0c14;
-      --accent:#9b4dff;
-      --glass: rgba(255,255,255,0.04);
-      --muted: #bdb6c8;
-      --shadow: 0 8px 30px rgba(11,8,16,0.6);
-    }
-
-    html,body{height:100%;margin:0;background:
-      radial-gradient(1200px 600px at 10% 10%, rgba(155,77,255,0.06), transparent 8%),
-      radial-gradient(900px 500px at 90% 80%, rgba(0,200,255,0.02), transparent 6%),
-      var(--bg);
-      font-family: Inter, "Segoe UI", system-ui, Arial, sans-serif;
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #000;
       color: #fff;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
-
-    /* Compact floating player */
-    .player {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      width: 380px;
-      max-width: calc(100% - 36px);
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius: 16px;
-      padding: 12px;
-      box-shadow: var(--shadow), 0 2px 6px rgba(155,77,255,0.08) inset;
-      backdrop-filter: blur(8px) saturate(120%);
-      display: grid;
-      grid-template-columns: 64px 1fr 44px;
-      gap: 12px;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      z-index: 9999;
-      border: 1px solid rgba(255,255,255,0.03);
+      overflow-x: hidden;
     }
 
-    /* cover with texture-like effect */
-    .cover {
-      width:64px;height:64px;border-radius:10px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,0,0,0.35));
-      box-shadow: 0 6px 18px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.02) inset;
-      overflow: hidden;
-      display:flex;align-items:center;justify-content:center;
-      position:relative;
-    }
-    .cover img{
-      width:100%;height:100%;object-fit:cover;display:block;
-    }
-    .cover::after{
-      content:"";
-      position:absolute;inset:0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.25));
-      mix-blend-mode: overlay;
-      pointer-events:none;
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      grid-gap: 15px;
+      width: 90%;
+      max-width: 1200px;
+      margin-top: 20px;
     }
 
-    .meta{
-      display:flex;flex-direction:column;gap:6px;
-      min-width:0;
-    }
-    .title{
-      font-size:14px;font-weight:600;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-      color:#fff;
-      text-shadow: 0 1px 0 rgba(0,0,0,0.6);
-    }
-    .artist{
-      font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    }
-
-    /* controls & waveform column */
-    .controls{
-      display:flex;align-items:center;gap:8px;
-    }
-    .btn{
-      width:36px;height:36px;border-radius:8px;border:none;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.22));
-      color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.45);
-      transition:transform .12s ease, box-shadow .12s ease;
-    }
-    .btn:active{ transform: translateY(1px) scale(.995); }
-    .btn:focus{ outline:2px solid rgba(155,77,255,0.18); }
-
-    .play{
-      width:44px;height:44px;border-radius:10px;font-size:18px;
-      background: linear-gradient(180deg, var(--accent), #6b2bff);
-      box-shadow: 0 8px 28px rgba(155,77,255,0.28);
-      display:flex;align-items:center;justify-content:center;
-    }
-
-    .small{
-      font-size:13px;padding:6px 8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);
-      color:var(--muted);
-    }
-
-    /* progress + waveform area */
-    .progress-wrap{
-      grid-column: 1 / -1;
-      display:flex;flex-direction:column;gap:8px;margin-top:6px;margin-left: 76px;
-    }
-
-    .progress{
-      height:6px;width:100%;background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-      border-radius:6px;position:relative;overflow:hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5) inset;
-    }
-    .progress .bar{
-      height:100%;width:0%;background:linear-gradient(90deg, rgba(155,77,255,0.9), rgba(100,40,255,0.9));
-      border-radius:6px 0 0 6px;transition:width .08s linear;
-    }
-
-    .time-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-left:76px; margin-top:-2px;}
-
-    canvas.wave{
-      width:100%;height:48px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.25));
-      box-shadow: 0 6px 16px rgba(0,0,0,0.45);
-      display:block;
-      margin-left:76px;
+    .item {
+      position: relative;
+      background: rgba(255,255,255,0.05);
+      border-radius: 14px;
+      box-shadow: 0 8px 30px rgba(255,255,255,0.05);
+      padding: 5px;
+      text-align: center;
       cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      backdrop-filter: blur(4px);
     }
 
-    /* playlist + volume small row */
-    .row-bottom{
-      grid-column: 1 / -1;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px;margin-left:76px;
+    .item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 25px rgba(255,255,255,0.08);
     }
 
-    select#plist{
-      background:transparent;border:1px solid rgba(255,255,255,0.03);padding:6px 8px;border-radius:8px;color:#fff;font-size:13px;
+    .item img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      object-fit: cover;
     }
 
-    input[type="range"].vol{
-      width:120px;appearance:none;background:transparent;
+    .item h3 {
+      margin: 5px 0 0;
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #ccc;
     }
-    input[type="range"].vol::-webkit-slider-runnable-track{height:6px;background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));border-radius:6px;}
-    input[type="range"].vol::-webkit-slider-thumb{width:12px;height:12px;border-radius:50%;background:var(--accent);-webkit-appearance:none;margin-top:-3px;box-shadow:0 2px 6px rgba(155,77,255,0.25);}
-    input[type="range"].vol:focus{outline:none;}
 
-    /* responsive */
-    @media (max-width:420px){
-      .player{width:calc(100% - 28px);right:14px;left:14px;grid-template-columns:56px 1fr 40px;padding:10px;}
-      .cover{width:56px;height:56px}
-      .progress-wrap,.time-row,canvas.wave,.row-bottom{margin-left:66px;}
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(10, 10, 10, 0.85);
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .overlay.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .glass-frame {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 20px;
+      overflow: hidden;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px) saturate(140%);
+      box-shadow: 0 0 40px rgba(255,255,255,0.08);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .glass-frame.glow {
+      box-shadow: 0 0 40px 12px rgba(128,0,128,0.5);
+    }
+
+    .overlay img {
+      max-width: 90vw;
+      max-height: 80vh;
+      border-radius: 16px;
+      transition: opacity 1s ease;
+    }
+
+    .slider-container {
+      position: absolute;
+      bottom: 15px;
+      width: 70%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .slider-container.show {
+      opacity: 1;
+    }
+
+    .slider {
+      width: 100%;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #555;
+      outline: none;
+      transition: background 0.3s;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #800080;
+      cursor: pointer;
+      margin-top: -6px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    }
+
+    input[type=range]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #800080;
+      cursor: pointer;
+      box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    }
+
+    #playButton {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: rgba(128,0,128,0.7);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #playButton:hover {
+      background: rgba(128,0,128,0.9);
+    }
+
+    /* Neuer moderner Musikplayer */
+    #modernPlayer {
+      margin-top: 40px;
+      width: 320px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 20px;
+      padding: 20px;
+      backdrop-filter: blur(16px) saturate(140%);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #modernPlayer h3 {
+      margin: 10px 0;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #fff;
+      text-shadow: 0 0 8px rgba(128,0,128,0.6);
+    }
+
+    #cover {
+      width: 100%;
+      border-radius: 14px;
+      box-shadow: 0 0 20px rgba(128,0,128,0.3);
+    }
+
+    #controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 12px;
+    }
+
+    #controls button {
+      background: rgba(128,0,128,0.3);
+      border: none;
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: #fff;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    #controls button:hover {
+      background: rgba(128,0,128,0.6);
+      transform: translateY(-2px);
+    }
+
+    #waveCanvas {
+      width: 100%;
+      height: 60px;
+      margin-top: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    #volume {
+      width: 80%;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-  <div class="player" aria-label="Musikplayer">
-    <div class="cover" title="Cover">
-      <img id="coverImg" src="https://xanderfoxy.github.io/Dabdoubi/Bilder/So schön ist die Weihnacht.jpg" alt="Cover">
-    </div>
+  <button id="playButton">Diashow</button>
 
-    <div class="meta">
-      <div class="title" id="trackTitle">So schön ist die Weihnacht</div>
-      <div class="artist" id="trackArtist">XanderFoxy</div>
-      <div class="controls" style="margin-top:6px;">
-        <button class="btn" id="prevBtn" title="Zurück">⏮</button>
-        <button class="btn play" id="playBtn" title="Play/Pause">▶</button>
-        <button class="btn" id="stopBtn" title="Stop">⏹</button>
-        <button class="btn" id="nextBtn" title="Vor">⏭</button>
-      </div>
-    </div>
+  <div class="container">
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7319.jpeg" alt="Ich Und Meine Eltern"><h3>Ich Und Meine Eltern</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7320.jpeg" alt="Ich Und Meine Neffen"><h3>Ich Und Meine Neffen</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7321.jpeg" alt="Good Night Baby"><h3>Good Night Baby</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7323.jpeg" alt="Dreaming Of You"><h3>Dreaming Of You</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7324.jpeg" alt="Ich Und Meine Mutti"><h3>Ich Und Meine Mutti</h3></div>
+  </div>
 
-    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-      <div style="font-size:11px;color:var(--muted);">Vol</div>
-      <input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="1" aria-label="Lautstärke">
-    </div>
-
-    <div class="progress-wrap">
-      <div class="progress" id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-        <div class="bar" id="progressFilled"></div>
-      </div>
-
-      <canvas class="wave" id="waveCanvas" width="800" height="96" title="Wellenform anzeigen"></canvas>
-      <div class="time-row"><span id="curTime">0:00</span><span id="durTime">0:00</span></div>
-
-      <div class="row-bottom">
-        <select id="plist" aria-label="Playlist">
-          <option data-file="Musik/So schön ist die Weihnacht (Demo1).mp3">So schön ist die Weihnacht</option>
-        </select>
-
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button class="small" id="shuffleBtn" title="Shuffle aus/an">Shuffle</button>
-          <button class="small" id="repeatBtn" title="Wiederholen aus/an">Repeat</button>
-        </div>
+  <div class="overlay" id="overlay">
+    <div class="glass-frame" id="glassFrame">
+      <img id="overlayImg" src="" alt="Vergrößertes Bild">
+      <div class="slider-container" id="sliderContainer">
+        <input type="range" id="speedSlider" min="1" max="100" value="50">
       </div>
     </div>
   </div>
 
-  <audio id="audio" crossorigin="anonymous"></audio>
+  <!-- Neuer Glas-Musikplayer -->
+  <div id="modernPlayer">
+    <img id="cover" src="https://xanderfoxy.github.io/Dabdoubi/Bilder/So schön ist die Weihnacht.jpg" alt="Cover">
+    <h3>So schön ist die Weihnacht</h3>
+    <canvas id="waveCanvas"></canvas>
+    <div id="controls">
+      <button id="prev">⏮️</button>
+      <button id="playPause">▶️</button>
+      <button id="stop">⏹️</button>
+      <button id="next">⏭️</button>
+    </div>
+    <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+  </div>
 
   <script>
-    // Basis-URL deines GitHub-Pages-Projekts
-    const BASE = 'https://xanderfoxy.github.io/Dabdoubi/';
+    const overlay = document.getElementById('overlay');
+    const overlayImg = document.getElementById('overlayImg');
+    const glassFrame = document.getElementById('glassFrame');
+    const playButton = document.getElementById('playButton');
+    const sliderContainer = document.getElementById('sliderContainer');
+    const speedSlider = document.getElementById('speedSlider');
+    const items = document.querySelectorAll('.item img');
+    let slideshow = false;
+    let paused = false;
+    let currentIndex = 0;
+    let slideInterval = null;
+    let slideSpeed = 1500;
 
-    // Genau so benannte Dateien wie du sie geschrieben hast (bleiben unverändert sichtbar im UI)
-    const trackFile = 'Musik/So schön ist die Weihnacht (Demo1).mp3';
-    const coverFile = 'Bilder/So schön ist die Weihnacht.jpg';
-
-    // Elemente
-    const audio = document.getElementById('audio');
-    const playBtn = document.getElementById('playBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const vol = document.getElementById('vol');
-    const progressBar = document.getElementById('progressBar');
-    const progressFilled = document.getElementById('progressFilled');
-    const curTimeEl = document.getElementById('curTime');
-    const durTimeEl = document.getElementById('durTime');
-    const coverImg = document.getElementById('coverImg');
-    const titleEl = document.getElementById('trackTitle');
-    const plist = document.getElementById('plist');
-    const waveCanvas = document.getElementById('waveCanvas');
-
-    // Playlist array (expandable later)
-    const tracks = [
-      {
-        title: 'So schön ist die Weihnacht',
-        artist: 'XanderFoxy',
-        file: trackFile,
-        cover: coverFile
+    function showOverlay(index, isSlideshow=false) {
+      overlay.classList.add('show');
+      overlayImg.src = items[index].src;
+      currentIndex = index;
+      if(isSlideshow){
+        slideshow = true;
+        paused = false;
+        startSlideshow();
       }
-    ];
-    let idx = 0;
-    let isPlaying = false;
-    let rafId = null;
-    let shuffle = false;
-    let repeatMode = false;
-
-    // set audio src using encodeURI to keep display names intact while making URL web-safe
-    function makeUrl(path){
-      // encodeURI leaves slashes intact and encodes spaces & special characters
-      return BASE + encodeURI(path);
     }
 
-    function loadTrack(i){
-      const t = tracks[i];
-      audio.src = makeUrl(t.file);
-      coverImg.src = makeUrl(t.cover);
-      titleEl.textContent = t.title;
-      // update playlist select UI to show selected
-      plist.selectedIndex = i;
+    function hideOverlay() {
+      overlay.classList.remove('show');
+      overlayImg.src = '';
+      clearInterval(slideInterval);
+      slideshow = false;
+      paused = false;
+      glassFrame.classList.remove('glow');
+      sliderContainer.classList.remove('show');
     }
 
-    // visual progress
-    function formatTime(s){
-      if(!isFinite(s)) return '0:00';
-      const m = Math.floor(s/60);
-      const sec = Math.floor(s%60).toString().padStart(2,'0');
-      return `${m}:${sec}`;
+    function startSlideshow() {
+      clearInterval(slideInterval);
+      slideInterval = setInterval(() => {
+        if(!paused){
+          nextSlide();
+        }
+      }, slideSpeed);
     }
 
-    // basic controls
-    function play(){
-      audio.play().catch(()=>{/* autoplay policies may block without gesture */});
-      isPlaying = true;
-      playBtn.textContent = '⏸';
-      startVisualizer();
+    function nextSlide() {
+      overlayImg.style.opacity = 0;
+      setTimeout(()=>{
+        currentIndex = (currentIndex + 1) % items.length;
+        overlayImg.src = items[currentIndex].src;
+        overlayImg.style.opacity = 1;
+      }, 400);
     }
-    function pause(){
-      audio.pause();
-      isPlaying = false;
-      playBtn.textContent = '▶';
-      cancelAnimationFrame(rafId);
+
+    items.forEach((img, idx) => {
+      img.addEventListener('click', () => showOverlay(idx));
+    });
+
+    glassFrame.addEventListener('click', (e) => {
+      if(slideshow){
+        paused = !paused;
+        sliderContainer.classList.toggle('show', paused);
+        glassFrame.classList.toggle('glow', paused);
+      } else {
+        hideOverlay();
+      }
+      e.stopPropagation();
+    });
+
+    overlay.addEventListener('click', (e) => {
+      if(slideshow && e.target === overlay){
+        hideOverlay();
+      } else if(!slideshow && e.target === overlay){
+        hideOverlay();
+      }
+    });
+
+    playButton.addEventListener('click', () => showOverlay(0,true));
+
+    speedSlider.addEventListener('input', () => {
+      const val = 101 - speedSlider.value; 
+      slideSpeed = 500 + val*10; 
+      startSlideshow();
+    });
+
+    /* === Moderner Musikplayer === */
+    const audio = new Audio("https://xanderfoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3");
+    const playPauseBtn = document.getElementById("playPause");
+    const stopBtn = document.getElementById("stop");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const volume = document.getElementById("volume");
+    const canvas = document.getElementById("waveCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let playing = false;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioCtx.createAnalyser();
+    const source = audioCtx.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    function drawWave() {
+      requestAnimationFrame(drawWave);
+      analyser.getByteFrequencyData(dataArray);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const barWidth = (canvas.width / bufferLength) * 1.5;
+      let x = 0;
+      for(let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i] / 3;
+        const r = 128 + (barHeight * 1.2);
+        const g = 0;
+        const b = 128 + (barHeight * 0.6);
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+      }
     }
-    function stop(){
+    drawWave();
+
+    playPauseBtn.addEventListener("click", async () => {
+      if (!playing) {
+        await audioCtx.resume();
+        audio.play();
+        playPauseBtn.textContent = "⏸️";
+        playing = true;
+      } else {
+        audio.pause();
+        playPauseBtn.textContent = "▶️";
+        playing = false;
+      }
+    });
+
+    stopBtn.addEventListener("click", () => {
       audio.pause();
       audio.currentTime = 0;
-      isPlaying = false;
-      playBtn.textContent = '▶';
-      updateProgress();
-      cancelAnimationFrame(rafId);
-    }
-    function next(){
-      if(tracks.length <= 1) { audio.currentTime = 0; return; }
-      if(shuffle){
-        idx = Math.floor(Math.random()*tracks.length);
-      } else {
-        idx = (idx + 1) % tracks.length;
-      }
-      loadTrack(idx); play();
-    }
-    function prev(){
-      if(audio.currentTime > 3){ audio.currentTime = 0; return; }
-      idx = (idx - 1 + tracks.length) % tracks.length;
-      loadTrack(idx); play();
-    }
-
-    // events
-    playBtn.addEventListener('click', ()=> isPlaying ? pause() : play());
-    stopBtn.addEventListener('click', stop);
-    nextBtn.addEventListener('click', next);
-    prevBtn.addEventListener('click', prev);
-
-    vol.addEventListener('input', ()=> audio.volume = vol.value);
-
-    plist.addEventListener('change', ()=>{
-      idx = plist.selectedIndex;
-      loadTrack(idx); play();
+      playPauseBtn.textContent = "▶️";
+      playing = false;
     });
 
-    // progress click / seek
-    progressBar.addEventListener('click', (e)=>{
-      const rect = progressBar.getBoundingClientRect();
-      const pct = (e.clientX - rect.left) / rect.width;
-      audio.currentTime = pct * audio.duration;
+    volume.addEventListener("input", () => {
+      audio.volume = volume.value;
     });
-
-    // update progress display
-    function updateProgress(){
-      const cur = audio.currentTime || 0;
-      const dur = audio.duration || 0;
-      const pct = dur ? (cur / dur) * 100 : 0;
-      progressFilled.style.width = pct + '%';
-      curTimeEl.textContent = formatTime(cur);
-      durTimeEl.textContent = formatTime(dur);
-      // set aria value
-      progressBar.setAttribute('aria-valuenow', Math.floor(pct));
-    }
-
-    audio.addEventListener('timeupdate', updateProgress);
-    audio.addEventListener('loadedmetadata', updateProgress);
-    audio.addEventListener('ended', ()=>{
-      if(repeatMode) { audio.currentTime = 0; play(); }
-      else next();
-    });
-
-    // small toggle buttons
-    document.getElementById('shuffleBtn').addEventListener('click', (e)=>{
-      shuffle = !shuffle;
-      e.currentTarget.style.opacity = shuffle ? 1 : 0.6;
-    });
-    document.getElementById('repeatBtn').addEventListener('click', (e)=>{
-      repeatMode = !repeatMode;
-      e.currentTarget.style.opacity = repeatMode ? 1 : 0.6;
-    });
-
-    // VISUALIZER (waveform) using WebAudio API AnalyserNode
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    let audioCtx, analyser, sourceNode;
-    const canvas = waveCanvas;
-    const ctx = canvas.getContext('2d');
-
-    function setupAudioContext(){
-      if(audioCtx) return;
-      audioCtx = new AudioContext();
-      sourceNode = audioCtx.createMediaElementSource(audio);
-      analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 2048;
-      sourceNode.connect(analyser);
-      analyser.connect(audioCtx.destination);
-    }
-
-    // draw real-time waveform
-    function startVisualizer(){
-      setupAudioContext();
-      analyser.fftSize = 2048;
-      const bufferLength = analyser.fftSize;
-      const dataArray = new Uint8Array(bufferLength);
-
-      function draw(){
-        rafId = requestAnimationFrame(draw);
-        analyser.getByteTimeDomainData(dataArray);
-
-        // clear
-        const w = canvas.width = canvas.clientWidth * devicePixelRatio;
-        const h = canvas.height = canvas.clientHeight * devicePixelRatio;
-        ctx.clearRect(0,0,w,h);
-
-        // background subtle texture
-        const grad = ctx.createLinearGradient(0,0,0,h);
-        grad.addColorStop(0, 'rgba(255,255,255,0.01)');
-        grad.addColorStop(1, 'rgba(0,0,0,0.06)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0,0,w,h);
-
-        // waveform path
-        ctx.lineWidth = 2 * devicePixelRatio;
-        // dynamic color/lighting
-        const colorGrad = ctx.createLinearGradient(0,0,w,0);
-        colorGrad.addColorStop(0, 'rgba(155,77,255,0.95)');
-        colorGrad.addColorStop(1, 'rgba(100,40,255,0.95)');
-        ctx.strokeStyle = colorGrad;
-        ctx.beginPath();
-
-        const sliceWidth = w / bufferLength;
-        let x = 0;
-        for(let i=0;i<bufferLength;i++){
-          const v = dataArray[i] / 128.0; // normalized 0..2
-          const y = (v * h / 2);
-          if(i===0){ ctx.moveTo(x,y); }
-          else { ctx.lineTo(x,y); }
-          x += sliceWidth;
-        }
-        ctx.stroke();
-
-        // subtle highlight/gloss
-        ctx.globalCompositeOperation = 'lighter';
-        ctx.beginPath();
-        ctx.lineWidth = 0.5 * devicePixelRatio;
-        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-        x = 0;
-        for(let i=0;i<bufferLength;i+=8){
-          const v = dataArray[i] / 128.0;
-          const y = (v * h / 2);
-          if(i===0) ctx.moveTo(x,y);
-          else ctx.lineTo(x,y);
-          x += sliceWidth * 8;
-        }
-        ctx.stroke();
-        ctx.globalCompositeOperation = 'source-over';
-      }
-
-      if(rafId) cancelAnimationFrame(rafId);
-      draw();
-    }
-
-    // click waveform to seek
-    canvas.addEventListener('click', (e)=>{
-      const rect = canvas.getBoundingClientRect();
-      const pct = (e.clientX - rect.left) / rect.width;
-      if(isFinite(audio.duration)) audio.currentTime = pct * audio.duration;
-      updateProgress();
-    });
-
-    // initial load
-    loadTrack(idx);
-
-    // Ensure audio context resume on first user gesture (some browsers require)
-    document.body.addEventListener('click', function ensureAudio(e){
-      if(!audioCtx){
-        try{ setupAudioContext(); }
-        catch(e){ /* ignore */ }
-      }
-      // also resume if suspended
-      if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
-      document.body.removeEventListener('click', ensureAudio);
-    }, { once:true });
-
-    // keyboard accessibility: space toggles play/pause when player focused
-    window.addEventListener('keydown', (e)=>{
-      if(e.code === 'Space' && (document.activeElement === document.body || document.activeElement === playBtn)){
-        e.preventDefault();
-        isPlaying ? pause() : play();
-      }
-    });
-
-    // make sure canvas scales for hi-dpi
-    function resizeCanvas(){
-      const ratio = devicePixelRatio || 1;
-      canvas.width = canvas.clientWidth * ratio;
-      canvas.height = canvas.clientHeight * ratio;
-    }
-    window.addEventListener('resize', ()=>{ resizeCanvas(); });
-    resizeCanvas();
-
-    // preload cover image (keeps placeholder filled until real image loads)
-    (new Image()).src = makeUrl(coverFile);
-
   </script>
 </body>
 </html>
