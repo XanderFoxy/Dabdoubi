@@ -168,7 +168,6 @@
       background: rgba(128,0,128,0.9);
     }
 
-    /* --- Kleiner Player --- */
     #musicPlayer {
       position: fixed;
       bottom: 15px;
@@ -291,6 +290,16 @@
     <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7321.jpeg" alt="Good Night Baby"><h3>Good Night Baby</h3></div>
     <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7323.jpeg" alt="Dreaming Of You"><h3>Dreaming Of You</h3></div>
     <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/IMG_7324.jpeg" alt="Ich Und Meine Mutti"><h3>Ich Und Meine Mutti</h3></div>
+
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg" alt="Bild"><h3>Bild</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/JuE5ywM3.jpeg" alt="Bild"><h3>Bild</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/7ylO8SbO.jpeg" alt="Bild"><h3>Bild</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/reVuied4.jpeg" alt="Bild"><h3>Bild</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/wyXz6MhB.jpeg" alt="Bild"><h3>Bild</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/m6l7tlxB.jpeg" alt="Bild"><h3>Bild</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/OJX7O4Fr.jpeg" alt="Bild"><h3>Bild</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/4JVKv09e.jpeg" alt="Bild"><h3>Bild</h3></div>
+    <div class="item"><img src="https://xanderfoxy.github.io/Dabdoubi/1xOOKJLC.jpeg" alt="Bild"><h3>Bild</h3></div>
   </div>
 
   <div class="overlay" id="overlay">
@@ -302,13 +311,11 @@
     </div>
   </div>
 
-  <!-- Kleiner Player -->
   <div id="musicPlayer">
     <img id="cover" src="https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" alt="Cover">
     <span id="trackTitle">So schön ist die Weihnacht</span>
   </div>
 
-  <!-- Aufklappbares Player-Panel -->
   <div id="playerPanel">
     <img id="panelCover" src="https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" alt="Cover">
     <ul id="playlist">
@@ -325,7 +332,6 @@
   </div>
 
   <script>
-    // === Diashow (unverändert) ===
     const overlay = document.getElementById('overlay');
     const overlayImg = document.getElementById('overlayImg');
     const glassFrame = document.getElementById('glassFrame');
@@ -404,12 +410,11 @@
     playButton.addEventListener('click', () => showOverlay(0,true));
 
     speedSlider.addEventListener('input', () => {
-      const val = 101 - speedSlider.value; 
-      slideSpeed = 500 + val*10; 
+      const val = 101 - speedSlider.value;
+      slideSpeed = 500 + val*10;
       startSlideshow();
     });
 
-    // === Player ===
     const musicPlayer = document.getElementById('musicPlayer');
     const playerPanel = document.getElementById('playerPanel');
     const panelCover = document.getElementById('panelCover');
@@ -481,7 +486,6 @@
     });
 
     loadTrack(0);
-
   </script>
 </body>
 </html>
