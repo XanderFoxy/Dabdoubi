@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Meine Foto-Welten</title>
+  <title>Galleria - Premium Hub</title>
   <style>
     :root {
       --accent: #f3c64a;
       --bg-dark: #0a0a0a;
-      --card-bg: rgba(255, 255, 255, 0.05);
-      --sidebar-w: 280px;
+      --sidebar-bg: #111;
+      --card-bg: rgba(255, 255, 255, 0.03);
       --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -17,157 +17,66 @@
       margin: 0; padding: 0; height: 100%;
       background: var(--bg-dark);
       color: #fff;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', -apple-system, sans-serif;
       overflow: hidden;
     }
 
-    /* --- LAYOUT --- */
-    #app-container {
-      display: flex;
-      height: 100vh;
-      width: 100vw;
-      transition: var(--transition);
-    }
+    #app-container { display: flex; height: 100vh; width: 100vw; }
 
-    /* Sidebar - Inspiriert von Song-Seite */
+    /* SIDEBAR */
     #sidebar {
-      width: var(--sidebar-w);
-      background: #111;
+      width: 280px; background: var(--sidebar-bg);
       border-right: 1px solid rgba(255,255,255,0.05);
-      display: flex;
-      flex-direction: column;
-      z-index: 100;
-      transition: transform 0.5s ease;
+      display: flex; flex-direction: column; z-index: 100;
     }
 
-    .sidebar-hidden #sidebar {
-      transform: translateX(-100%);
-      position: absolute;
-    }
+    .sidebar-header { padding: 30px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .sidebar-header h1 { margin: 0; font-size: 18px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
 
-    .sidebar-header {
-      padding: 30px 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .sidebar-header h1 {
-      margin: 0; font-size: 20px; color: var(--accent);
-      text-transform: uppercase; letter-spacing: 2px;
-    }
-
-    .nav-list {
-      flex: 1; overflow-y: auto; padding: 10px;
-    }
-
+    .nav-list { flex: 1; padding: 15px; }
     .nav-item {
-      padding: 15px; margin-bottom: 8px;
-      border-radius: 10px; cursor: pointer;
-      transition: var(--transition);
-      display: flex; align-items: center; gap: 12px;
-      background: transparent;
+      padding: 14px 18px; margin-bottom: 10px; border-radius: 12px;
+      cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; gap: 12px; color: #888;
     }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    .nav-item.active { background: var(--accent); color: #000; font-weight: 700; }
 
-    .nav-item:hover { background: rgba(255,255,255,0.05); }
-    .nav-item.active { background: var(--accent); color: #000; font-weight: bold; }
-
-    /* Main Content Area */
-    #main-content {
-      flex: 1;
-      position: relative;
-      overflow-y: auto;
-      background: radial-gradient(circle at top right, #1a1a1a, #0a0a0a);
-      transition: var(--transition);
-    }
-
-    /* --- VIEWS --- */
-    .view-section {
-      padding: 40px;
-      max-width: 1400px;
-      margin: 0 auto;
-      display: none;
-      animation: fadeIn 0.5s ease forwards;
-    }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+    /* CONTENT AREA */
+    #main-content { flex: 1; overflow-y: auto; position: relative; padding: 40px; background: #0e0e0e; }
+    
+    .view-section { display: none; animation: slideIn 0.5s ease; }
     .view-section.active { display: block; }
+    
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-    /* Overview Grid */
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 25px;
+    /* GRID STYLES */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+
+    .card {
+      background: var(--card-bg); border-radius: 20px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: var(--transition);
+      position: relative; aspect-ratio: 16/10;
     }
+    .card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+    .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.5; transition: 0.5s; }
+    .card:hover img { opacity: 0.8; transform: scale(1.05); }
+    
+    .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); }
+    .card-info h3 { margin: 0; font-size: 18px; color: #fff; }
+    .card-info p { margin: 5px 0 0; font-size: 13px; color: var(--accent); opacity: 0.8; }
 
-    .category-card {
-      position: relative;
-      height: 200px;
-      border-radius: 20px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: var(--transition);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .category-card:hover { transform: scale(1.03); border-color: var(--accent); }
-    .category-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
-    .category-card .info {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.8));
-    }
-
-    /* Gallery Grid */
-    .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 15px;
-    }
-
-    .photo-item {
-      aspect-ratio: 1;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      background: var(--card-bg);
-      transition: var(--transition);
-    }
-
-    .photo-item:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-    .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-
-    /* Back Button */
     .back-btn {
-      background: none; border: 1px solid var(--accent); color: var(--accent);
-      padding: 8px 16px; border-radius: 8px; cursor: pointer;
-      margin-bottom: 20px; transition: 0.3s;
+      background: none; border: 1px solid #444; color: #888;
+      padding: 8px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 25px;
+      transition: 0.3s;
     }
-    .back-btn:hover { background: var(--accent); color: #000; }
+    .back-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* --- OVERLAY & SLIDESHOW (From Design 1) --- */
-    .overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-      z-index: 2000; display: none; justify-content: center; align-items: center;
-      backdrop-filter: blur(10px);
-    }
-
-    .overlay.active { display: flex; }
-
-    .glass-frame {
-      position: relative; padding: 15px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-    }
-
-    .overlay img { max-width: 85vw; max-height: 80vh; border-radius: 15px; }
-
-    .controls {
-      position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%);
-      display: flex; gap: 20px; align-items: center; background: rgba(0,0,0,0.5);
-      padding: 10px 20px; border-radius: 20px;
-    }
-
-    #speedSlider { accent-color: var(--accent); }
+    /* PHOTO GALLERY GRID (Wenn eine Serie geöffnet wird) */
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+    .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; }
+    .photo-item img { width: 100%; height: 100%; object-fit: cover; }
 
   </style>
 </head>
@@ -175,179 +84,149 @@
 
   <div id="app-container">
     <aside id="sidebar">
-      <div class="sidebar-header">
-        <h1>Galleria</h1>
-      </div>
-      <nav class="nav-list" id="galleryNav">
-        <div class="nav-item active" onclick="showOverview()">🏠 Übersicht</div>
-        </nav>
+      <div class="sidebar-header"><h1>Galleria</h1></div>
+      <nav class="nav-list">
+        <div class="nav-item active" id="nav-home" onclick="showView('overview')">🏠 Übersicht</div>
+        <div class="nav-item" id="nav-fotos" onclick="showCategory('fotos')">📷 Fotos</div>
+        <div class="nav-item" id="nav-rezepte" onclick="showCategory('rezepte')">🍳 Rezepte</div>
+        <div class="nav-item" id="nav-comics" onclick="showCategory('comics')">🎨 Comics</div>
+      </nav>
     </aside>
 
     <main id="main-content">
       
       <section id="view-overview" class="view-section active">
-        <h2 style="font-size: 32px; margin-bottom: 30px;">Deine Sammlungen</h2>
-        <div class="category-grid" id="categoryGrid">
+        <h2 style="font-size: 28px; margin-bottom: 30px; letter-spacing: -0.5px;">Willkommen zurück</h2>
+        <div class="grid">
+          <div class="card" onclick="showCategory('fotos')">
+            <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png">
+            <div class="card-info"><h3>Fotografie</h3><p>Momente & Serien</p></div>
+          </div>
+          <div class="card" onclick="showCategory('rezepte')">
+            <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png">
+            <div class="card-info"><h3>Kulinarik</h3><p>Rezepte & Ideen</p></div>
+          </div>
+          <div class="card" onclick="showCategory('comics')">
+            <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp">
+            <div class="card-info"><h3>Comics</h3><p>Illustrationen & Art</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-category" class="view-section">
+        <button class="back-btn" onclick="showView('overview')">← Zurück zur Übersicht</button>
+        <h2 id="category-title" style="color: var(--accent);">Kategorie</h2>
+        <div class="grid" id="series-grid">
           </div>
       </section>
 
       <section id="view-gallery" class="view-section">
-        <button class="back-btn" onclick="showOverview()">← Zurück zur Auswahl</button>
-        <h2 id="galleryTitle" style="color: var(--accent);">Galerie Name</h2>
-        <div class="photo-grid" id="photoGrid">
-          </div>
-        <div style="margin-top: 40px; text-align: center;">
-            <button id="startDiashow" class="back-btn" style="background: var(--accent); color: #000; font-weight: bold;">▶ Diashow starten</button>
-        </div>
+        <button class="back-btn" id="gallery-back-btn">← Zurück zur Serie</button>
+        <h2 id="gallery-title">Galerie Name</h2>
+        <div class="photo-grid" id="photo-grid"></div>
       </section>
+
     </main>
   </div>
 
-  <div class="overlay" id="overlay">
-    <div class="glass-frame" id="glassFrame">
-      <img id="overlayImg" src="" alt="">
-      <div class="controls">
-        <button onclick="prevSlide()" class="back-btn" style="margin:0">◀</button>
-        <input type="range" id="speedSlider" min="500" max="5000" value="2000" title="Geschwindigkeit">
-        <button onclick="nextSlide()" class="back-btn" style="margin:0">▶</button>
-        <button onclick="closeOverlay()" class="back-btn" style="margin:0; border-color: #ff4444; color: #ff4444;">X</button>
-      </div>
-    </div>
-  </div>
-
 <script>
-  // DATENSTRUKTUR (Hier kannst du deine Bilder pflegen)
-  const galleryData = {
-    baby: {
-      title: "Baby Fotos",
-      cover: "https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png",
-      images: [
-        "https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png",
-        "https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png",
-        "https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png"
+  // DIE DATENSTRUKTUR
+  const data = {
+    fotos: {
+      title: "Fotografie",
+      series: [
+        { 
+          name: "Foxoubi Spezial", 
+          img: "https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png", 
+          desc: "Alle Fotos auf einen Blick",
+          external: "https://xanderfoxy.github.io/Dabdoubi/Foxoubi.html" 
+        },
+        { 
+          name: "Baby Jahre", 
+          img: "https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png", 
+          images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png", "https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png"] 
+        },
+        { 
+          name: "Natur", 
+          img: "https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png", 
+          images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png"] 
+        }
       ]
     },
     rezepte: {
       title: "Rezepte",
-      cover: "https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png",
-      images: [
-        "https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png",
-        "https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png",
-        "https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png"
+      series: [
+        { name: "Süßspeisen", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png"] },
+        { name: "Herzhaft", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png"] }
       ]
     },
     comics: {
-      title: "Comics & Art",
-      cover: "https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp",
-      images: [
-        "https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp",
-        "https://xanderfoxy.github.io/Dabdoubi/IMG_6745.png",
-        "https://xanderfoxy.github.io/Dabdoubi/IMG_6510.png"
+      title: "Comics",
+      series: [
+        { name: "Skizzen", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp"] }
       ]
     }
   };
 
-  let currentGallery = [];
-  let currentIndex = 0;
-  let slideshowTimer = null;
+  let currentCategoryKey = "";
 
-  // INITIALISIERUNG
-  function init() {
-    const grid = document.getElementById('categoryGrid');
-    const nav = document.getElementById('galleryNav');
-
-    for (const [id, data] of Object.entries(galleryData)) {
-      // Sidebar Links
-      const navItem = document.createElement('div');
-      navItem.className = 'nav-item';
-      navItem.innerHTML = `🖼️ ${data.title}`;
-      navItem.onclick = () => openGallery(id);
-      nav.appendChild(navItem);
-
-      // Dashboard Cards
-      const card = document.createElement('div');
-      card.className = 'category-card';
-      card.innerHTML = `
-        <img src="${data.cover}">
-        <div class="info"><h3>${data.title}</h3></div>
-      `;
-      card.onclick = () => openGallery(id);
-      grid.appendChild(card);
-    }
+  function showView(viewId) {
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('view-' + viewId).classList.add('active');
+    
+    // Sidebar Active State
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if(viewId === 'overview') document.getElementById('nav-home').classList.add('active');
   }
 
-  function showOverview() {
-    document.getElementById('view-overview').classList.add('active');
-    document.getElementById('view-gallery').classList.remove('active');
-    document.body.classList.remove('sidebar-hidden');
-    stopSlideshow();
-  }
-
-  function openGallery(id) {
-    const data = galleryData[id];
-    currentGallery = data.images;
-    document.getElementById('galleryTitle').innerText = data.title;
-    const grid = document.getElementById('photoGrid');
+  function showCategory(key) {
+    currentCategoryKey = key;
+    const cat = data[key];
+    document.getElementById('category-title').innerText = cat.title;
+    
+    const grid = document.getElementById('series-grid');
     grid.innerHTML = '';
 
-    data.images.forEach((src, idx) => {
-      const item = document.createElement('div');
-      item.className = 'photo-item';
-      item.innerHTML = `<img src="${src}">`;
-      item.onclick = () => openLightbox(idx);
-      grid.appendChild(item);
+    cat.series.forEach(serie => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${serie.img}">
+        <div class="card-info">
+          <h3>${serie.name}</h3>
+          <p>${serie.desc || 'Serie ansehen'}</p>
+        </div>
+      `;
+      card.onclick = () => {
+        if(serie.external) {
+          window.location.href = serie.external; // Weiterleitung zu Foxoubi.html
+        } else {
+          openGallery(serie);
+        }
+      };
+      grid.appendChild(card);
     });
 
-    document.getElementById('view-overview').classList.remove('active');
-    document.getElementById('view-gallery').classList.add('active');
-    
-    // Menü verstecken für vollen Fokus
-    document.body.classList.add('sidebar-hidden');
+    showView('category');
+    document.getElementById('nav-' + key).classList.add('active');
   }
 
-  // LIGHTBOX LOGIK
-  function openLightbox(index) {
-    currentIndex = index;
-    const overlay = document.getElementById('overlay');
-    const img = document.getElementById('overlayImg');
-    img.src = currentGallery[currentIndex];
-    overlay.classList.add('active');
+  function openGallery(serie) {
+    document.getElementById('gallery-title').innerText = serie.name;
+    const grid = document.getElementById('photo-grid');
+    grid.innerHTML = '';
+
+    serie.images.forEach(imgSrc => {
+      const div = document.createElement('div');
+      div.className = 'photo-item';
+      div.innerHTML = `<img src="${imgSrc}">`;
+      grid.appendChild(div);
+    });
+
+    document.getElementById('gallery-back-btn').onclick = () => showCategory(currentCategoryKey);
+    showView('gallery');
   }
 
-  function closeOverlay() {
-    document.getElementById('overlay').classList.remove('active');
-    stopSlideshow();
-  }
-
-  function nextSlide() {
-    currentIndex = (currentIndex + 1) % currentGallery.length;
-    document.getElementById('overlayImg').src = currentGallery[currentIndex];
-  }
-
-  function prevSlide() {
-    currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length;
-    document.getElementById('overlayImg').src = currentGallery[currentIndex];
-  }
-
-  // DIASHOW AUTOMATIK
-  document.getElementById('startDiashow').onclick = () => {
-    openLightbox(0);
-    startSlideshow();
-  };
-
-  function startSlideshow() {
-    stopSlideshow();
-    const speed = document.getElementById('speedSlider').value;
-    slideshowTimer = setInterval(nextSlide, speed);
-  }
-
-  function stopSlideshow() {
-    if(slideshowTimer) clearInterval(slideshowTimer);
-  }
-
-  document.getElementById('speedSlider').onchange = startSlideshow;
-
-  init();
 </script>
 </body>
 </html>
