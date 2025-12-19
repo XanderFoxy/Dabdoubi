@@ -13,7 +13,7 @@
       --bg-dark: #080808;
       --sidebar-bg: #0f0f0f;
       --glass: rgba(255, 255, 255, 0.05);
-      --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     body, html {
@@ -22,35 +22,41 @@
       font-family: 'Inter', sans-serif; overflow: hidden;
     }
 
-    #app-container { display: flex; height: 100vh; width: 100vw; flex-direction: column; }
-    #main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
+    #app-container { display: flex; height: 100vh; width: 100vw; position: relative; }
 
-    /* --- SIDEBAR (Kein Titel mehr) --- */
+    /* --- SIDEBAR --- */
     #sidebar {
       width: 260px; background: var(--sidebar-bg);
-      border-right: 1px solid rgba(255,255,255,0.05);
-      display: flex; flex-direction: column; padding-top: 40px;
+      border-right: 1px solid rgba(255,255,255,0.1);
+      display: flex; flex-direction: column;
+      transition: transform 0.5s ease;
+      z-index: 1000;
     }
+    .sidebar-collapsed #sidebar { transform: translateX(-100%); position: absolute; }
 
-    .nav-list { flex: 1; padding: 15px; }
+    .nav-list { flex: 1; padding: 40px 15px; }
     .nav-item {
-      padding: 14px 20px; margin-bottom: 10px; border-radius: 12px;
+      padding: 14px 20px; margin-bottom: 12px; border-radius: 12px;
       cursor: pointer; transition: var(--transition);
       display: flex; align-items: center; gap: 15px; color: #555;
-      border: 1px solid transparent;
     }
     .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
     .nav-item:hover { color: #fff; background: var(--glass); }
-    
     .nav-item.active {
-      color: #fff;
-      background: rgba(128, 0, 128, 0.15);
+      color: #fff; background: rgba(128, 0, 128, 0.15);
       border-left: 5px solid var(--asmaa-purple);
       box-shadow: inset 15px 0 20px -15px var(--asmaa-purple);
     }
 
-    /* --- CONTENT --- */
-    #main-content { flex: 1; overflow-y: auto; padding: 50px; padding-bottom: 140px; }
+    /* Toggle Button */
+    #menu-toggle {
+      position: fixed; top: 20px; left: 20px; z-index: 1100;
+      background: var(--sidebar-bg); border: 1px solid var(--glass);
+      padding: 10px; border-radius: 10px; cursor: pointer; color: var(--accent);
+    }
+
+    /* --- MAIN CONTENT --- */
+    #main-content { flex: 1; overflow-y: auto; padding: 60px; padding-bottom: 140px; transition: 0.5s; }
     .view-section { display: none; }
     .view-section.active { display: block; animation: fadeIn 0.4s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -61,180 +67,154 @@
       border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: var(--transition);
       position: relative; aspect-ratio: 1/1;
     }
-    .card:hover { transform: translateY(-5px); border-color: var(--asmaa-purple); }
-    .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.5; transition: 0.6s; }
-    .card:hover img { opacity: 0.9; }
+    .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; transition: 0.6s; }
+    .card:hover { border-color: var(--asmaa-purple); transform: translateY(-5px); }
+    .card:hover img { opacity: 1; }
     .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); }
+    
+    .placeholder-card { display: flex; align-items: center; justify-content: center; height: 100%; color: #333; font-weight: bold; }
 
     .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
-    .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
+    .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
     .photo-item:hover { border-color: var(--asmaa-purple); transform: scale(1.03); }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* --- GLOBAL PLAYER --- */
+    /* --- PLAYER BAR --- */
     #player-bar {
-      height: 100px; background: rgba(10,10,10,0.98); backdrop-filter: blur(25px);
+      height: 90px; background: rgba(10,10,10,0.95); backdrop-filter: blur(20px);
       border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center;
       padding: 0 40px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
     }
-    .player-info { display: flex; align-items: center; gap: 15px; width: 320px; }
-    .player-info img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; border: 1px solid var(--asmaa-purple); }
+    .player-info { display: flex; align-items: center; gap: 15px; width: 300px; }
+    .player-info img { width: 50px; height: 50px; border-radius: 8px; border: 1px solid var(--asmaa-purple); }
     .track-meta h4 { margin: 0; font-size: 14px; }
     .track-meta p { margin: 2px 0 0; font-size: 11px; color: #555; }
 
-    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    .buttons { display: flex; align-items: center; gap: 20px; }
-    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; }
-    .btn-svg svg { width: 22px; height: 22px; fill: currentColor; transition: 0.2s; }
+    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; }
+    .btn-svg svg { width: 24px; height: 24px; fill: currentColor; transition: 0.2s; }
     .btn-svg:hover svg { color: var(--accent); }
-    .play-trigger { width: 45px; height: 45px; border-radius: 50%; background: #fff; color: #000; justify-content: center; }
-    .play-trigger:hover { background: var(--accent); }
 
-    .progress-container { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 12px; font-size: 10px; color: #444; }
+    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .progress-container { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #444; }
     #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 4px; cursor: pointer; }
 
-    .volume-ctrl { width: 250px; display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
-    #volume-slider { width: 90px; accent-color: var(--accent); cursor: pointer; }
-
-    /* Playlist Overlay */
-    #playlist-box {
-      position: fixed; bottom: 110px; right: 40px; width: 300px; 
-      background: rgba(15,15,15,0.95); border: 1px solid var(--glass);
-      border-radius: 15px; padding: 15px; display: none; z-index: 1200;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-    }
-    #playlist-box.active { display: block; }
-    .playlist-item { padding: 10px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-bottom: 5px; }
-    .playlist-item:hover { background: var(--glass); }
-    .playlist-item.active { color: var(--accent); border-left: 2px solid var(--accent); }
-
-    /* --- LYRICS BOX --- */
-    #lyrics-box {
-      position: fixed; bottom: 110px; left: 40px; width: 320px; max-height: 250px;
-      background: rgba(10,10,10,0.9); border: 1px solid var(--glass);
-      border-radius: 15px; padding: 20px; display: none; overflow-y: auto;
-      font-family: 'Cormorant Garamond', serif; font-size: 20px; z-index: 1100;
-    }
-
-    /* --- DIASHOW / LIGHTBOX OVERLAY --- */
+    /* --- DIASHOW OVERLAY --- */
     #slideshow-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 2000;
-      display: none; justify-content: center; align-items: center; backdrop-filter: blur(12px);
+      position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 2000;
+      display: none; justify-content: center; align-items: center;
     }
     #slideshow-overlay.active { display: flex; }
     .glass-frame {
-      position: relative; padding: 15px; border-radius: 24px;
+      position: relative; padding: 15px; border-radius: 20px;
       background: rgba(255,255,255,0.03); backdrop-filter: blur(25px);
-      box-shadow: 0 0 50px 15px rgba(128, 0, 128, 0.4);
+      box-shadow: 0 0 50px 10px var(--asmaa-purple);
       border: 1px solid rgba(255,255,255,0.08);
     }
-    .glass-frame img { max-width: 85vw; max-height: 75vh; border-radius: 18px; transition: opacity 0.5s; }
-    
-    .ss-controls {
-      position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%);
-      display: flex; gap: 20px; align-items: center; background: rgba(0,0,0,0.7);
-      padding: 12px 25px; border-radius: 40px; border: 1px solid var(--glass);
-    }
-    .btn-active { color: var(--accent) !important; }
+    .glass-frame img { max-width: 85vw; max-height: 75vh; border-radius: 15px; }
 
+    .ss-console {
+      position: absolute; bottom: -90px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 20px; align-items: center; background: rgba(15,15,15,0.9);
+      padding: 15px 30px; border-radius: 40px; border: 1px solid var(--glass);
+    }
+    .ss-slider { width: 120px; accent-color: var(--accent); }
+    .active-mode { color: var(--accent) !important; filter: drop-shadow(0 0 5px var(--accent)); }
+
+    #playlist-box {
+      position: fixed; bottom: 100px; right: 40px; width: 280px; 
+      background: #111; border: 1px solid var(--glass); border-radius: 15px;
+      padding: 15px; display: none; z-index: 2000;
+    }
+    #playlist-box.active { display: block; }
+    .pl-item { padding: 10px; cursor: pointer; border-radius: 8px; font-size: 13px; margin-bottom: 5px; }
+    .pl-item:hover { background: var(--glass); }
+    .pl-item.active { color: var(--accent); }
   </style>
 </head>
 <body>
 
   <div id="app-container">
-    <div id="main-layout">
-      
-      <aside id="sidebar">
-        <nav class="nav-list">
-          <div class="nav-item active" onclick="showView('overview')">
-            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Übersicht
-          </div>
-          <div class="nav-item" id="nav-gallery" onclick="showCategory('fotos')">
-            <svg viewBox="0 0 24 24"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/></svg> Galerie
-          </div>
-          <div class="nav-item" onclick="showCategory('rezepte')">
-            <svg viewBox="0 0 24 24"><path d="M18 11V7l-5-5-5 5v4c0 2.21 1.79 4 4 4s4-1.79 4-4zM7 15c-1.1 0-2 .9-2 2v3h14v-3c0-1.1-.9-2-2-2H7z"/></svg> Rezepte
-          </div>
-          <div class="nav-item" onclick="showCategory('comics')">
-            <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5-1.17 0-2.39.15-3.5.5V19c1.11-.35 2.33-.5 3.5-.5 1.95 0 4.05.4 5.5 1.5 1.45-1.1 3.55-1.5 5.5-1.5 1.17 0 2.39.15 3.5.5V5z"/></svg> Comics
-          </div>
-        </nav>
-      </aside>
+    <button id="menu-toggle" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+    </button>
 
-      <main id="main-content">
-        <section id="view-overview" class="view-section active">
-          <h2 style="font-weight: 300; margin-bottom: 40px; color: var(--accent);">Dashboard</h2>
-          <div class="grid">
-            <div class="card" onclick="showCategory('fotos')">
-              <img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg">
-              <div class="card-info"><h3>Galerie</h3></div>
-            </div>
-            <div class="card" onclick="showCategory('rezepte')">
-              <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png">
-              <div class="card-info"><h3>Rezepte</h3></div>
-            </div>
-            <div class="card" onclick="showCategory('comics')">
-              <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp">
-              <div class="card-info"><h3>Comics</h3></div>
-            </div>
+    <aside id="sidebar">
+      <nav class="nav-list">
+        <div class="nav-item active" onclick="showView('overview')">
+          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Übersicht
+        </div>
+        <div class="nav-item" id="nav-gallery" onclick="showCategory('fotos')">
+          <svg viewBox="0 0 24 24"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4z"/></svg> Fotos
+        </div>
+        <div class="nav-item" onclick="showCategory('rezepte')">
+          <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03z"/></svg> Rezepte
+        </div>
+        <div class="nav-item" onclick="showCategory('comics')">
+          <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5-1.17 0-2.39.15-3.5.5V19z"/></svg> Comics
+        </div>
+      </nav>
+    </aside>
+
+    <main id="main-content">
+      <section id="view-overview" class="view-section active">
+        <h2 style="font-weight: 300; margin-bottom: 40px; color: var(--accent);">Zentrale</h2>
+        <div class="grid">
+          <div class="card" onclick="showCategory('fotos')">
+            <img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg">
+            <div class="card-info"><h3>Fotos</h3></div>
           </div>
-        </section>
+          <div class="card" onclick="showCategory('rezepte')">
+            <div class="placeholder-card">🍳 Rezepte</div>
+            <div class="card-info"><h3>Rezepte</h3></div>
+          </div>
+          <div class="card" onclick="showCategory('comics')">
+            <div class="placeholder-card">🎨 Comics</div>
+            <div class="card-info"><h3>Comics</h3></div>
+          </div>
+        </div>
+      </section>
 
-        <section id="view-category" class="view-section">
-          <h2 id="category-title" style="font-weight: 300;">Kategorie</h2>
-          <div class="grid" id="series-grid"></div>
-        </section>
+      <section id="view-category" class="view-section">
+        <h2 id="category-title" style="font-weight: 300;">Kategorie</h2>
+        <div class="grid" id="series-grid"></div>
+      </section>
 
-        <section id="view-gallery" class="view-section">
-          <h2 id="gallery-title" style="font-weight: 300; color: var(--accent);">Serie</h2>
-          <div class="photo-grid" id="photo-grid"></div>
-        </section>
-      </main>
-    </div>
+      <section id="view-gallery" class="view-section">
+        <h2 id="gallery-title" style="font-weight: 300; color: var(--accent);">Serie</h2>
+        <div class="photo-grid" id="photo-grid"></div>
+      </section>
+    </main>
 
     <footer id="player-bar">
       <div class="player-info">
         <img id="p-img" src="">
-        <div class="track-meta">
-          <h4 id="p-title">Lade...</h4>
-          <p>Xander Fox</p>
-        </div>
+        <div class="track-meta"><h4 id="p-title">Titel</h4><p>Xander Fox</p></div>
       </div>
-
       <div class="player-controls">
         <div class="buttons">
-          <button class="btn-svg" onclick="prevTrack()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-          <button class="btn-svg play-trigger" onclick="togglePlay()" id="btn-play">
-            <svg viewBox="0 0 24 24" id="play-icon"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button class="btn-svg" onclick="nextTrack()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg></button>
-          <button class="btn-svg" onclick="togglePlaylist()"><svg viewBox="0 0 24 24"><path d="M4 10h12v2H4zm0-4h12v2H4zm0 8h8v2H4zm10 0v6l5-3-5-3z"/></svg></button>
-          <button class="btn-svg" onclick="toggleLyrics()"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></button>
+          <button class="btn-svg" onclick="prevT()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+          <button class="btn-svg" onclick="togglePlay()"><svg viewBox="0 0 24 24" id="play-i"><path d="M8 5v14l11-7z"/></svg></button>
+          <button class="btn-svg" onclick="nextT()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg></button>
+          <button class="btn-svg" onclick="togglePl()"><svg viewBox="0 0 24 24"><path d="M4 10h12v2H4zm0-4h12v2H4zm0 8h8v2H4zm10 0v6l5-3-5-3z"/></svg></button>
         </div>
-        <div class="progress-container">
-          <span id="time-cur">0:00</span>
-          <input type="range" id="progress-bar" value="0" step="0.1">
-          <span id="time-dur">0:00</span>
-        </div>
+        <div class="progress-container"><span id="t-cur">0:00</span><input type="range" id="progress-bar" value="0"><span id="t-dur">0:00</span></div>
       </div>
-
-      <div class="volume-ctrl">
-        <svg style="width:18px" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-        <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8">
-      </div>
+      <div style="width:300px"></div>
     </footer>
 
     <div id="playlist-box"></div>
-    <div id="lyrics-box"></div>
   </div>
 
   <div id="slideshow-overlay">
     <div class="glass-frame">
       <img id="ss-img" src="">
-      <div class="ss-controls">
+      <div class="ss-console">
         <button class="btn-svg" onclick="ssPrev()"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
-        <button class="btn-svg" id="ss-play" onclick="toggleAutoPlay()"><svg viewBox="0 0 24 24" id="ss-play-icon"><path d="M8 5v14l11-7z"/></svg></button>
-        <button class="btn-svg" id="ss-shuffle" onclick="toggleShuffle()"><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.45 20 9.5V4h-5.5zm.73 7.03l1.41 1.41 3.13-3.13L21.21 11h-1.71L14.5 5.5v1.71l2.04 2.04-3.31 3.31z"/></svg></button>
+        <button class="btn-svg" id="ss-play" onclick="toggleSS()"><svg viewBox="0 0 24 24" id="ss-play-i"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="btn-svg" id="ss-shuffle" onclick="toggleShuffle()">
+          <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.45 20 9.5V4h-5.5zm.73 7.03l1.41 1.41 3.13-3.13L21.21 11h-1.71L14.5 5.5v1.71l2.04 2.04-3.31 3.31z"/></svg>
+        </button>
+        <input type="range" class="ss-slider" id="ss-speed" min="500" max="5000" value="2000" oninput="updateSSInterval()">
         <button class="btn-svg" onclick="ssNext()"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
         <button class="btn-svg" onclick="closeSS()"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
       </div>
@@ -242,41 +222,37 @@
   </div>
 
 <script>
-  // DATEN
   const fImgs = ["https://xanderfoxy.github.io/Dabdoubi/IMG_7319.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7320.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7321.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7323.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7324.jpeg"];
   const dImgs = ["https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg","https://xanderfoxy.github.io/Dabdoubi/JuE5ywM3.jpeg","https://xanderfoxy.github.io/Dabdoubi/7ylO8SbO.jpeg","https://xanderfoxy.github.io/Dabdoubi/reVuied4.jpeg","https://xanderfoxy.github.io/Dabdoubi/wyXz6MhB.jpeg","https://xanderfoxy.github.io/Dabdoubi/m6l7tlxB.jpeg","https://xanderfoxy.github.io/Dabdoubi/OJX7O4Fr.jpeg","https://xanderfoxy.github.io/Dabdoubi/4JVKv09e.jpeg","https://xanderfoxy.github.io/Dabdoubi/1xOOKJLC.jpeg","https://xanderfoxy.github.io/Dabdoubi/Facetune_19-11-2025-19-56-41.jpeg","https://xanderfoxy.github.io/Dabdoubi/ezf2Tv5I.jpeg","https://xanderfoxy.github.io/Dabdoubi/ql8RdbJd.jpeg","https://xanderfoxy.github.io/Dabdoubi/iz2rF6Ij.jpeg","https://xanderfoxy.github.io/Dabdoubi/W1mDxlcp.jpeg","https://xanderfoxy.github.io/Dabdoubi/XZ3icISY.jpeg","https://xanderfoxy.github.io/Dabdoubi/ffFONwpT.jpeg","https://xanderfoxy.github.io/Dabdoubi/tlzPDVhj.jpeg","https://xanderfoxy.github.io/Dabdoubi/SMiPFnfR.jpeg","https://xanderfoxy.github.io/Dabdoubi/ErdqXcJI.jpeg","https://xanderfoxy.github.io/Dabdoubi/qJZbWC3S.jpeg","https://xanderfoxy.github.io/Dabdoubi/vPYAotQA.jpeg","https://xanderfoxy.github.io/Dabdoubi/VX0lnX6g.jpeg","https://xanderfoxy.github.io/Dabdoubi/IyRcZtkA.jpeg","https://xanderfoxy.github.io/Dabdoubi/GlXnTkeo.jpeg","https://xanderfoxy.github.io/Dabdoubi/6biiHT6s.jpeg","https://xanderfoxy.github.io/Dabdoubi/gQkLuhS6.jpeg","https://xanderfoxy.github.io/Dabdoubi/FXDCBl3h.jpeg","https://xanderfoxy.github.io/Dabdoubi/X17hRNIE.jpeg","https://xanderfoxy.github.io/Dabdoubi/N4zNC8G0.jpeg","https://xanderfoxy.github.io/Dabdoubi/INgUi8jX.jpeg","https://xanderfoxy.github.io/Dabdoubi/8nRaIrlI.jpeg","https://xanderfoxy.github.io/Dabdoubi/EFw6E4yW.jpeg","https://xanderfoxy.github.io/Dabdoubi/CBFT20xr.jpeg","https://xanderfoxy.github.io/Dabdoubi/KE7XkyKt.jpeg","https://xanderfoxy.github.io/Dabdoubi/qxEU7X6x.jpeg","https://xanderfoxy.github.io/Dabdoubi/c4rbD2M1.jpeg","https://xanderfoxy.github.io/Dabdoubi/2kRjl0Wt.jpeg","https://xanderfoxy.github.io/Dabdoubi/kXgCsero.jpeg","https://xanderfoxy.github.io/Dabdoubi/rtNC43KZ.jpeg","https://xanderfoxy.github.io/Dabdoubi/4zquuQEo.jpeg","https://xanderfoxy.github.io/Dabdoubi/YjCBzA9Q.jpeg","https://xanderfoxy.github.io/Dabdoubi/WGWDVqJ0.jpeg","https://xanderfoxy.github.io/Dabdoubi/kjAxz9eK.jpeg","https://xanderfoxy.github.io/Dabdoubi/zDsgQfU3.jpeg","https://xanderfoxy.github.io/Dabdoubi/DYMdPKOD.jpeg"];
 
-  const app = {
-    fotos: { title: "Galerie", series: [{ name: "Familie", img: fImgs[0], images: fImgs }, { name: "Desires", img: dImgs[0], images: dImgs }] },
-    rezepte: { title: "Rezepte", series: [{ name: "Platzhalter", img: dImgs[3], images: [] }] },
-    comics: { title: "Comics", series: [{ name: "Platzhalter", img: dImgs[5], images: [] }] }
+  const data = {
+    fotos: { title: "Fotos", series: [{ name: "Familie", img: fImgs[0], images: fImgs }, { name: "Desires", img: dImgs[0], images: dImgs }, { name: "Döbeln", img: null, images: [] }, { name: "Weihnachten", img: null, images: [] }, { name: "Italien", img: null, images: [] }] },
+    rezepte: { title: "Rezepte", series: [{ name: "Arabisch", img: null, images: [] }, { name: "Deutsch", img: null, images: [] }, { name: "Weihnachten", img: null, images: [] }] },
+    comics: { title: "Comics", series: [{ name: "Asmaa & Foxy", img: null, images: [] }] }
   };
 
   const tracks = [
-    { title: "Weihnacht", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3", cover: "https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg", lyrics: "So schön ist die Weihnacht..." },
-    { title: "Ein Leben Lang", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/One Day In Rome - Ein Leben Lang.mp3", cover: fImgs[0], lyrics: "Ein Leben lang..." }
+    { title: "Weihnacht", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3", cover: "https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" },
+    { title: "Ein Leben Lang", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/One Day In Rome - Ein Leben Lang.mp3", cover: fImgs[0] }
   ];
 
   let audio = new Audio();
-  let trackIdx = 0;
+  let trIdx = 0;
   let curG = [];
   let ssIdx = 0;
   let isSS = false;
-  let isShuffle = false;
-  let ssTimer = null;
+  let isShuf = false;
+  let ssT = null;
 
-  // VIEW LOGIC
-  function showView(v) {
-    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-    document.getElementById('view-'+v).classList.add('active');
-  }
+  function toggleSidebar() { document.body.classList.toggle('sidebar-collapsed'); }
+  function showView(v) { document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active')); document.getElementById('view-'+v).classList.add('active'); }
 
   function showCategory(k) {
-    const c = app[k];
+    const c = data[k];
     document.getElementById('category-title').innerText = c.title;
     const g = document.getElementById('series-grid'); g.innerHTML = '';
     c.series.forEach(s => {
-      g.innerHTML += `<div class="card" onclick="openG('${k}', '${s.name}')"><img src="${s.img}"><div class="card-info"><h3>${s.name}</h3></div></div>`;
+      g.innerHTML += `<div class="card" onclick="openG('${k}', '${s.name}')">${s.img ? `<img src="${s.img}">` : `<div class="placeholder-card">${s.name}</div>`}<div class="card-info"><h3>${s.name}</h3></div></div>`;
     });
     showView('category');
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -284,104 +260,40 @@
   }
 
   function openG(k, n) {
-    const s = app[k].series.find(x => x.name === n);
+    const s = data[k].series.find(x => x.name === n);
     curG = s.images;
     document.getElementById('gallery-title').innerText = s.name;
     const g = document.getElementById('photo-grid'); g.innerHTML = '';
     curG.forEach((img, i) => { g.innerHTML += `<div class="photo-item" onclick="openSS(${i})"><img src="${img}"></div>`; });
     showView('gallery');
+    document.body.classList.add('sidebar-collapsed');
   }
 
-  // PLAYER
-  function loadT(i) {
-    trackIdx = i; const t = tracks[i]; audio.src = t.src;
-    document.getElementById('p-title').innerText = t.title;
-    document.getElementById('p-img').src = t.cover;
-    document.getElementById('lyrics-box').innerText = t.lyrics;
-    updatePlaylistUI();
-  }
+  // DIASHOW
+  function openSS(i) { ssIdx = i; document.getElementById('ss-img').src = curG[ssIdx]; document.getElementById('slideshow-overlay').classList.add('active'); }
+  function closeSS() { document.getElementById('slideshow-overlay').classList.remove('active'); stopSS(); }
+  function ssNext() { if(isShuf) ssIdx = Math.floor(Math.random()*curG.length); else ssIdx = (ssIdx+1)%curG.length; document.getElementById('ss-img').src = curG[ssIdx]; }
+  function ssPrev() { ssIdx = (ssIdx-1+curG.length)%curG.length; document.getElementById('ss-img').src = curG[ssIdx]; }
 
-  function togglePlay() { 
-    if(audio.paused) { audio.play(); document.getElementById('play-icon').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; }
-    else { audio.pause(); document.getElementById('play-icon').innerHTML = '<path d="M8 5v14l11-7z"/>'; }
-  }
-
-  function nextTrack() { loadT((trackIdx+1)%tracks.length); audio.play(); }
-  function prevTrack() { loadT((trackIdx-1+tracks.length)%tracks.length); audio.play(); }
-
-  // REPARIERTER LAUTSTÄRKE REGLER
-  document.getElementById('volume-slider').addEventListener('input', (e) => {
-    audio.volume = e.target.value;
-  });
-
-  // PLAYLIST
-  function togglePlaylist() { document.getElementById('playlist-box').classList.toggle('active'); }
-  function updatePlaylistUI() {
-    const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>';
-    tracks.forEach((t, i) => {
-      const item = document.createElement('div');
-      item.className = 'playlist-item' + (i === trackIdx ? ' active' : '');
-      item.innerText = t.title;
-      item.onclick = () => { loadT(i); audio.play(); togglePlaylist(); togglePlay(); };
-      b.appendChild(item);
-    });
-  }
-
-  // DIASHOW / LIGHTBOX
-  function openSS(i) {
-    ssIdx = i; document.getElementById('ss-img').src = curG[ssIdx];
-    document.getElementById('slideshow-overlay').classList.add('active');
-  }
-
-  function closeSS() {
-    document.getElementById('slideshow-overlay').classList.remove('active');
-    stopAuto();
-  }
-
-  function ssNext() {
-    if(isShuffle) { ssIdx = Math.floor(Math.random() * curG.length); }
-    else { ssIdx = (ssIdx + 1) % curG.length; }
-    const img = document.getElementById('ss-img');
-    img.style.opacity = 0;
-    setTimeout(() => { img.src = curG[ssIdx]; img.style.opacity = 1; }, 200);
-  }
-
-  function ssPrev() { ssIdx = (ssIdx - 1 + curG.length) % curG.length; document.getElementById('ss-img').src = curG[ssIdx]; }
-
-  function toggleAutoPlay() {
+  function toggleSS() {
     isSS = !isSS;
-    const icon = document.getElementById('ss-play-icon');
-    if(isSS) {
-      ssTimer = setInterval(ssNext, 2500);
-      icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-      document.getElementById('ss-play').classList.add('btn-active');
-    } else {
-      stopAuto();
-    }
+    if(isSS) { ssT = setInterval(ssNext, document.getElementById('ss-speed').value); document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; document.getElementById('ss-play').classList.add('active-mode'); }
+    else stopSS();
   }
+  function stopSS() { isSS = false; clearInterval(ssT); document.getElementById('ss-play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; document.getElementById('ss-play').classList.remove('active-mode'); }
+  function updateSSInterval() { if(isSS) { clearInterval(ssT); ssT = setInterval(ssNext, document.getElementById('ss-speed').value); } }
+  function toggleShuffle() { isShuf = !isShuf; document.getElementById('ss-shuffle').classList.toggle('active-mode', isShuf); }
 
-  function stopAuto() {
-    isSS = false; clearInterval(ssTimer);
-    document.getElementById('ss-play-icon').innerHTML = '<path d="M8 5v14l11-7z"/>';
-    document.getElementById('ss-play').classList.remove('btn-active');
-  }
+  // AUDIO
+  function loadT(i) { trIdx = i; audio.src = tracks[i].src; document.getElementById('p-title').innerText = tracks[i].title; document.getElementById('p-img').src = tracks[i].cover; updatePl(); }
+  function togglePlay() { if(audio.paused) { audio.play(); document.getElementById('play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; } else { audio.pause(); document.getElementById('play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; } }
+  function nextT() { loadT((trIdx+1)%tracks.length); audio.play(); }
+  function prevT() { loadT((trIdx-1+tracks.length)%tracks.length); audio.play(); }
+  function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
+  function updatePl() { const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; tracks.forEach((t, i) => { const it = document.createElement('div'); it.className = 'pl-item' + (i === trIdx ? ' active' : ''); it.innerText = t.title; it.onclick = () => { loadT(i); audio.play(); togglePl(); }; b.appendChild(it); }); }
 
-  function toggleShuffle() {
-    isShuffle = !isShuffle;
-    document.getElementById('ss-shuffle').classList.toggle('btn-active', isShuffle);
-  }
-
-  // UPDATES
-  audio.ontimeupdate = () => {
-    const p = document.getElementById('progress-bar');
-    if(!isNaN(audio.duration)) {
-      p.max = audio.duration; p.value = audio.currentTime;
-      document.getElementById('time-cur').innerText = Math.floor(audio.currentTime/60)+":"+Math.floor(audio.currentTime%60).toString().padStart(2,'0');
-      document.getElementById('time-dur').innerText = Math.floor(audio.duration/60)+":"+Math.floor(audio.duration%60).toString().padStart(2,'0');
-    }
-  };
+  audio.ontimeupdate = () => { const p = document.getElementById('progress-bar'); if(!isNaN(audio.duration)) { p.max = audio.duration; p.value = audio.currentTime; document.getElementById('t-cur').innerText = Math.floor(audio.currentTime/60)+":"+Math.floor(audio.currentTime%60).toString().padStart(2,'0'); document.getElementById('t-dur').innerText = Math.floor(audio.duration/60)+":"+Math.floor(audio.duration%60).toString().padStart(2,'0'); } };
   document.getElementById('progress-bar').oninput = (e) => audio.currentTime = e.target.value;
-  function toggleLyrics() { const l = document.getElementById('lyrics-box'); l.style.display = l.style.display === 'block' ? 'none' : 'block'; }
 
   loadT(0);
 </script>
