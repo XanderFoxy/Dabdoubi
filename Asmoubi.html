@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meine Foto-Welten</title>
+  <style>
+    :root {
+      --accent: #f3c64a;
+      --bg-dark: #0a0a0a;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --sidebar-w: 280px;
+      --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      background: var(--bg-dark);
+      color: #fff;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+    }
+
+    /* --- LAYOUT --- */
+    #app-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      transition: var(--transition);
+    }
+
+    /* Sidebar - Inspiriert von Song-Seite */
+    #sidebar {
+      width: var(--sidebar-w);
+      background: #111;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform 0.5s ease;
+    }
+
+    .sidebar-hidden #sidebar {
+      transform: translateX(-100%);
+      position: absolute;
+    }
+
+    .sidebar-header {
+      padding: 30px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .sidebar-header h1 {
+      margin: 0; font-size: 20px; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 2px;
+    }
+
+    .nav-list {
+      flex: 1; overflow-y: auto; padding: 10px;
+    }
+
+    .nav-item {
+      padding: 15px; margin-bottom: 8px;
+      border-radius: 10px; cursor: pointer;
+      transition: var(--transition);
+      display: flex; align-items: center; gap: 12px;
+      background: transparent;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,0.05); }
+    .nav-item.active { background: var(--accent); color: #000; font-weight: bold; }
+
+    /* Main Content Area */
+    #main-content {
+      flex: 1;
+      position: relative;
+      overflow-y: auto;
+      background: radial-gradient(circle at top right, #1a1a1a, #0a0a0a);
+      transition: var(--transition);
+    }
+
+    /* --- VIEWS --- */
+    .view-section {
+      padding: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+      display: none;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .view-section.active { display: block; }
+
+    /* Overview Grid */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
+    .category-card {
+      position: relative;
+      height: 200px;
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .category-card:hover { transform: scale(1.03); border-color: var(--accent); }
+    .category-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+    .category-card .info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    }
+
+    /* Gallery Grid */
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+    }
+
+    .photo-item {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--card-bg);
+      transition: var(--transition);
+    }
+
+    .photo-item:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+    .photo-item img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Back Button */
+    .back-btn {
+      background: none; border: 1px solid var(--accent); color: var(--accent);
+      padding: 8px 16px; border-radius: 8px; cursor: pointer;
+      margin-bottom: 20px; transition: 0.3s;
+    }
+    .back-btn:hover { background: var(--accent); color: #000; }
+
+    /* --- OVERLAY & SLIDESHOW (From Design 1) --- */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+      z-index: 2000; display: none; justify-content: center; align-items: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .overlay.active { display: flex; }
+
+    .glass-frame {
+      position: relative; padding: 15px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }
+
+    .overlay img { max-width: 85vw; max-height: 80vh; border-radius: 15px; }
+
+    .controls {
+      position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 20px; align-items: center; background: rgba(0,0,0,0.5);
+      padding: 10px 20px; border-radius: 20px;
+    }
+
+    #speedSlider { accent-color: var(--accent); }
+
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <h1>Galleria</h1>
+      </div>
+      <nav class="nav-list" id="galleryNav">
+        <div class="nav-item active" onclick="showOverview()">🏠 Übersicht</div>
+        </nav>
+    </aside>
+
+    <main id="main-content">
+      
+      <section id="view-overview" class="view-section active">
+        <h2 style="font-size: 32px; margin-bottom: 30px;">Deine Sammlungen</h2>
+        <div class="category-grid" id="categoryGrid">
+          </div>
+      </section>
+
+      <section id="view-gallery" class="view-section">
+        <button class="back-btn" onclick="showOverview()">← Zurück zur Auswahl</button>
+        <h2 id="galleryTitle" style="color: var(--accent);">Galerie Name</h2>
+        <div class="photo-grid" id="photoGrid">
+          </div>
+        <div style="margin-top: 40px; text-align: center;">
+            <button id="startDiashow" class="back-btn" style="background: var(--accent); color: #000; font-weight: bold;">▶ Diashow starten</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="glass-frame" id="glassFrame">
+      <img id="overlayImg" src="" alt="">
+      <div class="controls">
+        <button onclick="prevSlide()" class="back-btn" style="margin:0">◀</button>
+        <input type="range" id="speedSlider" min="500" max="5000" value="2000" title="Geschwindigkeit">
+        <button onclick="nextSlide()" class="back-btn" style="margin:0">▶</button>
+        <button onclick="closeOverlay()" class="back-btn" style="margin:0; border-color: #ff4444; color: #ff4444;">X</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // DATENSTRUKTUR (Hier kannst du deine Bilder pflegen)
+  const galleryData = {
+    baby: {
+      title: "Baby Fotos",
+      cover: "https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png",
+      images: [
+        "https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png",
+        "https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png",
+        "https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png"
+      ]
+    },
+    rezepte: {
+      title: "Rezepte",
+      cover: "https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png",
+      images: [
+        "https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png",
+        "https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png",
+        "https://xanderfoxy.github.io/Dabdoubi/IMG_7193.png"
+      ]
+    },
+    comics: {
+      title: "Comics & Art",
+      cover: "https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp",
+      images: [
+        "https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp",
+        "https://xanderfoxy.github.io/Dabdoubi/IMG_6745.png",
+        "https://xanderfoxy.github.io/Dabdoubi/IMG_6510.png"
+      ]
+    }
+  };
+
+  let currentGallery = [];
+  let currentIndex = 0;
+  let slideshowTimer = null;
+
+  // INITIALISIERUNG
+  function init() {
+    const grid = document.getElementById('categoryGrid');
+    const nav = document.getElementById('galleryNav');
+
+    for (const [id, data] of Object.entries(galleryData)) {
+      // Sidebar Links
+      const navItem = document.createElement('div');
+      navItem.className = 'nav-item';
+      navItem.innerHTML = `🖼️ ${data.title}`;
+      navItem.onclick = () => openGallery(id);
+      nav.appendChild(navItem);
+
+      // Dashboard Cards
+      const card = document.createElement('div');
+      card.className = 'category-card';
+      card.innerHTML = `
+        <img src="${data.cover}">
+        <div class="info"><h3>${data.title}</h3></div>
+      `;
+      card.onclick = () => openGallery(id);
+      grid.appendChild(card);
+    }
+  }
+
+  function showOverview() {
+    document.getElementById('view-overview').classList.add('active');
+    document.getElementById('view-gallery').classList.remove('active');
+    document.body.classList.remove('sidebar-hidden');
+    stopSlideshow();
+  }
+
+  function openGallery(id) {
+    const data = galleryData[id];
+    currentGallery = data.images;
+    document.getElementById('galleryTitle').innerText = data.title;
+    const grid = document.getElementById('photoGrid');
+    grid.innerHTML = '';
+
+    data.images.forEach((src, idx) => {
+      const item = document.createElement('div');
+      item.className = 'photo-item';
+      item.innerHTML = `<img src="${src}">`;
+      item.onclick = () => openLightbox(idx);
+      grid.appendChild(item);
+    });
+
+    document.getElementById('view-overview').classList.remove('active');
+    document.getElementById('view-gallery').classList.add('active');
+    
+    // Menü verstecken für vollen Fokus
+    document.body.classList.add('sidebar-hidden');
+  }
+
+  // LIGHTBOX LOGIK
+  function openLightbox(index) {
+    currentIndex = index;
+    const overlay = document.getElementById('overlay');
+    const img = document.getElementById('overlayImg');
+    img.src = currentGallery[currentIndex];
+    overlay.classList.add('active');
+  }
+
+  function closeOverlay() {
+    document.getElementById('overlay').classList.remove('active');
+    stopSlideshow();
+  }
+
+  function nextSlide() {
+    currentIndex = (currentIndex + 1) % currentGallery.length;
+    document.getElementById('overlayImg').src = currentGallery[currentIndex];
+  }
+
+  function prevSlide() {
+    currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length;
+    document.getElementById('overlayImg').src = currentGallery[currentIndex];
+  }
+
+  // DIASHOW AUTOMATIK
+  document.getElementById('startDiashow').onclick = () => {
+    openLightbox(0);
+    startSlideshow();
+  };
+
+  function startSlideshow() {
+    stopSlideshow();
+    const speed = document.getElementById('speedSlider').value;
+    slideshowTimer = setInterval(nextSlide, speed);
+  }
+
+  function stopSlideshow() {
+    if(slideshowTimer) clearInterval(slideshowTimer);
+  }
+
+  document.getElementById('speedSlider').onchange = startSlideshow;
+
+  init();
+</script>
+</body>
+</html>
