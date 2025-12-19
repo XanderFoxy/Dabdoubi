@@ -74,6 +74,7 @@
     .card:hover { border-color: var(--asmaa-purple); transform: translateY(-5px); box-shadow: 0 0 25px rgba(128, 0, 128, 0.4); }
     .card:hover img { opacity: 1; }
     .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); }
+    .placeholder-card { display: flex; align-items: center; justify-content: center; height: 100%; color: #333; font-size: 40px; }
 
     .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
     .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
@@ -92,7 +93,7 @@
     .track-meta p { margin: 2px 0 0; font-size: 11px; color: #555; }
     .next-label { font-size: 9px !important; color: var(--accent) !important; opacity: 0.8; margin-top: 2px !important; }
 
-    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }
     .buttons { display: flex; align-items: center; gap: 15px; }
     .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; transition: 0.2s; }
     .btn-svg svg { width: 22px; height: 22px; fill: currentColor; }
@@ -126,14 +127,16 @@
     }
     .ss-slider { width: 100px; accent-color: var(--accent); cursor: pointer; }
 
+    /* --- PLAYLIST DRAG & DROP --- */
     #playlist-box {
       position: fixed; bottom: 105px; right: 40px; width: 280px; 
       background: #111; border: 1px solid var(--glass); border-radius: 15px;
       padding: 15px; display: none; z-index: 2000;
     }
     #playlist-box.active { display: block; }
-    .pl-item { padding: 10px; cursor: pointer; border-radius: 8px; font-size: 13px; color: #666; transition: 0.3s; }
+    .pl-item { padding: 10px; cursor: move; border-radius: 8px; font-size: 13px; color: #666; transition: background 0.3s; margin-bottom: 5px; }
     .pl-item.active { color: #fff; background: var(--asmaa-purple); font-weight: bold; }
+    .pl-item.dragging { opacity: 0.5; background: var(--glass); }
   </style>
 </head>
 <body>
@@ -242,16 +245,32 @@
   const dImgs = ["https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg","https://xanderfoxy.github.io/Dabdoubi/JuE5ywM3.jpeg","https://xanderfoxy.github.io/Dabdoubi/7ylO8SbO.jpeg","https://xanderfoxy.github.io/Dabdoubi/reVuied4.jpeg","https://xanderfoxy.github.io/Dabdoubi/wyXz6MhB.jpeg","https://xanderfoxy.github.io/Dabdoubi/m6l7tlxB.jpeg","https://xanderfoxy.github.io/Dabdoubi/OJX7O4Fr.jpeg","https://xanderfoxy.github.io/Dabdoubi/4JVKv09e.jpeg","https://xanderfoxy.github.io/Dabdoubi/1xOOKJLC.jpeg","https://xanderfoxy.github.io/Dabdoubi/Facetune_19-11-2025-19-56-41.jpeg","https://xanderfoxy.github.io/Dabdoubi/ezf2Tv5I.jpeg","https://xanderfoxy.github.io/Dabdoubi/ql8RdbJd.jpeg","https://xanderfoxy.github.io/Dabdoubi/iz2rF6Ij.jpeg","https://xanderfoxy.github.io/Dabdoubi/W1mDxlcp.jpeg","https://xanderfoxy.github.io/Dabdoubi/XZ3icISY.jpeg","https://xanderfoxy.github.io/Dabdoubi/ffFONwpT.jpeg","https://xanderfoxy.github.io/Dabdoubi/tlzPDVhj.jpeg","https://xanderfoxy.github.io/Dabdoubi/SMiPFnfR.jpeg","https://xanderfoxy.github.io/Dabdoubi/ErdqXcJI.jpeg","https://xanderfoxy.github.io/Dabdoubi/qJZbWC3S.jpeg","https://xanderfoxy.github.io/Dabdoubi/vPYAotQA.jpeg","https://xanderfoxy.github.io/Dabdoubi/VX0lnX6g.jpeg","https://xanderfoxy.github.io/Dabdoubi/IyRcZtkA.jpeg","https://xanderfoxy.github.io/Dabdoubi/GlXnTkeo.jpeg","https://xanderfoxy.github.io/Dabdoubi/6biiHT6s.jpeg","https://xanderfoxy.github.io/Dabdoubi/gQkLuhS6.jpeg","https://xanderfoxy.github.io/Dabdoubi/FXDCBl3h.jpeg","https://xanderfoxy.github.io/Dabdoubi/X17hRNIE.jpeg","https://xanderfoxy.github.io/Dabdoubi/N4zNC8G0.jpeg","https://xanderfoxy.github.io/Dabdoubi/INgUi8jX.jpeg","https://xanderfoxy.github.io/Dabdoubi/8nRaIrlI.jpeg","https://xanderfoxy.github.io/Dabdoubi/EFw6E4yW.jpeg","https://xanderfoxy.github.io/Dabdoubi/CBFT20xr.jpeg","https://xanderfoxy.github.io/Dabdoubi/KE7XkyKt.jpeg","https://xanderfoxy.github.io/Dabdoubi/qxEU7X6x.jpeg","https://xanderfoxy.github.io/Dabdoubi/c4rbD2M1.jpeg","https://xanderfoxy.github.io/Dabdoubi/2kRjl0Wt.jpeg","https://xanderfoxy.github.io/Dabdoubi/kXgCsero.jpeg","https://xanderfoxy.github.io/Dabdoubi/rtNC43KZ.jpeg","https://xanderfoxy.github.io/Dabdoubi/4zquuQEo.jpeg","https://xanderfoxy.github.io/Dabdoubi/YjCBzA9Q.jpeg","https://xanderfoxy.github.io/Dabdoubi/WGWDVqJ0.jpeg","https://xanderfoxy.github.io/Dabdoubi/kjAxz9eK.jpeg","https://xanderfoxy.github.io/Dabdoubi/zDsgQfU3.jpeg","https://xanderfoxy.github.io/Dabdoubi/DYMdPKOD.jpeg"];
 
   const data = {
-    fotos: { title: "Fotos", series: [{ name: "Familie", img: fImgs[0], images: fImgs }, { name: "Desires", img: dImgs[0], images: dImgs }, { name: "Döbeln", img: null, images: [] }, { name: "Weihnachten", img: null, images: [] }, { name: "Italien", img: null, images: [] }] },
+    fotos: { title: "Fotos", series: [
+      { name: "Familie", img: fImgs[0], images: fImgs }, 
+      { name: "Desires", img: dImgs[0], images: dImgs },
+      { name: "Baby Fox", img: null, images: [] },
+      { name: "Döbeln", img: null, images: [] }, 
+      { name: "Weihnachten", img: null, images: [] }, 
+      { name: "Italien", img: null, images: [] }
+    ] },
     rezepte: { title: "Rezepte", series: [
-      { name: "Arabisch", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_0193.jpeg", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_0193.jpeg"] }, 
+      { name: "Arabisch", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_0193.jpeg", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_0193.jpeg", "https://xanderfoxy.github.io/Dabdoubi/IMG_0164.jpeg", "https://xanderfoxy.github.io/Dabdoubi/IMG_0166.jpeg"] }, 
+      { name: "All around the World", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_0167.jpeg", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_0167.jpeg", "https://xanderfoxy.github.io/Dabdoubi/IMG_0169.jpeg"] },
+      { name: "Lieblingsessen", img: null, images: [] },
       { name: "Deutsch", img: null, images: [] }, 
       { name: "Weihnachten", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_0197.jpeg", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_0197.jpeg"] }
     ] },
-    comics: { title: "Comics", series: [{ name: "Asmaa & Foxy", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_1494.jpeg", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_1494.jpeg"] }] }
+    comics: { title: "Comics", series: [
+      { name: "Asmaa & Foxy", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_1494.jpeg", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_1494.jpeg", "https://xanderfoxy.github.io/Dabdoubi/IMG_1135.jpeg"] },
+      { name: "Garfield", img: null, images: [] },
+      { name: "Featuring Foxy", img: null, images: [] }
+    ] }
   };
 
-  const tracks = [{ title: "Weihnacht", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3", cover: "https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" }, { title: "Ein Leben Lang", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/One Day In Rome - Ein Leben Lang.mp3", cover: fImgs[0] }];
+  let tracks = [
+    { id: 0, title: "Weihnacht", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3", cover: "https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" }, 
+    { id: 1, title: "Ein Leben Lang", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/One Day In Rome - Ein Leben Lang.mp3", cover: fImgs[0] }
+  ];
 
   let audio = new Audio(); let trIdx = 0; let curG = []; let ssIdx = 0; let isSS = false; let isShuf = false; let ssT = null;
   let mShuf = false; let repMode = 0;
@@ -260,6 +279,7 @@
     const s = localStorage.getItem('ssSpeed') || 2000;
     document.getElementById('ss-speed').value = s;
     loadT(0);
+    initDragAndDrop();
   }
 
   function showView(v) { 
@@ -290,7 +310,7 @@
     showView('gallery'); document.body.classList.add('sidebar-collapsed');
   }
 
-  // SLIDESHOW
+  // DIASHOW
   function openSS(i) { ssIdx = i; document.getElementById('ss-img').src = curG[ssIdx]; document.getElementById('slideshow-overlay').classList.add('active'); }
   function closeSS() { document.getElementById('slideshow-overlay').classList.remove('active'); stopSS(); }
   function ssNext() { if(isShuf) ssIdx = Math.floor(Math.random()*curG.length); else ssIdx = (ssIdx+1)%curG.length; document.getElementById('ss-img').src = curG[ssIdx]; }
@@ -298,12 +318,8 @@
 
   function toggleSS() {
     isSS = !isSS;
-    const btn = document.getElementById('ss-play');
-    if(isSS) { 
-      ssT = setInterval(ssNext, document.getElementById('ss-speed').value); 
-      document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-      btn.classList.add('active-mode');
-    } else stopSS();
+    if(isSS) { ssT = setInterval(ssNext, document.getElementById('ss-speed').value); document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; document.getElementById('ss-play').classList.add('active-mode'); }
+    else stopSS();
   }
   function stopSS() { isSS = false; clearInterval(ssT); document.getElementById('ss-play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; document.getElementById('ss-play').classList.remove('active-mode'); }
   function saveSpeed() { localStorage.setItem('ssSpeed', document.getElementById('ss-speed').value); if(isSS) { clearInterval(ssT); ssT = setInterval(ssNext, document.getElementById('ss-speed').value); } }
@@ -326,11 +342,7 @@
   function nextT() { if(mShuf) trIdx = Math.floor(Math.random()*tracks.length); else trIdx = (trIdx+1)%tracks.length; loadT(trIdx); audio.play(); }
   function prevT() { trIdx = (trIdx-1+tracks.length)%tracks.length; loadT(trIdx); audio.play(); }
 
-  function toggleMusicShuffle() { 
-    mShuf = !mShuf; 
-    document.getElementById('m-shuffle').classList.toggle('active-mode', mShuf); 
-    updateNextTrackInfo();
-  }
+  function toggleMusicShuffle() { mShuf = !mShuf; document.getElementById('m-shuffle').classList.toggle('active-mode', mShuf); updateNextTrackInfo(); }
   function toggleMusicRepeat() {
     repMode = (repMode + 1) % 3;
     const btn = document.getElementById('m-repeat');
@@ -341,19 +353,71 @@
   }
 
   function updateNextTrackInfo() {
-    let nextTitle = mShuf ? "Shuffle" : tracks[(trIdx + 1) % tracks.length].title;
+    let nextTitle = mShuf ? "Zufall" : tracks[(trIdx + 1) % tracks.length].title;
     document.getElementById('p-next').innerText = "Next: " + nextTitle;
   }
 
   audio.onended = () => { if(repMode === 1) { audio.currentTime = 0; audio.play(); } else nextT(); }
   function openCoverZoom() { const s = document.getElementById('p-img').src; curG = [s]; openSS(0); }
   function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
+  
   function updatePl() { 
     const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; 
     tracks.forEach((t, i) => { 
-        const it = document.createElement('div'); it.className = 'pl-item' + (i === trIdx ? ' active' : ''); 
-        it.innerText = t.title; it.onclick = () => { loadT(i); audio.play(); togglePl(); togglePlay(); }; b.appendChild(it); 
-    }); 
+        const it = document.createElement('div'); 
+        it.className = 'pl-item' + (i === trIdx ? ' active' : ''); 
+        it.innerText = t.title;
+        it.draggable = true;
+        it.dataset.index = i;
+        it.onclick = () => { if(!it.classList.contains('dragging')) { loadT(i); audio.play(); togglePl(); togglePlay(); } };
+        b.appendChild(it); 
+    });
+    initDragAndDrop();
+  }
+
+  // PLAYLIST DRAG & DROP LOGIC
+  function initDragAndDrop() {
+    const box = document.getElementById('playlist-box');
+    let draggedItem = null;
+
+    box.addEventListener('dragstart', (e) => {
+      draggedItem = e.target;
+      e.target.classList.add('dragging');
+    });
+
+    box.addEventListener('dragend', (e) => {
+      e.target.classList.remove('dragging');
+      // Playlist-Array aktualisieren
+      const items = [...box.querySelectorAll('.pl-item')];
+      const newTracks = items.map(item => tracks.find(t => t.title === item.innerText));
+      tracks = newTracks;
+      // Index des aktuell spielenden Songs finden
+      trIdx = tracks.findIndex(t => t.src === audio.src);
+      updateNextTrackInfo();
+    });
+
+    box.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const afterElement = getDragAfterElement(box, e.clientY);
+      if (afterElement == null) {
+        box.appendChild(draggedItem);
+      } else {
+        box.insertBefore(draggedItem, afterElement);
+      }
+    });
+  }
+
+  function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.pl-item:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
+      }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
 
   audio.ontimeupdate = () => { 
