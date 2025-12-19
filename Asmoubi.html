@@ -34,6 +34,7 @@
     }
     .sidebar-collapsed #sidebar { transform: translateX(-100%); position: absolute; }
 
+    /* Home Häuschen */
     #home-link {
       position: fixed; top: 25px; left: 25px; z-index: 1100;
       width: 45px; height: 45px; background: var(--sidebar-bg);
@@ -50,8 +51,7 @@
       display: flex; align-items: center; gap: 15px; color: #444;
     }
     .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
-    .nav-item:hover { color: #fff; background: var(--glass); box-shadow: 0 0 10px rgba(128, 0, 128, 0.2); }
-    
+    .nav-item:hover { color: #fff; background: var(--glass); }
     .nav-item.active {
       color: #fff; background: rgba(128, 0, 128, 0.15);
       border-left: 5px solid var(--asmaa-purple);
@@ -70,11 +70,10 @@
       border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: var(--transition);
       position: relative; aspect-ratio: 1/1;
     }
-    .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
+    .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; transition: 0.6s; }
     .card:hover { border-color: var(--asmaa-purple); transform: translateY(-5px); box-shadow: 0 0 25px rgba(128, 0, 128, 0.4); }
     .card:hover img { opacity: 1; }
     .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); }
-    .placeholder-card { display: flex; align-items: center; justify-content: center; height: 100%; color: #333; font-size: 40px; }
 
     .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
     .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
@@ -83,27 +82,31 @@
 
     /* --- PLAYER BAR --- */
     #player-bar {
-      height: 95px; background: rgba(10,10,10,0.98); backdrop-filter: blur(25px);
+      height: 100px; background: rgba(10,10,10,0.98); backdrop-filter: blur(25px);
       border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center;
       padding: 0 40px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
     }
-    .player-info { width: 280px; display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
-    .player-info img { width: 55px; height: 55px; border-radius: 8px; border: 1px solid var(--asmaa-purple); cursor: pointer; }
+    .player-section { flex: 1; display: flex; align-items: center; }
+    .section-left { justify-content: flex-start; max-width: 300px; }
+    .section-mid { justify-content: center; flex-direction: column; gap: 8px; }
+    .section-right { justify-content: flex-end; max-width: 300px; }
+
+    .player-info { display: flex; align-items: center; gap: 15px; }
+    .player-info img { width: 55px; height: 55px; border-radius: 8px; border: 1px solid var(--asmaa-purple); cursor: zoom-in; }
     .track-meta h4 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .track-meta p { margin: 2px 0 0; font-size: 11px; color: #555; }
-    .next-label { font-size: 9px !important; color: var(--accent) !important; opacity: 0.8; margin-top: 2px !important; }
+    .next-info { font-size: 9px !important; color: var(--accent) !important; opacity: 0.7; }
 
-    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }
-    .buttons { display: flex; align-items: center; gap: 15px; }
-    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; transition: 0.2s; }
-    .btn-svg svg { width: 22px; height: 22px; fill: currentColor; }
-    .play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; }
+    .buttons { display: flex; align-items: center; gap: 18px; }
+    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; }
+    .btn-svg svg { width: 22px; height: 22px; fill: currentColor; transition: 0.2s; }
+    .btn-svg:hover svg { color: var(--accent); }
+    .btn-svg.active-mode svg { color: var(--accent) !important; filter: drop-shadow(0 0 8px var(--accent)); }
+    .play-trigger { width: 44px; height: 44px; border-radius: 50%; background: #fff; color: #000; }
     
-    .active-mode svg { color: var(--accent) !important; filter: drop-shadow(0 0 8px var(--accent)); }
-    .repeat-badge { position: absolute; font-size: 9px; font-weight: bold; margin-top: 12px; color: var(--accent); }
-
-    .progress-container { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #444; }
+    .progress-container { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 12px; font-size: 10px; color: #444; }
     #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 4px; cursor: pointer; }
+    .repeat-badge { position: absolute; font-size: 9px; font-weight: bold; margin-top: 14px; color: var(--accent); pointer-events: none; }
 
     /* --- DIASHOW OVERLAY --- */
     #slideshow-overlay {
@@ -116,7 +119,6 @@
       background: rgba(255,255,255,0.03); backdrop-filter: blur(25px);
       box-shadow: 0 0 50px 10px var(--asmaa-purple);
       border: 1px solid rgba(255,255,255,0.08);
-      cursor: pointer;
     }
     .glass-frame img { max-width: 85vw; max-height: 75vh; border-radius: 15px; }
 
@@ -128,12 +130,12 @@
     .ss-slider { width: 100px; accent-color: var(--accent); cursor: pointer; }
 
     #playlist-box {
-      position: fixed; bottom: 105px; right: 40px; width: 280px; 
+      position: fixed; bottom: 110px; right: 40px; width: 280px; 
       background: #111; border: 1px solid var(--glass); border-radius: 15px;
       padding: 15px; display: none; z-index: 2000;
     }
     #playlist-box.active { display: block; }
-    .pl-item { padding: 10px; cursor: move; border-radius: 8px; font-size: 13px; color: #666; transition: background 0.3s; margin-bottom: 5px; }
+    .pl-item { padding: 10px; cursor: move; border-radius: 8px; font-size: 13px; color: #666; margin-bottom: 5px; }
     .pl-item.active { color: #fff; background: var(--asmaa-purple); font-weight: bold; }
     .pl-item.dragging { opacity: 0.5; background: var(--glass); }
   </style>
@@ -151,7 +153,7 @@
           <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Übersicht
         </div>
         <div class="nav-item" id="nav-fotos" onclick="showCategory('fotos')">
-          <svg viewBox="0 0 24 24"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4z"/></svg> Fotos
+          <svg viewBox="0 0 24 24"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4z"/></svg> Galerie
         </div>
         <div class="nav-item" id="nav-rezepte" onclick="showCategory('rezepte')">
           <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg> Rezepte
@@ -166,23 +168,14 @@
       <section id="view-overview" class="view-section active">
         <h2 style="font-weight: 300; margin-bottom: 40px; color: var(--accent);">Zentrale</h2>
         <div class="grid">
-          <div class="card" onclick="showCategory('fotos')">
-            <img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg">
-            <div class="card-info"><h3>Fotos</h3></div>
-          </div>
-          <div class="card" onclick="showCategory('rezepte')">
-            <img src="https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0193.jpeg">
-            <div class="card-info"><h3>Rezepte</h3></div>
-          </div>
-          <div class="card" onclick="showCategory('comics')">
-            <img src="https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1494.jpeg">
-            <div class="card-info"><h3>Comics</h3></div>
-          </div>
+          <div class="card" onclick="showCategory('fotos')"><img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg"><div class="card-info"><h3>Fotos</h3></div></div>
+          <div class="card" onclick="showCategory('rezepte')"><img src="https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0193.jpeg"><div class="card-info"><h3>Rezepte</h3></div></div>
+          <div class="card" onclick="showCategory('comics')"><img src="https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1494.jpeg"><div class="card-info"><h3>Comics</h3></div></div>
         </div>
       </section>
 
       <section id="view-category" class="view-section">
-        <h2 id="category-title" style="font-weight: 300; color: var(--accent);">Kategorie</h2>
+        <h2 id="category-title" style="font-weight: 300;">Kategorie</h2>
         <div class="grid" id="series-grid"></div>
       </section>
 
@@ -193,33 +186,25 @@
     </main>
 
     <footer id="player-bar">
-      <div class="player-info">
-        <img id="p-img" src="" onclick="openCoverZoom()">
-        <div class="track-meta">
-          <h4 id="p-title">Lade...</h4>
-          <p id="p-artist">Xander Fox</p>
-          <p id="p-next" class="next-label">Next: --</p>
+      <div class="player-section section-left">
+        <div class="player-info">
+          <img id="p-img" src="" onclick="openCoverZoom()">
+          <div class="track-meta"><h4 id="p-title">Lade...</h4><p id="p-next" class="next-info">Next: --</p></div>
         </div>
       </div>
-      <div class="player-controls">
+      <div class="player-section section-mid">
         <div class="buttons">
-          <button class="btn-svg" id="m-shuffle" onclick="toggleMusicShuffle()">
-            <svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg>
-          </button>
+          <button class="btn-svg" id="m-shuffle" onclick="toggleMusicShuffle()"><svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg></button>
           <button class="btn-svg" onclick="prevT()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-          <button class="btn-svg play-trigger" onclick="togglePlay()" id="btn-play">
-            <svg viewBox="0 0 24 24" id="play-i"><path d="M8 5v14l11-7z"/></svg>
-          </button>
+          <button class="btn-svg play-trigger" onclick="togglePlay()"><svg viewBox="0 0 24 24" id="play-i"><path d="M8 5v14l11-7z"/></svg></button>
           <button class="btn-svg" onclick="nextT()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg></button>
-          <button class="btn-svg" id="m-repeat" onclick="toggleMusicRepeat()" style="position:relative;">
-            <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
-            <span id="repeat-badge" class="repeat-badge"></span>
-          </button>
-          <button class="btn-svg" onclick="togglePl()"><svg viewBox="0 0 24 24"><path d="M4 10h12v2H4zm0-4h12v2H4zm0 8h8v2H4zm10 0v6l5-3-5-3z"/></svg></button>
+          <button class="btn-svg" id="m-repeat" onclick="toggleMusicRepeat()" style="position:relative;"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg><span id="repeat-badge" class="repeat-badge"></span></button>
         </div>
         <div class="progress-container"><span id="t-cur">0:00</span><input type="range" id="progress-bar" value="0"><span id="t-dur">0:00</span></div>
       </div>
-      <div style="width:280px"></div>
+      <div class="player-section section-right">
+        <button class="btn-svg" onclick="togglePl()"><svg viewBox="0 0 24 24"><path d="M4 10h12v2H4zm0-4h12v2H4zm0 8h8v2H4zm10 0v6l5-3-5-3z"/></svg></button>
+      </div>
     </footer>
     <div id="playlist-box"></div>
   </div>
@@ -230,9 +215,7 @@
       <div class="ss-console" onclick="event.stopPropagation();">
         <button class="btn-svg" onclick="ssPrev()"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
         <button class="btn-svg" id="ss-play" onclick="toggleSS()"><svg viewBox="0 0 24 24" id="ss-play-i"><path d="M8 5v14l11-7z"/></svg></button>
-        <button class="btn-svg" id="ss-shuffle" onclick="toggleSSShuffle()">
-          <svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg>
-        </button>
+        <button class="btn-svg" id="ss-shuffle" onclick="toggleSSShuffle()"><svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg></button>
         <input type="range" class="ss-slider" id="ss-speed" min="500" max="5000" value="2000" oninput="saveSpeed()">
         <button class="btn-svg" onclick="ssNext()"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
       </div>
@@ -240,37 +223,22 @@
   </div>
 
 <script>
-  const fImgs = ["https://xanderfoxy.github.io/Dabdoubi/IMG_7319.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7320.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7321.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7323.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7324.jpeg"];
-  const dImgs = ["https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg","https://xanderfoxy.github.io/Dabdoubi/JuE5ywM3.jpeg","https://xanderfoxy.github.io/Dabdoubi/7ylO8SbO.jpeg","https://xanderfoxy.github.io/Dabdoubi/reVuied4.jpeg","https://xanderfoxy.github.io/Dabdoubi/wyXz6MhB.jpeg","https://xanderfoxy.github.io/Dabdoubi/m6l7tlxB.jpeg","https://xanderfoxy.github.io/Dabdoubi/OJX7O4Fr.jpeg","https://xanderfoxy.github.io/Dabdoubi/4JVKv09e.jpeg","https://xanderfoxy.github.io/Dabdoubi/1xOOKJLC.jpeg","https://xanderfoxy.github.io/Dabdoubi/Facetune_19-11-2025-19-56-41.jpeg","https://xanderfoxy.github.io/Dabdoubi/ezf2Tv5I.jpeg","https://xanderfoxy.github.io/Dabdoubi/ql8RdbJd.jpeg","https://xanderfoxy.github.io/Dabdoubi/iz2rF6Ij.jpeg","https://xanderfoxy.github.io/Dabdoubi/W1mDxlcp.jpeg","https://xanderfoxy.github.io/Dabdoubi/XZ3icISY.jpeg","https://xanderfoxy.github.io/Dabdoubi/ffFONwpT.jpeg","https://xanderfoxy.github.io/Dabdoubi/tlzPDVhj.jpeg","https://xanderfoxy.github.io/Dabdoubi/SMiPFnfR.jpeg","https://xanderfoxy.github.io/Dabdoubi/ErdqXcJI.jpeg","https://xanderfoxy.github.io/Dabdoubi/qJZbWC3S.jpeg","https://xanderfoxy.github.io/Dabdoubi/vPYAotQA.jpeg","https://xanderfoxy.github.io/Dabdoubi/VX0lnX6g.jpeg","https://xanderfoxy.github.io/Dabdoubi/IyRcZtkA.jpeg","https://xanderfoxy.github.io/Dabdoubi/GlXnTkeo.jpeg","https://xanderfoxy.github.io/Dabdoubi/6biiHT6s.jpeg","https://xanderfoxy.github.io/Dabdoubi/gQkLuhS6.jpeg","https://xanderfoxy.github.io/Dabdoubi/FXDCBl3h.jpeg","https://xanderfoxy.github.io/Dabdoubi/X17hRNIE.jpeg","https://xanderfoxy.github.io/Dabdoubi/N4zNC8G0.jpeg","https://xanderfoxy.github.io/Dabdoubi/INgUi8jX.jpeg","https://xanderfoxy.github.io/Dabdoubi/8nRaIrlI.jpeg","https://xanderfoxy.github.io/Dabdoubi/EFw6E4yW.jpeg","https://xanderfoxy.github.io/Dabdoubi/CBFT20xr.jpeg","https://xanderfoxy.github.io/Dabdoubi/KE7XkyKt.jpeg","https://xanderfoxy.github.io/Dabdoubi/qxEU7X6x.jpeg","https://xanderfoxy.github.io/Dabdoubi/c4rbD2M1.jpeg","https://xanderfoxy.github.io/Dabdoubi/2kRjl0Wt.jpeg","https://xanderfoxy.github.io/Dabdoubi/kXgCsero.jpeg","https://xanderfoxy.github.io/Dabdoubi/rtNC43KZ.jpeg","https://xanderfoxy.github.io/Dabdoubi/4zquuQEo.jpeg","https://xanderfoxy.github.io/Dabdoubi/YjCBzA9Q.jpeg","https://xanderfoxy.github.io/Dabdoubi/WGWDVqJ0.jpeg","https://xanderfoxy.github.io/Dabdoubi/kjAxz9eK.jpeg","https://xanderfoxy.github.io/Dabdoubi/zDsgQfU3.jpeg","https://xanderfoxy.github.io/Dabdoubi/DYMdPKOD.jpeg"];
+  const prefix = "https://xanderfoxy.github.io/Dabdoubi/";
+  const fImgs = [prefix+"IMG_7319.jpeg",prefix+"IMG_7320.jpeg",prefix+"IMG_7321.jpeg",prefix+"IMG_7323.jpeg",prefix+"IMG_7324.jpeg"];
+  
+  // ALLE BILDER AUS DER ALLERERSTEN DATEI + FOXOUBI
+  const allDesires = [
+    prefix+"ior5FlF3.jpeg",prefix+"JuE5ywM3.jpeg",prefix+"7ylO8SbO.jpeg",prefix+"reVuied4.jpeg",prefix+"wyXz6MhB.jpeg",prefix+"m6l7tlxB.jpeg",prefix+"OJX7O4Fr.jpeg",prefix+"4JVKv09e.jpeg",prefix+"1xOOKJLC.jpeg",prefix+"Facetune_19-11-2025-19-56-41.jpeg",prefix+"ezf2Tv5I.jpeg",prefix+"ql8RdbJd.jpeg",prefix+"iz2rF6Ij.jpeg",prefix+"W1mDxlcp.jpeg",prefix+"XZ3icISY.jpeg",prefix+"ffFONwpT.jpeg",prefix+"tlzPDVhj.jpeg",prefix+"SMiPFnfR.jpeg",prefix+"ErdqXcJI.jpeg",prefix+"qJZbWC3S.jpeg",prefix+"vPYAotQA.jpeg",prefix+"VX0lnX6g.jpeg",prefix+"IyRcZtkA.jpeg",prefix+"GlXnTkeo.jpeg",prefix+"6biiHT6s.jpeg",prefix+"gQkLuhS6.jpeg",prefix+"FXDCBl3h.jpeg",prefix+"X17hRNIE.jpeg",prefix+"N4zNC8G0.jpeg",prefix+"INgUi8jX.jpeg",prefix+"8nRaIrlI.jpeg",prefix+"EFw6E4yW.jpeg",prefix+"CBFT20xr.jpeg",prefix+"KE7XkyKt.jpeg",prefix+"qxEU7X6x.jpeg",prefix+"c4rbD2M1.jpeg",prefix+"2kRjl0Wt.jpeg",prefix+"kXgCsero.jpeg",prefix+"rtNC43KZ.jpeg",prefix+"4zquuQEo.jpeg",prefix+"YjCBzA9Q.jpeg",prefix+"WGWDVqJ0.jpeg",prefix+"kjAxz9eK.jpeg",prefix+"zDsgQfU3.jpeg",prefix+"DYMdPKOD.jpeg",
+    prefix+"IMG_5070.png",prefix+"IMG_5409.png",prefix+"IMG_5416.png",prefix+"IMG_5730.png",prefix+"IMG_6054.png",prefix+"IMG_6082.png",prefix+"IMG_6114.png",prefix+"IMG_7193.png",prefix+"IMG_4485.jpeg",prefix+"IMG_5948.png",prefix+"IMG_4709.png",prefix+"IMG_5413.png",prefix+"IMG_4708.png",prefix+"IMG_4705.png",prefix+"IMG_4657.png",prefix+"IMG_6115.png",prefix+"IMG_4501.jpeg",prefix+"IMG_5733.png",prefix+"IMG_4540.png",prefix+"IMG_4555.png",prefix+"IMG_4637.png",prefix+"IMG_4703.png",prefix+"IMG_4992.png",prefix+"IMG_5037.png",prefix+"IMG_5075.png",prefix+"IMG_5279.png",prefix+"IMG_5665.png",prefix+"IMG_5036.png",prefix+"IMG_5051.png",prefix+"IMG_6253.png",prefix+"IMG_6299.png",prefix+"IMG_6504.png",prefix+"IMG_6510.png",prefix+"IMG_6512.png",prefix+"IMG_6514.png",prefix+"IMG_6517.png",prefix+"IMG_6518.png",prefix+"IMG_6519.png",prefix+"IMG_6539.png",prefix+"IMG_6554.png",prefix+"IMG_6745.png",prefix+"IMG_7056.png",prefix+"IMG_4418.webp",prefix+"IMG_7138.webp"
+  ];
 
-  // DATENSTRUKTUR MIT ORDNERN FÜR REZEPTE UND COMICS
   const data = {
-    fotos: { title: "Fotos", series: [
-      { name: "Familie", img: fImgs[0], images: fImgs }, 
-      { name: "Desires", img: dImgs[0], images: dImgs },
-      { name: "Baby Fox", img: null, images: [] },
-      { name: "Döbeln", img: null, images: [] }, 
-      { name: "Weihnachten", img: null, images: [] }, 
-      { name: "Italien", img: null, images: [] }
-    ] },
-    rezepte: { title: "Rezepte", series: [
-      { name: "Arabisch", img: "https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0193.jpeg", images: ["https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0193.jpeg", "https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0164.jpeg", "https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0166.jpeg"] }, 
-      { name: "All around the World", img: "https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0167.jpeg", images: ["https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0167.jpeg", "https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0169.jpeg"] },
-      { name: "Lieblingsessen", img: null, images: [] },
-      { name: "Deutsch", img: null, images: [] }, 
-      { name: "Weihnachten", img: "https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0197.jpeg", images: ["https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0197.jpeg"] }
-    ] },
-    comics: { title: "Comics", series: [
-      { name: "Asmaa & Foxy", img: "https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1494.jpeg", images: ["https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1494.jpeg", "https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1135.jpeg"] },
-      { name: "Garfield", img: null, images: [] },
-      { name: "Featuring Foxy", img: null, images: [] }
-    ] }
+    fotos: { title: "Galerie", series: [{ name: "Familie", img: fImgs[0], images: fImgs }, { name: "Desires", img: allDesires[0], images: allDesires }, { name: "Baby Fox", img: null, images: [] }, { name: "Döbeln", img: null, images: [] }, { name: "Weihnachten", img: null, images: [] }, { name: "Italien", img: null, images: [] }] },
+    rezepte: { title: "Rezepte", series: [{ name: "Arabisch", img: prefix+"Rezepte/IMG_0193.jpeg", images: [prefix+"Rezepte/IMG_0193.jpeg", prefix+"Rezepte/IMG_0164.jpeg", prefix+"Rezepte/IMG_0166.jpeg"] }, { name: "All around the World", img: prefix+"Rezepte/IMG_0167.jpeg", images: [prefix+"Rezepte/IMG_0167.jpeg", prefix+"Rezepte/IMG_0169.jpeg"] }, { name: "Lieblingsessen", img: null, images: [] }, { name: "Deutsch", img: null, images: [] }, { name: "Weihnachten", img: prefix+"Rezepte/IMG_0197.jpeg", images: [prefix+"Rezepte/IMG_0197.jpeg"] }] },
+    comics: { title: "Comics", series: [{ name: "Asmaa & Foxy", img: prefix+"Comics/IMG_1494.jpeg", images: [prefix+"Comics/IMG_1494.jpeg", prefix+"Comics/IMG_1135.jpeg"] }, { name: "Garfield", img: null, images: [] }, { name: "Featuring Foxy", img: null, images: [] }] }
   };
 
-  let tracks = [
-    { id: 0, title: "Weihnacht", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3", cover: "https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" }, 
-    { id: 1, title: "Ein Leben Lang", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/One Day In Rome - Ein Leben Lang.mp3", cover: fImgs[0] }
-  ];
+  let tracks = [{ title: "Weihnacht", src: prefix+"Musik/Weihnacht.mp3", cover: prefix+"Bilder/IMG_1840.jpeg" }, { title: "Ein Leben Lang", src: prefix+"Musik/One Day In Rome - Ein Leben Lang.mp3", cover: fImgs[0] }];
 
   let audio = new Audio(); let trIdx = 0; let curG = []; let ssIdx = 0; let isSS = false; let isShuf = false; let ssT = null;
   let mShuf = false; let repMode = 0;
@@ -279,7 +247,7 @@
     const s = localStorage.getItem('ssSpeed') || 2000;
     document.getElementById('ss-speed').value = s;
     loadT(0);
-    initDragAndDrop();
+    initDrag();
   }
 
   function showView(v) { 
@@ -298,8 +266,7 @@
     });
     showView('category');
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    const navId = (k === 'fotos') ? 'nav-fotos' : (k === 'rezepte' ? 'nav-rezepte' : 'nav-comics');
-    document.getElementById(navId).classList.add('active');
+    document.getElementById('nav-'+(k==='fotos'?'fotos':k)).classList.add('active');
   }
 
   function openG(k, n) {
@@ -310,15 +277,13 @@
     showView('gallery'); document.body.classList.add('sidebar-collapsed');
   }
 
-  // DIASHOW
   function openSS(i) { ssIdx = i; document.getElementById('ss-img').src = curG[ssIdx]; document.getElementById('slideshow-overlay').classList.add('active'); }
   function closeSS() { document.getElementById('slideshow-overlay').classList.remove('active'); stopSS(); }
   function ssNext() { if(isShuf) ssIdx = Math.floor(Math.random()*curG.length); else ssIdx = (ssIdx+1)%curG.length; document.getElementById('ss-img').src = curG[ssIdx]; }
   function ssPrev() { ssIdx = (ssIdx-1+curG.length)%curG.length; document.getElementById('ss-img').src = curG[ssIdx]; }
 
   function toggleSS() {
-    isSS = !isSS;
-    const btn = document.getElementById('ss-play');
+    isSS = !isSS; const btn = document.getElementById('ss-play');
     if(isSS) { 
       ssT = setInterval(ssNext, document.getElementById('ss-speed').value); 
       document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
@@ -327,96 +292,36 @@
   }
   function stopSS() { isSS = false; clearInterval(ssT); document.getElementById('ss-play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; document.getElementById('ss-play').classList.remove('active-mode'); }
   function saveSpeed() { localStorage.setItem('ssSpeed', document.getElementById('ss-speed').value); if(isSS) { clearInterval(ssT); ssT = setInterval(ssNext, document.getElementById('ss-speed').value); } }
-  
-  function toggleSSShuffle() { 
-    isShuf = !isShuf;
-    const dice = document.getElementById('ss-shuffle');
-    if(isShuf) dice.classList.add('active-mode'); else dice.classList.remove('active-mode');
-  }
+  function toggleSSShuffle() { isShuf = !isShuf; document.getElementById('ss-shuffle').classList.toggle('active-mode', isShuf); }
 
-  // MUSIC
-  function loadT(i) { 
-    trIdx = i; audio.src = tracks[i].src; 
-    document.getElementById('p-title').innerText = tracks[i].title; 
-    document.getElementById('p-img').src = tracks[i].cover; 
-    updatePl(); 
-    updateNextTrackInfo();
-  }
+  function loadT(i) { trIdx = i; audio.src = tracks[i].src; document.getElementById('p-title').innerText = tracks[i].title; document.getElementById('p-img').src = tracks[i].cover; updatePl(); updateNext(); }
   function togglePlay() { if(audio.paused) { audio.play(); document.getElementById('play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; } else { audio.pause(); document.getElementById('play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; } }
   function nextT() { if(mShuf) trIdx = Math.floor(Math.random()*tracks.length); else trIdx = (trIdx+1)%tracks.length; loadT(trIdx); audio.play(); }
   function prevT() { trIdx = (trIdx-1+tracks.length)%tracks.length; loadT(trIdx); audio.play(); }
 
-  function toggleMusicShuffle() { mShuf = !mShuf; document.getElementById('m-shuffle').classList.toggle('active-mode', mShuf); updateNextTrackInfo(); }
-  function toggleMusicRepeat() {
-    repMode = (repMode + 1) % 3;
-    const btn = document.getElementById('m-repeat');
-    const badge = document.getElementById('repeat-badge');
-    if(repMode === 0) { btn.classList.remove('active-mode'); badge.innerText = ''; }
-    else if(repMode === 1) { btn.classList.add('active-mode'); badge.innerText = '1'; }
-    else { btn.classList.add('active-mode'); badge.innerText = 'All'; }
-  }
-
-  function updateNextTrackInfo() {
-    let nextTitle = mShuf ? "Zufall" : tracks[(trIdx + 1) % tracks.length].title;
-    document.getElementById('p-next').innerText = "Next: " + nextTitle;
-  }
+  function toggleMusicShuffle() { mShuf = !mShuf; document.getElementById('m-shuffle').classList.toggle('active-mode', mShuf); updateNext(); }
+  function toggleMusicRepeat() { repMode = (repMode + 1) % 3; const btn = document.getElementById('m-repeat'); const badge = document.getElementById('repeat-badge'); if(repMode === 0) { btn.classList.remove('active-mode'); badge.innerText = ''; } else if(repMode === 1) { btn.classList.add('active-mode'); badge.innerText = '1'; } else { btn.classList.add('active-mode'); badge.innerText = 'All'; } }
+  function updateNext() { document.getElementById('p-next').innerText = "Next: " + (mShuf ? "Zufall" : tracks[(trIdx + 1) % tracks.length].title); }
 
   audio.onended = () => { if(repMode === 1) { audio.currentTime = 0; audio.play(); } else nextT(); }
   function openCoverZoom() { const s = document.getElementById('p-img').src; curG = [s]; openSS(0); }
   function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
-  
-  function updatePl() { 
-    const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; 
-    tracks.forEach((t, i) => { 
-        const it = document.createElement('div'); 
-        it.className = 'pl-item' + (i === trIdx ? ' active' : ''); 
-        it.innerText = t.title;
-        it.draggable = true;
-        it.dataset.index = i;
-        it.onclick = () => { if(!it.classList.contains('dragging')) { loadT(i); audio.play(); togglePl(); togglePlay(); } };
-        b.appendChild(it); 
-    });
-    initDragAndDrop();
-  }
+  function updatePl() { const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; tracks.forEach((t, i) => { const it = document.createElement('div'); it.className = 'pl-item' + (i === trIdx ? ' active' : ''); it.innerText = t.title; it.draggable = true; it.onclick = () => { loadT(i); audio.play(); togglePl(); togglePlay(); }; b.appendChild(it); }); initDrag(); }
 
-  function initDragAndDrop() {
-    const box = document.getElementById('playlist-box');
-    let draggedItem = null;
-    box.addEventListener('dragstart', (e) => { draggedItem = e.target; e.target.classList.add('dragging'); });
+  function initDrag() {
+    const box = document.getElementById('playlist-box'); let drg = null;
+    box.addEventListener('dragstart', (e) => { drg = e.target; e.target.classList.add('dragging'); });
     box.addEventListener('dragend', (e) => {
       e.target.classList.remove('dragging');
       const items = [...box.querySelectorAll('.pl-item')];
-      const newTracks = items.map(item => tracks.find(t => t.title === item.innerText));
-      tracks = newTracks;
-      trIdx = tracks.findIndex(t => t.src === audio.src);
-      updateNextTrackInfo();
+      tracks = items.map(item => tracks.find(t => t.title === item.innerText));
+      trIdx = tracks.findIndex(t => t.src === audio.src); updateNext();
     });
-    box.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      const afterElement = getDragAfterElement(box, e.clientY);
-      if (afterElement == null) box.appendChild(draggedItem);
-      else box.insertBefore(draggedItem, afterElement);
-    });
+    box.addEventListener('dragover', (e) => { e.preventDefault(); const after = getAfter(box, e.clientY); if (!after) box.appendChild(drg); else box.insertBefore(drg, after); });
   }
+  function getAfter(container, y) { const drgElements = [...container.querySelectorAll('.pl-item:not(.dragging)')]; return drgElements.reduce((closest, child) => { const box = child.getBoundingClientRect(); const offset = y - box.top - box.height / 2; if (offset < 0 && offset > closest.offset) return { offset, element: child }; else return closest; }, { offset: Number.NEGATIVE_INFINITY }).element; }
 
-  function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.pl-item:not(.dragging)')];
-    return draggableElements.reduce((closest, child) => {
-      const box = child.getBoundingClientRect();
-      const offset = y - box.top - box.height / 2;
-      if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
-      else return closest;
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
-  }
-
-  audio.ontimeupdate = () => { 
-    const p = document.getElementById('progress-bar'); 
-    if(!isNaN(audio.duration)) { 
-        p.max = audio.duration; p.value = audio.currentTime; 
-        document.getElementById('t-cur').innerText = Math.floor(audio.currentTime/60)+":"+Math.floor(audio.currentTime%60).toString().padStart(2,'0'); 
-        document.getElementById('t-dur').innerText = Math.floor(audio.duration/60)+":"+Math.floor(audio.duration%60).toString().padStart(2,'0'); 
-    } 
-  };
+  audio.ontimeupdate = () => { const p = document.getElementById('progress-bar'); if(!isNaN(audio.duration)) { p.max = audio.duration; p.value = audio.currentTime; document.getElementById('t-cur').innerText = Math.floor(audio.currentTime/60)+":"+Math.floor(audio.currentTime%60).toString().padStart(2,'0'); document.getElementById('t-dur').innerText = Math.floor(audio.duration/60)+":"+Math.floor(audio.duration%60).toString().padStart(2,'0'); } };
   document.getElementById('progress-bar').oninput = (e) => audio.currentTime = e.target.value;
 
 </script>
