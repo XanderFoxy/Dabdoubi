@@ -13,7 +13,7 @@
       --bg-dark: #080808;
       --sidebar-bg: #0f0f0f;
       --glass: rgba(255, 255, 255, 0.05);
-      --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     body, html {
@@ -32,15 +32,14 @@
       transition: transform 0.5s ease;
       z-index: 1000;
     }
-    /* Sidebar Status */
     .sidebar-collapsed #sidebar { transform: translateX(-100%); position: absolute; }
 
-    /* Toggle Button (Hamburger) - Nur sichtbar wenn Sidebar weg ist */
+    /* Toggle Button (Hamburger) */
     #menu-toggle {
       position: fixed; top: 25px; left: 25px; z-index: 1100;
       background: var(--sidebar-bg); border: 1px solid var(--asmaa-purple);
       padding: 10px; border-radius: 10px; cursor: pointer; color: var(--accent);
-      display: none; /* Standardmäßig aus */
+      display: none; 
     }
     .sidebar-collapsed #menu-toggle { display: block; }
 
@@ -49,15 +48,13 @@
       padding: 14px 20px; margin-bottom: 12px; border-radius: 12px;
       cursor: pointer; transition: var(--transition);
       display: flex; align-items: center; gap: 15px; color: #555;
-      border: 1px solid transparent;
     }
-    .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
+    .nav-item svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
     .nav-item:hover { color: #fff; background: var(--glass); box-shadow: 0 0 15px rgba(128, 0, 128, 0.3); }
-    
     .nav-item.active {
       color: #fff; background: rgba(128, 0, 128, 0.15);
       border-left: 5px solid var(--asmaa-purple);
-      box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 20px rgba(128, 0, 128, 0.2);
+      box-shadow: inset 15px 0 20px -15px var(--asmaa-purple);
     }
 
     /* --- MAIN CONTENT --- */
@@ -72,34 +69,36 @@
       border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: var(--transition);
       position: relative; aspect-ratio: 1/1;
     }
-    .card:hover { border-color: var(--asmaa-purple); transform: translateY(-5px); box-shadow: 0 0 30px rgba(128, 0, 128, 0.4); }
     .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; transition: 0.6s; }
+    .card:hover { border-color: var(--asmaa-purple); transform: translateY(-5px); box-shadow: 0 0 25px rgba(128, 0, 128, 0.4); }
     .card:hover img { opacity: 1; }
     .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); }
-    
-    .placeholder-card { display: flex; align-items: center; justify-content: center; height: 100%; color: #444; font-size: 24px; }
+    .placeholder-card { display: flex; align-items: center; justify-content: center; height: 100%; color: #333; font-size: 40px; }
 
     .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
-    .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
-    .photo-item:hover { border-color: var(--asmaa-purple); transform: scale(1.03); box-shadow: 0 0 20px rgba(128, 0, 128, 0.5); }
+    .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
+    .photo-item:hover { border-color: var(--asmaa-purple); transform: scale(1.03); }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
 
     /* --- PLAYER BAR --- */
     #player-bar {
-      height: 90px; background: rgba(10,10,10,0.95); backdrop-filter: blur(20px);
+      height: 90px; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px);
       border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center;
       padding: 0 40px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
     }
-    .player-info { display: flex; align-items: center; gap: 15px; width: 300px; }
+    .player-info { display: flex; align-items: center; gap: 15px; width: 300px; flex-shrink: 0; }
     .player-info img { width: 50px; height: 50px; border-radius: 8px; border: 1px solid var(--asmaa-purple); }
-    .track-meta h4 { margin: 0; font-size: 14px; }
+    .track-meta h4 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; }
-    .btn-svg svg { width: 24px; height: 24px; fill: currentColor; transition: 0.2s; }
+    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }
+    .buttons { display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
+    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; }
+    .btn-svg svg { width: 22px; height: 22px; fill: currentColor; }
     .btn-svg:hover svg { color: var(--accent); }
+    .play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; }
+    .play-trigger:hover { background: var(--accent); }
 
-    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .progress-container { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #444; }
+    .progress-container { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #555; }
     #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 4px; cursor: pointer; }
 
     /* --- DIASHOW OVERLAY --- */
@@ -111,18 +110,18 @@
     .glass-frame {
       position: relative; padding: 15px; border-radius: 20px;
       background: rgba(255,255,255,0.03); backdrop-filter: blur(25px);
-      box-shadow: 0 0 60px 20px rgba(128, 0, 128, 0.4);
+      box-shadow: 0 0 50px 10px var(--asmaa-purple);
       border: 1px solid rgba(255,255,255,0.08);
     }
-    .glass-frame img { max-width: 85vw; max-height: 75vh; border-radius: 15px; transition: opacity 0.5s; }
+    .glass-frame img { max-width: 85vw; max-height: 75vh; border-radius: 15px; transition: opacity 0.4s ease-in-out; }
 
     .ss-console {
       position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%);
-      display: flex; gap: 20px; align-items: center; background: rgba(15,15,15,0.9);
+      display: flex; gap: 20px; align-items: center; background: rgba(15,15,15,0.95);
       padding: 15px 30px; border-radius: 40px; border: 1px solid var(--glass);
     }
-    .ss-slider { width: 120px; accent-color: var(--accent); }
     .active-mode { color: var(--accent) !important; filter: drop-shadow(0 0 8px var(--accent)); }
+    .ss-slider { width: 100px; accent-color: var(--accent); }
 
     #playlist-box {
       position: fixed; bottom: 100px; right: 40px; width: 280px; 
@@ -131,14 +130,14 @@
     }
     #playlist-box.active { display: block; }
     .pl-item { padding: 10px; cursor: pointer; border-radius: 8px; font-size: 13px; }
-    .pl-item.active { color: var(--accent); }
+    .pl-item.active { color: var(--accent); background: rgba(255,255,255,0.03); }
   </style>
 </head>
-<body>
+<body class="">
 
   <div id="app-container">
     <button id="menu-toggle" onclick="toggleSidebar()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
     </button>
 
     <aside id="sidebar">
@@ -150,10 +149,10 @@
           <svg viewBox="0 0 24 24"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4z"/></svg> Fotos
         </div>
         <div class="nav-item" onclick="showCategory('rezepte')">
-          <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03z"/></svg> Rezepte
+          <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03zM16 6v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg> Rezepte
         </div>
         <div class="nav-item" onclick="showCategory('comics')">
-          <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5-1.17 0-2.39.15-3.5.5V19z"/></svg> Comics
+          <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5-1.17 0-2.39.15-3.5.5V19c1.11-.35 2.33-.5 3.5-.5 1.95 0 4.05.4 5.5 1.5 1.45-1.1 3.55-1.5 5.5-1.5 1.17 0 2.39.15 3.5.5V5z"/></svg> Comics
         </div>
       </nav>
     </aside>
@@ -191,12 +190,12 @@
     <footer id="player-bar">
       <div class="player-info">
         <img id="p-img" src="">
-        <div class="track-meta"><h4 id="p-title">Titel</h4><p>Xander Fox</p></div>
+        <div class="track-meta"><h4 id="p-title">Lade...</h4><p>Xander Fox</p></div>
       </div>
       <div class="player-controls">
         <div class="buttons">
           <button class="btn-svg" onclick="prevT()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-          <button class="btn-svg" onclick="togglePlay()"><svg viewBox="0 0 24 24" id="play-i"><path d="M8 5v14l11-7z"/></svg></button>
+          <button class="btn-svg play-trigger" onclick="togglePlay()"><svg viewBox="0 0 24 24" id="play-i"><path d="M8 5v14l11-7z"/></svg></button>
           <button class="btn-svg" onclick="nextT()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg></button>
           <button class="btn-svg" onclick="togglePl()"><svg viewBox="0 0 24 24"><path d="M4 10h12v2H4zm0-4h12v2H4zm0 8h8v2H4zm10 0v6l5-3-5-3z"/></svg></button>
         </div>
@@ -217,7 +216,7 @@
         <button class="btn-svg" id="ss-shuffle" onclick="toggleShuffle()">
           <svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg>
         </button>
-        
+
         <input type="range" class="ss-slider" id="ss-speed" min="500" max="5000" value="2000" oninput="updateSSInterval()">
         <button class="btn-svg" onclick="ssNext()"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
         <button class="btn-svg" onclick="closeSS()"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
@@ -265,16 +264,39 @@
     showView('gallery'); document.body.classList.add('sidebar-collapsed');
   }
 
-  function openSS(i) { ssIdx = i; document.getElementById('ss-img').src = curG[ssIdx]; document.getElementById('slideshow-overlay').classList.add('active'); }
+  // DIASHOW MIT FADE
+  function openSS(i) { ssIdx = i; const img = document.getElementById('ss-img'); img.src = curG[ssIdx]; document.getElementById('slideshow-overlay').classList.add('active'); }
   function closeSS() { document.getElementById('slideshow-overlay').classList.remove('active'); stopSS(); }
-  function ssNext() { if(isShuf) ssIdx = Math.floor(Math.random()*curG.length); else ssIdx = (ssIdx+1)%curG.length; document.getElementById('ss-img').src = curG[ssIdx]; }
-  function ssPrev() { ssIdx = (ssIdx-1+curG.length)%curG.length; document.getElementById('ss-img').src = curG[ssIdx]; }
+  
+  function ssNext() { 
+    const img = document.getElementById('ss-img');
+    img.style.opacity = 0;
+    setTimeout(() => {
+        if(isShuf) ssIdx = Math.floor(Math.random()*curG.length); else ssIdx = (ssIdx+1)%curG.length;
+        img.src = curG[ssIdx];
+        img.style.opacity = 1;
+    }, 400);
+  }
+
+  function ssPrev() { 
+    const img = document.getElementById('ss-img');
+    img.style.opacity = 0;
+    setTimeout(() => {
+        ssIdx = (ssIdx-1+curG.length)%curG.length;
+        img.src = curG[ssIdx];
+        img.style.opacity = 1;
+    }, 400);
+  }
 
   function toggleSS() {
     isSS = !isSS;
-    if(isSS) { ssT = setInterval(ssNext, document.getElementById('ss-speed').value); document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; document.getElementById('ss-play').classList.add('active-mode'); }
-    else stopSS();
+    if(isSS) { 
+        ssT = setInterval(ssNext, document.getElementById('ss-speed').value); 
+        document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; 
+        document.getElementById('ss-play').classList.add('active-mode'); 
+    } else stopSS();
   }
+
   function stopSS() { isSS = false; clearInterval(ssT); document.getElementById('ss-play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; document.getElementById('ss-play').classList.remove('active-mode'); }
   function updateSSInterval() { if(isSS) { clearInterval(ssT); ssT = setInterval(ssNext, document.getElementById('ss-speed').value); } }
   function toggleShuffle() { isShuf = !isShuf; document.getElementById('ss-shuffle').classList.toggle('active-mode', isShuf); }
@@ -293,3 +315,4 @@
 </script>
 </body>
 </html>
+
