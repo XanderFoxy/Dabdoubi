@@ -74,7 +74,6 @@
     .card:hover { border-color: var(--asmaa-purple); transform: translateY(-5px); box-shadow: 0 0 25px rgba(128, 0, 128, 0.4); }
     .card:hover img { opacity: 1; }
     .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); }
-    .placeholder-card { display: flex; align-items: center; justify-content: center; height: 100%; color: #333; font-size: 40px; }
 
     .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
     .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
@@ -165,9 +164,18 @@
       <section id="view-overview" class="view-section active">
         <h2 style="font-weight: 300; margin-bottom: 40px; color: var(--accent);">Zentrale</h2>
         <div class="grid">
-          <div class="card" onclick="showCategory('fotos')"><img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg"><div class="card-info"><h3>Fotos</h3></div></div>
-          <div class="card" onclick="showCategory('rezepte')"><div class="placeholder-card">🍳</div><div class="card-info"><h3>Rezepte</h3></div></div>
-          <div class="card" onclick="showCategory('comics')"><div class="placeholder-card">🎨</div><div class="card-info"><h3>Comics</h3></div></div>
+          <div class="card" onclick="showCategory('fotos')">
+            <img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg">
+            <div class="card-info"><h3>Galerie</h3></div>
+          </div>
+          <div class="card" onclick="showCategory('rezepte')">
+            <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_0193.jpeg">
+            <div class="card-info"><h3>Rezepte</h3></div>
+          </div>
+          <div class="card" onclick="showCategory('comics')">
+            <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_1494.jpeg">
+            <div class="card-info"><h3>Comics</h3></div>
+          </div>
         </div>
       </section>
 
@@ -233,7 +241,6 @@
   const fImgs = ["https://xanderfoxy.github.io/Dabdoubi/IMG_7319.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7320.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7321.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7323.jpeg","https://xanderfoxy.github.io/Dabdoubi/IMG_7324.jpeg"];
   const dImgs = ["https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg","https://xanderfoxy.github.io/Dabdoubi/JuE5ywM3.jpeg","https://xanderfoxy.github.io/Dabdoubi/7ylO8SbO.jpeg","https://xanderfoxy.github.io/Dabdoubi/reVuied4.jpeg","https://xanderfoxy.github.io/Dabdoubi/wyXz6MhB.jpeg","https://xanderfoxy.github.io/Dabdoubi/m6l7tlxB.jpeg","https://xanderfoxy.github.io/Dabdoubi/OJX7O4Fr.jpeg","https://xanderfoxy.github.io/Dabdoubi/4JVKv09e.jpeg","https://xanderfoxy.github.io/Dabdoubi/1xOOKJLC.jpeg","https://xanderfoxy.github.io/Dabdoubi/Facetune_19-11-2025-19-56-41.jpeg","https://xanderfoxy.github.io/Dabdoubi/ezf2Tv5I.jpeg","https://xanderfoxy.github.io/Dabdoubi/ql8RdbJd.jpeg","https://xanderfoxy.github.io/Dabdoubi/iz2rF6Ij.jpeg","https://xanderfoxy.github.io/Dabdoubi/W1mDxlcp.jpeg","https://xanderfoxy.github.io/Dabdoubi/XZ3icISY.jpeg","https://xanderfoxy.github.io/Dabdoubi/ffFONwpT.jpeg","https://xanderfoxy.github.io/Dabdoubi/tlzPDVhj.jpeg","https://xanderfoxy.github.io/Dabdoubi/SMiPFnfR.jpeg","https://xanderfoxy.github.io/Dabdoubi/ErdqXcJI.jpeg","https://xanderfoxy.github.io/Dabdoubi/qJZbWC3S.jpeg","https://xanderfoxy.github.io/Dabdoubi/vPYAotQA.jpeg","https://xanderfoxy.github.io/Dabdoubi/VX0lnX6g.jpeg","https://xanderfoxy.github.io/Dabdoubi/IyRcZtkA.jpeg","https://xanderfoxy.github.io/Dabdoubi/GlXnTkeo.jpeg","https://xanderfoxy.github.io/Dabdoubi/6biiHT6s.jpeg","https://xanderfoxy.github.io/Dabdoubi/gQkLuhS6.jpeg","https://xanderfoxy.github.io/Dabdoubi/FXDCBl3h.jpeg","https://xanderfoxy.github.io/Dabdoubi/X17hRNIE.jpeg","https://xanderfoxy.github.io/Dabdoubi/N4zNC8G0.jpeg","https://xanderfoxy.github.io/Dabdoubi/INgUi8jX.jpeg","https://xanderfoxy.github.io/Dabdoubi/8nRaIrlI.jpeg","https://xanderfoxy.github.io/Dabdoubi/EFw6E4yW.jpeg","https://xanderfoxy.github.io/Dabdoubi/CBFT20xr.jpeg","https://xanderfoxy.github.io/Dabdoubi/KE7XkyKt.jpeg","https://xanderfoxy.github.io/Dabdoubi/qxEU7X6x.jpeg","https://xanderfoxy.github.io/Dabdoubi/c4rbD2M1.jpeg","https://xanderfoxy.github.io/Dabdoubi/2kRjl0Wt.jpeg","https://xanderfoxy.github.io/Dabdoubi/kXgCsero.jpeg","https://xanderfoxy.github.io/Dabdoubi/rtNC43KZ.jpeg","https://xanderfoxy.github.io/Dabdoubi/4zquuQEo.jpeg","https://xanderfoxy.github.io/Dabdoubi/YjCBzA9Q.jpeg","https://xanderfoxy.github.io/Dabdoubi/WGWDVqJ0.jpeg","https://xanderfoxy.github.io/Dabdoubi/kjAxz9eK.jpeg","https://xanderfoxy.github.io/Dabdoubi/zDsgQfU3.jpeg","https://xanderfoxy.github.io/Dabdoubi/DYMdPKOD.jpeg"];
 
-  // NEUE BILDER IN DIE DATENSTRUKTUR EINGEPFLEGT
   const data = {
     fotos: { title: "Fotos", series: [{ name: "Familie", img: fImgs[0], images: fImgs }, { name: "Desires", img: dImgs[0], images: dImgs }, { name: "Döbeln", img: null, images: [] }, { name: "Weihnachten", img: null, images: [] }, { name: "Italien", img: null, images: [] }] },
     rezepte: { title: "Rezepte", series: [
@@ -247,7 +254,7 @@
   const tracks = [{ title: "Weihnacht", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3", cover: "https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" }, { title: "Ein Leben Lang", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/One Day In Rome - Ein Leben Lang.mp3", cover: fImgs[0] }];
 
   let audio = new Audio(); let trIdx = 0; let curG = []; let ssIdx = 0; let isSS = false; let isShuf = false; let ssT = null;
-  let mShuf = false; let repMode = 0; // 0: Off, 1: Song, 2: Playlist
+  let mShuf = false; let repMode = 0;
 
   window.onload = () => {
     const s = localStorage.getItem('ssSpeed') || 2000;
@@ -283,7 +290,7 @@
     showView('gallery'); document.body.classList.add('sidebar-collapsed');
   }
 
-  // DIASHOW
+  // SLIDESHOW
   function openSS(i) { ssIdx = i; document.getElementById('ss-img').src = curG[ssIdx]; document.getElementById('slideshow-overlay').classList.add('active'); }
   function closeSS() { document.getElementById('slideshow-overlay').classList.remove('active'); stopSS(); }
   function ssNext() { if(isShuf) ssIdx = Math.floor(Math.random()*curG.length); else ssIdx = (ssIdx+1)%curG.length; document.getElementById('ss-img').src = curG[ssIdx]; }
@@ -307,7 +314,7 @@
     if(isShuf) dice.classList.add('active-mode'); else dice.classList.remove('active-mode');
   }
 
-  // AUDIO
+  // MUSIC
   function loadT(i) { 
     trIdx = i; audio.src = tracks[i].src; 
     document.getElementById('p-title').innerText = tracks[i].title; 
@@ -316,10 +323,7 @@
     updateNextTrackInfo();
   }
   function togglePlay() { if(audio.paused) { audio.play(); document.getElementById('play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; } else { audio.pause(); document.getElementById('play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; } }
-  function nextT() { 
-    if(mShuf) trIdx = Math.floor(Math.random()*tracks.length); else trIdx = (trIdx+1)%tracks.length;
-    loadT(trIdx); audio.play(); 
-  }
+  function nextT() { if(mShuf) trIdx = Math.floor(Math.random()*tracks.length); else trIdx = (trIdx+1)%tracks.length; loadT(trIdx); audio.play(); }
   function prevT() { trIdx = (trIdx-1+tracks.length)%tracks.length; loadT(trIdx); audio.play(); }
 
   function toggleMusicShuffle() { 
@@ -337,10 +341,8 @@
   }
 
   function updateNextTrackInfo() {
-    let nextIdx;
-    if(mShuf) nextIdx = "Random";
-    else nextIdx = tracks[(trIdx + 1) % tracks.length].title;
-    document.getElementById('p-next').innerText = "Next: " + (mShuf ? "Shuffle" : nextIdx);
+    let nextTitle = mShuf ? "Shuffle" : tracks[(trIdx + 1) % tracks.length].title;
+    document.getElementById('p-next').innerText = "Next: " + nextTitle;
   }
 
   audio.onended = () => { if(repMode === 1) { audio.currentTime = 0; audio.play(); } else nextT(); }
