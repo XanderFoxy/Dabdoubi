@@ -34,7 +34,7 @@
     }
     .sidebar-collapsed #sidebar { transform: translateX(-100%); position: absolute; }
 
-    /* Toggle Button (Hamburger) - Blendet sich aus wenn Sidebar offen ist */
+    /* Hamburger Toggle - Nur sichtbar wenn Sidebar weg */
     #menu-toggle {
       position: fixed; top: 25px; left: 25px; z-index: 1100;
       background: var(--sidebar-bg); border: 1px solid var(--asmaa-purple);
@@ -47,12 +47,10 @@
     .nav-item {
       padding: 14px 20px; margin-bottom: 12px; border-radius: 12px;
       cursor: pointer; transition: var(--transition);
-      display: flex; align-items: center; gap: 15px; color: #555;
-      border: 1px solid transparent;
+      display: flex; align-items: center; gap: 15px; color: #444;
     }
-    .nav-item svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
+    .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
     .nav-item:hover { color: #fff; background: var(--glass); }
-    
     .nav-item.active {
       color: #fff; background: rgba(128, 0, 128, 0.15);
       border-left: 5px solid var(--asmaa-purple);
@@ -65,6 +63,14 @@
     .view-section.active { display: block; animation: fadeIn 0.4s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+    /* Back Button Symbol */
+    .back-btn-sym {
+      width: 40px; height: 40px; color: var(--asmaa-purple); 
+      cursor: pointer; margin-bottom: 20px; display: none; transition: 0.3s;
+    }
+    .back-btn-sym:hover { color: var(--accent); transform: scale(1.1); }
+    .back-btn-sym.visible { display: block; }
+
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
     .card {
       background: var(--glass); border-radius: 20px; overflow: hidden;
@@ -75,16 +81,11 @@
     .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; transition: 0.6s; }
     .card:hover img { opacity: 1; }
     .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); }
-    .placeholder-card { display: flex; align-items: center; justify-content: center; height: 100%; color: #333; font-size: 40px; }
 
     .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
     .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
     .photo-item:hover { border-color: var(--asmaa-purple); transform: scale(1.03); }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-
-    /* Back Button in Gallery */
-    .back-arrow { color: var(--asmaa-purple); cursor: pointer; margin-bottom: 20px; display: inline-block; transition: 0.3s; }
-    .back-arrow:hover { transform: translateX(-5px); color: var(--accent); }
 
     /* --- PLAYER BAR --- */
     #player-bar {
@@ -92,18 +93,17 @@
       border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center;
       padding: 0 40px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
     }
-    .player-info { display: flex; align-items: center; gap: 15px; width: 300px; }
+    .player-info { width: 280px; display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
     .player-info img { width: 50px; height: 50px; border-radius: 8px; border: 1px solid var(--asmaa-purple); }
-    .track-meta h4 { margin: 0; font-size: 14px; }
+    .track-meta h4 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }
+    .buttons { display: flex; align-items: center; gap: 20px; }
     .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; }
     .btn-svg svg { width: 24px; height: 24px; fill: currentColor; }
-    .btn-svg:hover svg { color: var(--accent); }
     .play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; }
-    .play-trigger:hover { background: var(--accent); }
 
-    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .progress-container { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #555; }
+    .progress-container { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #444; }
     #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 4px; cursor: pointer; }
 
     /* --- DIASHOW OVERLAY --- */
@@ -117,17 +117,15 @@
       background: rgba(255,255,255,0.03); backdrop-filter: blur(25px);
       box-shadow: 0 0 50px 10px var(--asmaa-purple);
       border: 1px solid rgba(255,255,255,0.08);
-      cursor: pointer; /* Signalisiert Klickbarkeit zum Schließen */
     }
-    .glass-frame img { max-width: 85vw; max-height: 75vh; border-radius: 15px; transition: opacity 0.4s ease-in-out; }
+    .glass-frame img { max-width: 85vw; max-height: 75vh; border-radius: 15px; transition: opacity 0.4s; }
 
     .ss-console {
       position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%);
       display: flex; gap: 20px; align-items: center; background: rgba(15,15,15,0.95);
       padding: 15px 30px; border-radius: 40px; border: 1px solid var(--glass);
     }
-    /* Eindeutige Shuffle-Farben */
-    .ss-shuffle { color: #fff; }
+    .ss-shuffle { color: #fff; transition: 0.3s; }
     .ss-shuffle.active-mode { color: var(--accent) !important; filter: drop-shadow(0 0 10px var(--accent)); }
     .ss-slider { width: 100px; accent-color: var(--accent); }
 
@@ -137,7 +135,7 @@
       padding: 15px; display: none; z-index: 2000;
     }
     #playlist-box.active { display: block; }
-    .pl-item { padding: 10px; cursor: pointer; border-radius: 8px; font-size: 13px; color: #888; transition: 0.3s; }
+    .pl-item { padding: 10px; cursor: pointer; border-radius: 8px; font-size: 13px; color: #666; }
     .pl-item.active { color: #fff; background: var(--asmaa-purple); font-weight: bold; }
   </style>
 </head>
@@ -166,32 +164,25 @@
     </aside>
 
     <main id="main-content">
+      <div id="global-back" class="back-btn-sym" onclick="goBack()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+
       <section id="view-overview" class="view-section active">
         <h2 style="font-weight: 300; margin-bottom: 40px; color: var(--accent);">Zentrale</h2>
         <div class="grid">
-          <div class="card" onclick="showCategory('fotos')">
-            <img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg">
-            <div class="card-info"><h3>Fotos</h3></div>
-          </div>
-          <div class="card" onclick="showCategory('rezepte')">
-            <div class="placeholder-card">🍳</div>
-            <div class="card-info"><h3>Rezepte</h3></div>
-          </div>
-          <div class="card" onclick="showCategory('comics')">
-            <div class="placeholder-card">🎨</div>
-            <div class="card-info"><h3>Comics</h3></div>
-          </div>
+          <div class="card" onclick="showCategory('fotos')"><img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg"><div class="card-info"><h3>Fotos</h3></div></div>
+          <div class="card" onclick="showCategory('rezepte')"><div class="placeholder-card">🍳</div><div class="card-info"><h3>Rezepte</h3></div></div>
+          <div class="card" onclick="showCategory('comics')"><div class="placeholder-card">🎨</div><div class="card-info"><h3>Comics</h3></div></div>
         </div>
       </section>
 
       <section id="view-category" class="view-section">
-        <div class="back-arrow" onclick="showView('overview')">← Zurück zur Übersicht</div>
-        <h2 id="category-title" style="font-weight: 300;">Kategorie</h2>
+        <h2 id="category-title" style="font-weight: 300; color: var(--accent);">Kategorie</h2>
         <div class="grid" id="series-grid"></div>
       </section>
 
       <section id="view-gallery" class="view-section">
-        <div class="back-arrow" id="back-to-cat">← Zurück zur Auswahl</div>
         <h2 id="gallery-title" style="font-weight: 300; color: var(--accent);">Serie</h2>
         <div class="photo-grid" id="photo-grid"></div>
       </section>
@@ -199,8 +190,7 @@
 
     <footer id="player-bar">
       <div class="player-info">
-        <img id="p-img" src="">
-        <div class="track-meta"><h4 id="p-title">Lade...</h4><p>Xander Fox</p></div>
+        <img id="p-img" src=""><div class="track-meta"><h4 id="p-title">Lade...</h4><p>Xander Fox</p></div>
       </div>
       <div class="player-controls">
         <div class="buttons">
@@ -211,7 +201,7 @@
         </div>
         <div class="progress-container"><span id="t-cur">0:00</span><input type="range" id="progress-bar" value="0"><span id="t-dur">0:00</span></div>
       </div>
-      <div style="width:300px"></div>
+      <div style="width:280px"></div>
     </footer>
     <div id="playlist-box"></div>
   </div>
@@ -222,14 +212,11 @@
       <div class="ss-console" onclick="event.stopPropagation();">
         <button class="btn-svg" onclick="ssPrev()"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
         <button class="btn-svg" id="ss-play" onclick="toggleSS()"><svg viewBox="0 0 24 24" id="ss-play-i"><path d="M8 5v14l11-7z"/></svg></button>
-        
         <button class="btn-svg ss-shuffle" id="ss-shuffle" onclick="toggleShuffle()">
           <svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg>
         </button>
-
         <input type="range" class="ss-slider" id="ss-speed" min="500" max="5000" value="2000" oninput="updateSSInterval()">
         <button class="btn-svg" onclick="ssNext()"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
-        <button class="btn-svg" onclick="closeSS()"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
       </div>
     </div>
   </div>
@@ -244,36 +231,32 @@
     comics: { title: "Comics", series: [{ name: "Asmaa & Foxy", img: null, images: [] }] }
   };
 
-  const tracks = [
-    { title: "Weihnacht", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3", cover: "https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" },
-    { title: "Ein Leben Lang", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/One Day In Rome - Ein Leben Lang.mp3", cover: fImgs[0] }
-  ];
+  const tracks = [{ title: "Weihnacht", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3", cover: "https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" }, { title: "Ein Leben Lang", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/One Day In Rome - Ein Leben Lang.mp3", cover: fImgs[0] }];
 
-  let audio = new Audio();
-  let trIdx = 0; let curG = []; let ssIdx = 0;
-  let isSS = false; let isShuf = false; let ssT = null;
+  let audio = new Audio(); let trIdx = 0; let curG = []; let ssIdx = 0; let isSS = false; let isShuf = false; let ssT = null;
+  let history = ['overview'];
 
   function toggleSidebar() { document.body.classList.toggle('sidebar-collapsed'); }
   
   function showView(v) { 
-    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active')); 
-    document.getElementById('view-'+v).classList.add('active'); 
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('view-'+v).classList.add('active');
     document.body.classList.remove('sidebar-collapsed');
+    const back = document.getElementById('global-back');
+    if(v === 'overview') { back.classList.remove('visible'); history = ['overview']; }
+    else { back.classList.add('visible'); if(history[history.length-1] !== v) history.push(v); }
     
-    // Konsistenz: Fokus auf Übersicht-Button
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     if(v === 'overview') document.getElementById('nav-home').classList.add('active');
   }
 
+  function goBack() { history.pop(); const prev = history[history.length-1] || 'overview'; showView(prev); }
+
   function showCategory(k) {
     const c = data[k]; document.getElementById('category-title').innerText = c.title;
     const g = document.getElementById('series-grid'); g.innerHTML = '';
-    c.series.forEach(s => {
-      g.innerHTML += `<div class="card" onclick="openG('${k}', '${s.name}')">${s.img ? `<img src="${s.img}">` : `<div class="placeholder-card">${s.name[0]}</div>`}<div class="card-info"><h3>${s.name}</h3></div></div>`;
-    });
-    showView('category'); 
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    document.getElementById('nav-'+k).classList.add('active');
+    c.series.forEach(s => { g.innerHTML += `<div class="card" onclick="openG('${k}', '${s.name}')">${s.img ? `<img src="${s.img}">` : `<div class="placeholder-card">${s.name[0]}</div>`}<div class="card-info"><h3>${s.name}</h3></div></div>`; });
+    showView('category'); document.getElementById('nav-'+k).classList.add('active');
   }
 
   function openG(k, n) {
@@ -281,44 +264,22 @@
     document.getElementById('gallery-title').innerText = s.name;
     const g = document.getElementById('photo-grid'); g.innerHTML = '';
     curG.forEach((img, i) => { g.innerHTML += `<div class="photo-item" onclick="openSS(${i})"><img src="${img}"></div>`; });
-    
-    document.getElementById('back-to-cat').onclick = () => showCategory(k);
     showView('gallery'); document.body.classList.add('sidebar-collapsed');
   }
 
-  // DIASHOW
   function openSS(i) { ssIdx = i; const img = document.getElementById('ss-img'); img.src = curG[ssIdx]; img.style.opacity = 1; document.getElementById('slideshow-overlay').classList.add('active'); }
   function closeSS() { document.getElementById('slideshow-overlay').classList.remove('active'); stopSS(); }
-  
-  function ssNext() { 
-    const img = document.getElementById('ss-img');
-    img.style.opacity = 0;
-    setTimeout(() => {
-        if(isShuf) ssIdx = Math.floor(Math.random()*curG.length); else ssIdx = (ssIdx+1)%curG.length;
-        img.src = curG[ssIdx]; img.style.opacity = 1;
-    }, 400);
-  }
+  function ssNext() { const img = document.getElementById('ss-img'); img.style.opacity = 0; setTimeout(() => { if(isShuf) ssIdx = Math.floor(Math.random()*curG.length); else ssIdx = (ssIdx+1)%curG.length; img.src = curG[ssIdx]; img.style.opacity = 1; }, 400); }
+  function ssPrev() { const img = document.getElementById('ss-img'); img.style.opacity = 0; setTimeout(() => { ssIdx = (ssIdx-1+curG.length)%curG.length; img.src = curG[ssIdx]; img.style.opacity = 1; }, 400); }
 
-  function ssPrev() { 
-    const img = document.getElementById('ss-img');
-    img.style.opacity = 0;
-    setTimeout(() => {
-        ssIdx = (ssIdx-1+curG.length)%curG.length;
-        img.src = curG[ssIdx]; img.style.opacity = 1;
-    }, 400);
-  }
-
-  function toggleSS() {
-    isSS = !isSS;
-    if(isSS) { ssT = setInterval(ssNext, document.getElementById('ss-speed').value); document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; document.getElementById('ss-play').classList.add('active-mode'); }
-    else stopSS();
-  }
+  function toggleSS() { isSS = !isSS; if(isSS) { ssT = setInterval(ssNext, document.getElementById('ss-speed').value); document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; document.getElementById('ss-play').classList.add('active-mode'); } else stopSS(); }
   function stopSS() { isSS = false; clearInterval(ssT); document.getElementById('ss-play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; document.getElementById('ss-play').classList.remove('active-mode'); }
   function updateSSInterval() { if(isSS) { clearInterval(ssT); ssT = setInterval(ssNext, document.getElementById('ss-speed').value); } }
   
   function toggleShuffle() { 
     isShuf = !isShuf; 
-    document.getElementById('ss-shuffle').classList.toggle('active-mode', isShuf); 
+    const dice = document.getElementById('ss-shuffle');
+    if(isShuf) dice.classList.add('active-mode'); else dice.classList.remove('active-mode');
   }
 
   function loadT(i) { trIdx = i; audio.src = tracks[i].src; document.getElementById('p-title').innerText = tracks[i].title; document.getElementById('p-img').src = tracks[i].cover; updatePl(); }
@@ -326,21 +287,9 @@
   function nextT() { loadT((trIdx+1)%tracks.length); audio.play(); }
   function prevT() { loadT((trIdx-1+tracks.length)%tracks.length); audio.play(); }
   function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
-  
-  function updatePl() { 
-    const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; 
-    tracks.forEach((t, i) => { 
-        const it = document.createElement('div'); 
-        it.className = 'pl-item' + (i === trIdx ? ' active' : ''); 
-        it.innerText = t.title; 
-        it.onclick = () => { loadT(i); audio.play(); togglePl(); }; 
-        b.appendChild(it); 
-    }); 
-  }
-
+  function updatePl() { const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; tracks.forEach((t, i) => { const it = document.createElement('div'); it.className = 'pl-item' + (i === trIdx ? ' active' : ''); it.innerText = t.title; it.onclick = () => { loadT(i); audio.play(); togglePl(); }; b.appendChild(it); }); }
   audio.ontimeupdate = () => { const p = document.getElementById('progress-bar'); if(!isNaN(audio.duration)) { p.max = audio.duration; p.value = audio.currentTime; document.getElementById('t-cur').innerText = Math.floor(audio.currentTime/60)+":"+Math.floor(audio.currentTime%60).toString().padStart(2,'0'); document.getElementById('t-dur').innerText = Math.floor(audio.duration/60)+":"+Math.floor(audio.duration%60).toString().padStart(2,'0'); } };
   document.getElementById('progress-bar').oninput = (e) => audio.currentTime = e.target.value;
-
   loadT(0);
 </script>
 </body>
