@@ -13,7 +13,7 @@
       --bg-dark: #080808;
       --sidebar-bg: #0f0f0f;
       --glass: rgba(255, 255, 255, 0.05);
-      --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     body, html {
@@ -34,7 +34,7 @@
     }
     .sidebar-collapsed #sidebar { transform: translateX(-100%); position: absolute; }
 
-    /* Toggle Button (Hamburger) */
+    /* Toggle Button (Hamburger) - Blendet sich aus wenn Sidebar offen ist */
     #menu-toggle {
       position: fixed; top: 25px; left: 25px; z-index: 1100;
       background: var(--sidebar-bg); border: 1px solid var(--asmaa-purple);
@@ -48,13 +48,15 @@
       padding: 14px 20px; margin-bottom: 12px; border-radius: 12px;
       cursor: pointer; transition: var(--transition);
       display: flex; align-items: center; gap: 15px; color: #555;
+      border: 1px solid transparent;
     }
-    .nav-item svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
-    .nav-item:hover { color: #fff; background: var(--glass); box-shadow: 0 0 15px rgba(128, 0, 128, 0.3); }
+    .nav-item svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
+    .nav-item:hover { color: #fff; background: var(--glass); }
+    
     .nav-item.active {
       color: #fff; background: rgba(128, 0, 128, 0.15);
       border-left: 5px solid var(--asmaa-purple);
-      box-shadow: inset 15px 0 20px -15px var(--asmaa-purple);
+      box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 15px rgba(128, 0, 128, 0.2);
     }
 
     /* --- MAIN CONTENT --- */
@@ -69,8 +71,8 @@
       border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: var(--transition);
       position: relative; aspect-ratio: 1/1;
     }
-    .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; transition: 0.6s; }
     .card:hover { border-color: var(--asmaa-purple); transform: translateY(-5px); box-shadow: 0 0 25px rgba(128, 0, 128, 0.4); }
+    .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; transition: 0.6s; }
     .card:hover img { opacity: 1; }
     .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); }
     .placeholder-card { display: flex; align-items: center; justify-content: center; height: 100%; color: #333; font-size: 40px; }
@@ -80,24 +82,27 @@
     .photo-item:hover { border-color: var(--asmaa-purple); transform: scale(1.03); }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
 
+    /* Back Button in Gallery */
+    .back-arrow { color: var(--asmaa-purple); cursor: pointer; margin-bottom: 20px; display: inline-block; transition: 0.3s; }
+    .back-arrow:hover { transform: translateX(-5px); color: var(--accent); }
+
     /* --- PLAYER BAR --- */
     #player-bar {
       height: 90px; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px);
       border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center;
       padding: 0 40px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
     }
-    .player-info { display: flex; align-items: center; gap: 15px; width: 300px; flex-shrink: 0; }
+    .player-info { display: flex; align-items: center; gap: 15px; width: 300px; }
     .player-info img { width: 50px; height: 50px; border-radius: 8px; border: 1px solid var(--asmaa-purple); }
-    .track-meta h4 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-meta h4 { margin: 0; font-size: 14px; }
 
-    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }
-    .buttons { display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
-    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; }
-    .btn-svg svg { width: 22px; height: 22px; fill: currentColor; }
+    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; }
+    .btn-svg svg { width: 24px; height: 24px; fill: currentColor; }
     .btn-svg:hover svg { color: var(--accent); }
     .play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; }
     .play-trigger:hover { background: var(--accent); }
 
+    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .progress-container { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #555; }
     #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 4px; cursor: pointer; }
 
@@ -112,6 +117,7 @@
       background: rgba(255,255,255,0.03); backdrop-filter: blur(25px);
       box-shadow: 0 0 50px 10px var(--asmaa-purple);
       border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer; /* Signalisiert Klickbarkeit zum Schließen */
     }
     .glass-frame img { max-width: 85vw; max-height: 75vh; border-radius: 15px; transition: opacity 0.4s ease-in-out; }
 
@@ -120,7 +126,9 @@
       display: flex; gap: 20px; align-items: center; background: rgba(15,15,15,0.95);
       padding: 15px 30px; border-radius: 40px; border: 1px solid var(--glass);
     }
-    .active-mode { color: var(--accent) !important; filter: drop-shadow(0 0 8px var(--accent)); }
+    /* Eindeutige Shuffle-Farben */
+    .ss-shuffle { color: #fff; }
+    .ss-shuffle.active-mode { color: var(--accent) !important; filter: drop-shadow(0 0 10px var(--accent)); }
     .ss-slider { width: 100px; accent-color: var(--accent); }
 
     #playlist-box {
@@ -129,11 +137,11 @@
       padding: 15px; display: none; z-index: 2000;
     }
     #playlist-box.active { display: block; }
-    .pl-item { padding: 10px; cursor: pointer; border-radius: 8px; font-size: 13px; }
-    .pl-item.active { color: var(--accent); background: rgba(255,255,255,0.03); }
+    .pl-item { padding: 10px; cursor: pointer; border-radius: 8px; font-size: 13px; color: #888; transition: 0.3s; }
+    .pl-item.active { color: #fff; background: var(--asmaa-purple); font-weight: bold; }
   </style>
 </head>
-<body class="">
+<body>
 
   <div id="app-container">
     <button id="menu-toggle" onclick="toggleSidebar()">
@@ -142,16 +150,16 @@
 
     <aside id="sidebar">
       <nav class="nav-list">
-        <div class="nav-item active" onclick="showView('overview')">
+        <div class="nav-item active" id="nav-home" onclick="showView('overview')">
           <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Übersicht
         </div>
-        <div class="nav-item" id="nav-gallery" onclick="showCategory('fotos')">
+        <div class="nav-item" id="nav-fotos" onclick="showCategory('fotos')">
           <svg viewBox="0 0 24 24"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4z"/></svg> Fotos
         </div>
-        <div class="nav-item" onclick="showCategory('rezepte')">
-          <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03zM16 6v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg> Rezepte
+        <div class="nav-item" id="nav-rezepte" onclick="showCategory('rezepte')">
+          <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg> Rezepte
         </div>
-        <div class="nav-item" onclick="showCategory('comics')">
+        <div class="nav-item" id="nav-comics" onclick="showCategory('comics')">
           <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5-1.17 0-2.39.15-3.5.5V19c1.11-.35 2.33-.5 3.5-.5 1.95 0 4.05.4 5.5 1.5 1.45-1.1 3.55-1.5 5.5-1.5 1.17 0 2.39.15 3.5.5V5z"/></svg> Comics
         </div>
       </nav>
@@ -177,11 +185,13 @@
       </section>
 
       <section id="view-category" class="view-section">
+        <div class="back-arrow" onclick="showView('overview')">← Zurück zur Übersicht</div>
         <h2 id="category-title" style="font-weight: 300;">Kategorie</h2>
         <div class="grid" id="series-grid"></div>
       </section>
 
       <section id="view-gallery" class="view-section">
+        <div class="back-arrow" id="back-to-cat">← Zurück zur Auswahl</div>
         <h2 id="gallery-title" style="font-weight: 300; color: var(--accent);">Serie</h2>
         <div class="photo-grid" id="photo-grid"></div>
       </section>
@@ -206,14 +216,14 @@
     <div id="playlist-box"></div>
   </div>
 
-  <div id="slideshow-overlay">
-    <div class="glass-frame">
+  <div id="slideshow-overlay" onclick="closeSS()">
+    <div class="glass-frame" onclick="event.stopPropagation(); closeSS();">
       <img id="ss-img" src="">
-      <div class="ss-console">
+      <div class="ss-console" onclick="event.stopPropagation();">
         <button class="btn-svg" onclick="ssPrev()"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
         <button class="btn-svg" id="ss-play" onclick="toggleSS()"><svg viewBox="0 0 24 24" id="ss-play-i"><path d="M8 5v14l11-7z"/></svg></button>
         
-        <button class="btn-svg" id="ss-shuffle" onclick="toggleShuffle()">
+        <button class="btn-svg ss-shuffle" id="ss-shuffle" onclick="toggleShuffle()">
           <svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg>
         </button>
 
@@ -244,7 +254,16 @@
   let isSS = false; let isShuf = false; let ssT = null;
 
   function toggleSidebar() { document.body.classList.toggle('sidebar-collapsed'); }
-  function showView(v) { document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active')); document.getElementById('view-'+v).classList.add('active'); document.body.classList.remove('sidebar-collapsed'); }
+  
+  function showView(v) { 
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active')); 
+    document.getElementById('view-'+v).classList.add('active'); 
+    document.body.classList.remove('sidebar-collapsed');
+    
+    // Konsistenz: Fokus auf Übersicht-Button
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    if(v === 'overview') document.getElementById('nav-home').classList.add('active');
+  }
 
   function showCategory(k) {
     const c = data[k]; document.getElementById('category-title').innerText = c.title;
@@ -252,8 +271,9 @@
     c.series.forEach(s => {
       g.innerHTML += `<div class="card" onclick="openG('${k}', '${s.name}')">${s.img ? `<img src="${s.img}">` : `<div class="placeholder-card">${s.name[0]}</div>`}<div class="card-info"><h3>${s.name}</h3></div></div>`;
     });
-    showView('category'); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    if(k==='fotos') document.getElementById('nav-gallery').classList.add('active');
+    showView('category'); 
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.getElementById('nav-'+k).classList.add('active');
   }
 
   function openG(k, n) {
@@ -261,11 +281,13 @@
     document.getElementById('gallery-title').innerText = s.name;
     const g = document.getElementById('photo-grid'); g.innerHTML = '';
     curG.forEach((img, i) => { g.innerHTML += `<div class="photo-item" onclick="openSS(${i})"><img src="${img}"></div>`; });
+    
+    document.getElementById('back-to-cat').onclick = () => showCategory(k);
     showView('gallery'); document.body.classList.add('sidebar-collapsed');
   }
 
-  // DIASHOW MIT FADE
-  function openSS(i) { ssIdx = i; const img = document.getElementById('ss-img'); img.src = curG[ssIdx]; document.getElementById('slideshow-overlay').classList.add('active'); }
+  // DIASHOW
+  function openSS(i) { ssIdx = i; const img = document.getElementById('ss-img'); img.src = curG[ssIdx]; img.style.opacity = 1; document.getElementById('slideshow-overlay').classList.add('active'); }
   function closeSS() { document.getElementById('slideshow-overlay').classList.remove('active'); stopSS(); }
   
   function ssNext() { 
@@ -273,8 +295,7 @@
     img.style.opacity = 0;
     setTimeout(() => {
         if(isShuf) ssIdx = Math.floor(Math.random()*curG.length); else ssIdx = (ssIdx+1)%curG.length;
-        img.src = curG[ssIdx];
-        img.style.opacity = 1;
+        img.src = curG[ssIdx]; img.style.opacity = 1;
     }, 400);
   }
 
@@ -283,30 +304,39 @@
     img.style.opacity = 0;
     setTimeout(() => {
         ssIdx = (ssIdx-1+curG.length)%curG.length;
-        img.src = curG[ssIdx];
-        img.style.opacity = 1;
+        img.src = curG[ssIdx]; img.style.opacity = 1;
     }, 400);
   }
 
   function toggleSS() {
     isSS = !isSS;
-    if(isSS) { 
-        ssT = setInterval(ssNext, document.getElementById('ss-speed').value); 
-        document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; 
-        document.getElementById('ss-play').classList.add('active-mode'); 
-    } else stopSS();
+    if(isSS) { ssT = setInterval(ssNext, document.getElementById('ss-speed').value); document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; document.getElementById('ss-play').classList.add('active-mode'); }
+    else stopSS();
   }
-
   function stopSS() { isSS = false; clearInterval(ssT); document.getElementById('ss-play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; document.getElementById('ss-play').classList.remove('active-mode'); }
   function updateSSInterval() { if(isSS) { clearInterval(ssT); ssT = setInterval(ssNext, document.getElementById('ss-speed').value); } }
-  function toggleShuffle() { isShuf = !isShuf; document.getElementById('ss-shuffle').classList.toggle('active-mode', isShuf); }
+  
+  function toggleShuffle() { 
+    isShuf = !isShuf; 
+    document.getElementById('ss-shuffle').classList.toggle('active-mode', isShuf); 
+  }
 
   function loadT(i) { trIdx = i; audio.src = tracks[i].src; document.getElementById('p-title').innerText = tracks[i].title; document.getElementById('p-img').src = tracks[i].cover; updatePl(); }
   function togglePlay() { if(audio.paused) { audio.play(); document.getElementById('play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; } else { audio.pause(); document.getElementById('play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; } }
   function nextT() { loadT((trIdx+1)%tracks.length); audio.play(); }
   function prevT() { loadT((trIdx-1+tracks.length)%tracks.length); audio.play(); }
   function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
-  function updatePl() { const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; tracks.forEach((t, i) => { const it = document.createElement('div'); it.className = 'pl-item' + (i === trIdx ? ' active' : ''); it.innerText = t.title; it.onclick = () => { loadT(i); audio.play(); togglePl(); }; b.appendChild(it); }); }
+  
+  function updatePl() { 
+    const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; 
+    tracks.forEach((t, i) => { 
+        const it = document.createElement('div'); 
+        it.className = 'pl-item' + (i === trIdx ? ' active' : ''); 
+        it.innerText = t.title; 
+        it.onclick = () => { loadT(i); audio.play(); togglePl(); }; 
+        b.appendChild(it); 
+    }); 
+  }
 
   audio.ontimeupdate = () => { const p = document.getElementById('progress-bar'); if(!isNaN(audio.duration)) { p.max = audio.duration; p.value = audio.currentTime; document.getElementById('t-cur').innerText = Math.floor(audio.currentTime/60)+":"+Math.floor(audio.currentTime%60).toString().padStart(2,'0'); document.getElementById('t-dur').innerText = Math.floor(audio.duration/60)+":"+Math.floor(audio.duration%60).toString().padStart(2,'0'); } };
   document.getElementById('progress-bar').oninput = (e) => audio.currentTime = e.target.value;
@@ -315,4 +345,3 @@
 </script>
 </body>
 </html>
-
