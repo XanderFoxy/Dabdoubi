@@ -3,230 +3,345 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Galleria - Premium Hub</title>
+  <title>Galleria - Foxoubi Edition</title>
   <style>
     :root {
       --accent: #f3c64a;
       --bg-dark: #0a0a0a;
       --sidebar-bg: #111;
-      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-bg: rgba(255, 255, 255, 0.04);
+      --glass: rgba(255, 255, 255, 0.08);
       --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     body, html {
       margin: 0; padding: 0; height: 100%;
-      background: var(--bg-dark);
-      color: #fff;
+      background: var(--bg-dark); color: #fff;
       font-family: 'Inter', -apple-system, sans-serif;
       overflow: hidden;
     }
 
-    #app-container { display: flex; height: 100vh; width: 100vw; }
+    #app-container { display: flex; height: 100vh; width: 100vw; flex-direction: column; }
+    #main-layout { display: flex; flex: 1; overflow: hidden; }
 
-    /* SIDEBAR */
+    /* --- SIDEBAR --- */
     #sidebar {
       width: 280px; background: var(--sidebar-bg);
       border-right: 1px solid rgba(255,255,255,0.05);
-      display: flex; flex-direction: column; z-index: 100;
+      display: flex; flex-direction: column;
     }
-
-    .sidebar-header { padding: 30px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .sidebar-header { padding: 30px 20px; }
     .sidebar-header h1 { margin: 0; font-size: 18px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
-
     .nav-list { flex: 1; padding: 15px; }
     .nav-item {
-      padding: 14px 18px; margin-bottom: 10px; border-radius: 12px;
+      padding: 14px 18px; margin-bottom: 8px; border-radius: 12px;
       cursor: pointer; transition: var(--transition);
       display: flex; align-items: center; gap: 12px; color: #888;
     }
-    .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
-    .nav-item.active { background: var(--accent); color: #000; font-weight: 700; }
+    .nav-item:hover, .nav-item.active { background: var(--glass); color: #fff; }
+    .nav-item.active { border-left: 3px solid var(--accent); color: var(--accent); }
 
-    /* CONTENT AREA */
-    #main-content { flex: 1; overflow-y: auto; position: relative; padding: 40px; background: #0e0e0e; }
-    
-    .view-section { display: none; animation: slideIn 0.5s ease; }
+    /* --- MAIN CONTENT --- */
+    #main-content { flex: 1; overflow-y: auto; padding: 40px; padding-bottom: 120px; background: #0e0e0e; }
+    .view-section { display: none; animation: slideIn 0.5s ease forwards; }
     .view-section.active { display: block; }
-    
-    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* GRID STYLES */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-
+    /* --- GRID & CARDS --- */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
     .card {
-      background: var(--card-bg); border-radius: 20px; overflow: hidden;
+      background: var(--card-bg); border-radius: 18px; overflow: hidden;
       border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: var(--transition);
-      position: relative; aspect-ratio: 16/10;
+      position: relative; aspect-ratio: 1/1;
     }
-    .card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
-    .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.5; transition: 0.5s; }
-    .card:hover img { opacity: 0.8; transform: scale(1.05); }
-    
-    .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); }
-    .card-info h3 { margin: 0; font-size: 18px; color: #fff; }
-    .card-info p { margin: 5px 0 0; font-size: 13px; color: var(--accent); opacity: 0.8; }
+    .card:hover { transform: translateY(-5px); border-color: var(--accent); }
+    .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; transition: 0.5s; }
+    .card:hover img { opacity: 1; transform: scale(1.05); }
+    .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 15px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); }
+    .card-info h3 { margin: 0; font-size: 16px; }
 
-    .back-btn {
-      background: none; border: 1px solid #444; color: #888;
-      padding: 8px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 25px;
-      transition: 0.3s;
-    }
-    .back-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* PHOTO GALLERY GRID (Wenn eine Serie geöffnet wird) */
-    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
-    .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; }
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .photo-item { aspect-ratio: 1; border-radius: 10px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
+    .photo-item:hover { border-color: var(--accent); }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
 
+    .back-btn { background: none; border: 1px solid #333; color: #888; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; }
+    .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* --- GLOBAL PLAYER BAR --- */
+    #player-bar {
+      height: 80px; background: rgba(15,15,15,0.95); backdrop-filter: blur(15px);
+      border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center;
+      padding: 0 30px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+    }
+    .player-info { display: flex; align-items: center; gap: 15px; width: 300px; }
+    .player-info img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; border: 1px solid var(--accent); }
+    .track-meta h4 { margin: 0; font-size: 14px; color: #fff; }
+    .track-meta p { margin: 2px 0 0; font-size: 12px; color: #888; }
+
+    .player-controls { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .buttons { display: flex; align-items: center; gap: 20px; }
+    .btn-play { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #000; border: none; cursor: pointer; font-weight: bold; }
+    .btn-sub { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; opacity: 0.7; }
+    .btn-sub:hover { opacity: 1; color: var(--accent); }
+    .btn-sub.active { color: var(--accent); opacity: 1; }
+
+    .progress-container { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 10px; font-size: 11px; color: #555; }
+    #progress-bar { flex: 1; accent-color: var(--accent); height: 4px; }
+
+    .volume-ctrl { width: 200px; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+    #volume-slider { width: 80px; accent-color: var(--accent); }
+
+    /* Playlist Overlay */
+    #playlist-panel {
+      position: fixed; bottom: 90px; right: 30px; width: 320px; background: rgba(20,20,20,0.98);
+      border: 1px solid var(--glass); border-radius: 16px; padding: 20px; display: none;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6); z-index: 1001;
+    }
+    #playlist-panel.show { display: block; }
+    .playlist-list { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
+    .playlist-item { 
+      padding: 10px; border-radius: 8px; cursor: pointer; font-size: 13px; margin-bottom: 5px;
+      display: flex; justify-content: space-between;
+    }
+    .playlist-item:hover { background: var(--glass); }
+    .playlist-item.active { color: var(--accent); background: rgba(243, 198, 74, 0.1); }
   </style>
 </head>
 <body>
 
   <div id="app-container">
-    <aside id="sidebar">
-      <div class="sidebar-header"><h1>Galleria</h1></div>
-      <nav class="nav-list">
-        <div class="nav-item active" id="nav-home" onclick="showView('overview')">🏠 Übersicht</div>
-        <div class="nav-item" id="nav-fotos" onclick="showCategory('fotos')">📷 Fotos</div>
-        <div class="nav-item" id="nav-rezepte" onclick="showCategory('rezepte')">🍳 Rezepte</div>
-        <div class="nav-item" id="nav-comics" onclick="showCategory('comics')">🎨 Comics</div>
-      </nav>
-    </aside>
+    <div id="main-layout">
+      <aside id="sidebar">
+        <div class="sidebar-header"><h1>Galleria</h1></div>
+        <nav class="nav-list">
+          <div class="nav-item active" onclick="showView('overview')">🏠 Übersicht</div>
+          <div class="nav-item" onclick="showCategory('fotos')">📷 Fotografie</div>
+          <div class="nav-item" onclick="showCategory('rezepte')">🍳 Rezepte</div>
+          <div class="nav-item" onclick="showCategory('comics')">🎨 Comics</div>
+        </nav>
+      </aside>
 
-    <main id="main-content">
-      
-      <section id="view-overview" class="view-section active">
-        <h2 style="font-size: 28px; margin-bottom: 30px; letter-spacing: -0.5px;">Willkommen zurück</h2>
-        <div class="grid">
-          <div class="card" onclick="showCategory('fotos')">
-            <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png">
-            <div class="card-info"><h3>Fotografie</h3><p>Momente & Serien</p></div>
+      <main id="main-content">
+        <section id="view-overview" class="view-section active">
+          <h2 style="font-size: 28px; margin-bottom: 30px;">Dashboard</h2>
+          <div class="grid">
+            <div class="card" onclick="showCategory('fotos')">
+              <img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg">
+              <div class="card-info"><h3>Fotografie</h3></div>
+            </div>
+            <div class="card" onclick="showCategory('rezepte')">
+              <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png">
+              <div class="card-info"><h3>Rezepte</h3></div>
+            </div>
+            <div class="card" onclick="showCategory('comics')">
+              <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp">
+              <div class="card-info"><h3>Comics</h3></div>
+            </div>
           </div>
-          <div class="card" onclick="showCategory('rezepte')">
-            <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png">
-            <div class="card-info"><h3>Kulinarik</h3><p>Rezepte & Ideen</p></div>
-          </div>
-          <div class="card" onclick="showCategory('comics')">
-            <img src="https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp">
-            <div class="card-info"><h3>Comics</h3><p>Illustrationen & Art</p></div>
-          </div>
+        </section>
+
+        <section id="view-category" class="view-section">
+          <button class="back-btn" onclick="showView('overview')">← Zurück</button>
+          <h2 id="category-title" style="color: var(--accent);">Kategorie</h2>
+          <div class="grid" id="series-grid"></div>
+        </section>
+
+        <section id="view-gallery" class="view-section">
+          <button class="back-btn" id="gallery-back-btn">← Zurück zur Auswahl</button>
+          <h2 id="gallery-title">Galerie Name</h2>
+          <div class="photo-grid" id="photo-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <footer id="player-bar">
+      <div class="player-info">
+        <img id="p-img" src="https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg">
+        <div class="track-meta">
+          <h4 id="p-title">Titel</h4>
+          <p id="p-artist">One Day In Rome</p>
         </div>
-      </section>
+      </div>
 
-      <section id="view-category" class="view-section">
-        <button class="back-btn" onclick="showView('overview')">← Zurück zur Übersicht</button>
-        <h2 id="category-title" style="color: var(--accent);">Kategorie</h2>
-        <div class="grid" id="series-grid">
-          </div>
-      </section>
+      <div class="player-controls">
+        <div class="buttons">
+          <button class="btn-sub" onclick="toggleRepeat()" id="btn-repeat">🔁</button>
+          <button class="btn-sub" onclick="prevTrack()">⏮</button>
+          <button class="btn-play" onclick="togglePlay()" id="btn-play">▶</button>
+          <button class="btn-sub" onclick="nextTrack()">⏭</button>
+          <button class="btn-sub" onclick="togglePlaylist()">📜</button>
+        </div>
+        <div class="progress-container">
+          <span id="time-cur">0:00</span>
+          <input type="range" id="progress-bar" value="0" min="0" step="1">
+          <span id="time-dur">0:00</span>
+        </div>
+      </div>
 
-      <section id="view-gallery" class="view-section">
-        <button class="back-btn" id="gallery-back-btn">← Zurück zur Serie</button>
-        <h2 id="gallery-title">Galerie Name</h2>
-        <div class="photo-grid" id="photo-grid"></div>
-      </section>
+      <div class="volume-ctrl">
+        <span>🔊</span>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.8">
+      </div>
+    </footer>
 
-    </main>
+    <div id="playlist-panel">
+      <h4 style="margin: 0 0 15px 0; color: var(--accent);">Playlist</h4>
+      <div class="playlist-list" id="playlist-items"></div>
+    </div>
   </div>
 
 <script>
-  // DIE DATENSTRUKTUR
-  const data = {
+  // BILDER AUS FOXOUBI.HTML EXTRAHIERT
+  const allImages = [
+    { src: "https://xanderfoxy.github.io/Dabdoubi/IMG_7319.jpeg", title: "Ich Und Meine Eltern" },
+    { src: "https://xanderfoxy.github.io/Dabdoubi/IMG_7320.jpeg", title: "Ich Und Meine Neffen" },
+    { src: "https://xanderfoxy.github.io/Dabdoubi/IMG_7321.jpeg", title: "Good Night Baby" },
+    { src: "https://xanderfoxy.github.io/Dabdoubi/IMG_7323.jpeg", title: "Dreaming Of You" },
+    { src: "https://xanderfoxy.github.io/Dabdoubi/IMG_7324.jpeg", title: "Ich Und Meine Mutti" },
+    "https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg", "https://xanderfoxy.github.io/Dabdoubi/JuE5ywM3.jpeg",
+    "https://xanderfoxy.github.io/Dabdoubi/7ylO8SbO.jpeg", "https://xanderfoxy.github.io/Dabdoubi/reVuied4.jpeg",
+    "https://xanderfoxy.github.io/Dabdoubi/wyXz6MhB.jpeg", "https://xanderfoxy.github.io/Dabdoubi/m6l7tlxB.jpeg",
+    "https://xanderfoxy.github.io/Dabdoubi/OJX7O4Fr.jpeg", "https://xanderfoxy.github.io/Dabdoubi/4JVKv09e.jpeg",
+    "https://xanderfoxy.github.io/Dabdoubi/1xOOKJLC.jpeg", "https://xanderfoxy.github.io/Dabdoubi/Facetune_19-11-2025-19-56-41.jpeg",
+    "https://xanderfoxy.github.io/Dabdoubi/ezf2Tv5I.jpeg", "https://xanderfoxy.github.io/Dabdoubi/ql8RdbJd.jpeg"
+    // ... hier können alle weiteren URLs aus der Foxoubi-Datei rein
+  ];
+
+  const playlist = [
+    { title: "So schön ist die Weihnacht", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/Weihnacht.mp3", cover: "https://XanderFoxy.github.io/Dabdoubi/Bilder/IMG_1840.jpeg" },
+    { title: "Ein Leben Lang", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/One Day In Rome - Ein Leben Lang.mp3", cover: "https://xanderfoxy.github.io/Dabdoubi/IMG_0166.jpeg" },
+    { title: "Nah", src: "https://XanderFoxy.github.io/Dabdoubi/Musik/Lied3.mp3", cover: "https://xanderfoxy.github.io/Dabdoubi/IMG_2121.jpeg" }
+  ];
+
+  const appData = {
     fotos: {
       title: "Fotografie",
       series: [
-        { 
-          name: "Foxoubi Spezial", 
-          img: "https://xanderfoxy.github.io/Dabdoubi/IMG_5416.png", 
-          desc: "Alle Fotos auf einen Blick",
-          external: "https://xanderfoxy.github.io/Dabdoubi/Foxoubi.html" 
-        },
-        { 
-          name: "Baby Jahre", 
-          img: "https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png", 
-          images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_5070.png", "https://xanderfoxy.github.io/Dabdoubi/IMG_5409.png"] 
-        },
-        { 
-          name: "Natur", 
-          img: "https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png", 
-          images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_5730.png"] 
-        }
+        { name: "Familie", img: allImages[0].src, images: allImages.slice(0, 5).map(img => img.src) },
+        { name: "Foxoubi", img: allImages[5], images: allImages.slice(5).map(img => typeof img === 'string' ? img : img.src) }
       ]
     },
     rezepte: {
       title: "Rezepte",
-      series: [
-        { name: "Süßspeisen", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png"] },
-        { name: "Herzhaft", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_6114.png"] }
-      ]
+      series: [{ name: "Backstube", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_6054.png"] }]
     },
     comics: {
       title: "Comics",
-      series: [
-        { name: "Skizzen", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp"] }
-      ]
+      series: [{ name: "Artworks", img: "https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp", images: ["https://xanderfoxy.github.io/Dabdoubi/IMG_4418.webp"] }]
     }
   };
 
-  let currentCategoryKey = "";
-
-  function showView(viewId) {
-    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-    document.getElementById('view-' + viewId).classList.add('active');
-    
-    // Sidebar Active State
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if(viewId === 'overview') document.getElementById('nav-home').classList.add('active');
+  // NAVIGATION LOGIC
+  function showView(id) {
+    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + id).classList.add('active');
   }
 
   function showCategory(key) {
-    currentCategoryKey = key;
-    const cat = data[key];
+    const cat = appData[key];
     document.getElementById('category-title').innerText = cat.title;
-    
     const grid = document.getElementById('series-grid');
     grid.innerHTML = '';
-
-    cat.series.forEach(serie => {
+    cat.series.forEach(s => {
       const card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = `
-        <img src="${serie.img}">
-        <div class="card-info">
-          <h3>${serie.name}</h3>
-          <p>${serie.desc || 'Serie ansehen'}</p>
-        </div>
-      `;
-      card.onclick = () => {
-        if(serie.external) {
-          window.location.href = serie.external; // Weiterleitung zu Foxoubi.html
-        } else {
-          openGallery(serie);
-        }
-      };
+      card.innerHTML = `<img src="${s.img}"><div class="card-info"><h3>${s.name}</h3></div>`;
+      card.onclick = () => openGallery(s, key);
       grid.appendChild(card);
     });
-
     showView('category');
-    document.getElementById('nav-' + key).classList.add('active');
   }
 
-  function openGallery(serie) {
+  function openGallery(serie, catKey) {
     document.getElementById('gallery-title').innerText = serie.name;
     const grid = document.getElementById('photo-grid');
     grid.innerHTML = '';
-
-    serie.images.forEach(imgSrc => {
-      const div = document.createElement('div');
-      div.className = 'photo-item';
-      div.innerHTML = `<img src="${imgSrc}">`;
-      grid.appendChild(div);
+    serie.images.forEach(src => {
+      grid.innerHTML += `<div class="photo-item"><img src="${src}"></div>`;
     });
-
-    document.getElementById('gallery-back-btn').onclick = () => showCategory(currentCategoryKey);
+    document.getElementById('gallery-back-btn').onclick = () => showCategory(catKey);
     showView('gallery');
   }
 
+  // AUDIO LOGIC
+  let audio = new Audio();
+  let currentIndex = 0;
+  let isRepeat = false;
+
+  function loadTrack(idx) {
+    currentIndex = idx;
+    const track = playlist[idx];
+    audio.src = track.src;
+    document.getElementById('p-title').innerText = track.title;
+    document.getElementById('p-img').src = track.cover;
+    updatePlaylistUI();
+  }
+
+  function togglePlay() {
+    if(audio.paused) { audio.play(); document.getElementById('btn-play').innerText = '⏸'; }
+    else { audio.pause(); document.getElementById('btn-play').innerText = '▶'; }
+  }
+
+  function nextTrack() {
+    currentIndex = (currentIndex + 1) % playlist.length;
+    loadTrack(currentIndex);
+    audio.play();
+    document.getElementById('btn-play').innerText = '⏸';
+  }
+
+  function prevTrack() {
+    currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+    loadTrack(currentIndex);
+    audio.play();
+  }
+
+  function toggleRepeat() {
+    isRepeat = !isRepeat;
+    document.getElementById('btn-repeat').classList.toggle('active', isRepeat);
+  }
+
+  audio.addEventListener('ended', () => {
+    if(isRepeat) audio.play(); else nextTrack();
+  });
+
+  // UI UPDATES (Time & Progress)
+  audio.ontimeupdate = () => {
+    const prog = document.getElementById('progress-bar');
+    const cur = document.getElementById('time-cur');
+    if(!isNaN(audio.duration)) {
+      prog.max = audio.duration;
+      prog.value = audio.currentTime;
+      cur.innerText = formatTime(audio.currentTime);
+      document.getElementById('time-dur').innerText = formatTime(audio.duration);
+    }
+  };
+
+  document.getElementById('progress-bar').oninput = (e) => audio.currentTime = e.target.value;
+  document.getElementById('volume-slider').oninput = (e) => audio.volume = e.target.value;
+
+  function formatTime(secs) {
+    let m = Math.floor(secs / 60), s = Math.floor(secs % 60);
+    return m + ":" + (s < 10 ? "0" + s : s);
+  }
+
+  function togglePlaylist() { document.getElementById('playlist-panel').classList.toggle('show'); }
+
+  function updatePlaylistUI() {
+    const container = document.getElementById('playlist-items');
+    container.innerHTML = '';
+    playlist.forEach((t, i) => {
+      const item = document.createElement('li');
+      item.className = 'playlist-item' + (i === currentIndex ? ' active' : '');
+      item.innerHTML = `<span>${t.title}</span>`;
+      item.onclick = () => { loadTrack(i); audio.play(); document.getElementById('btn-play').innerText = '⏸'; };
+      container.appendChild(item);
+    });
+  }
+
+  // INIT
+  loadTrack(0);
+  updatePlaylistUI();
 </script>
 </body>
 </html>
