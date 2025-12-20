@@ -51,11 +51,10 @@
     }
     .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
     .nav-item:hover { color: #fff; background: var(--glass); }
-    
     .nav-item.active {
       color: #fff; background: rgba(128, 0, 128, 0.15);
       border-left: 5px solid var(--asmaa-purple);
-      box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 15px rgba(128, 0, 128, 0.2);
+      box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 15px rgba(128, 0, 128, 0.3);
     }
 
     /* MAIN CONTENT AREA */
@@ -65,56 +64,49 @@
     }
     .view-section { display: none; height: 100%; flex-direction: column; }
     .view-section.active { display: flex; animation: fadeIn 0.4s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* DASHBOARD GRID (FEST) */
-    .dashboard-grid { 
+    /* DASHBOARD GRID */
+    .grid { 
       display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
       gap: 30px; flex-shrink: 0; margin-bottom: 40px;
     }
     .card {
       background: var(--glass); border-radius: 20px; overflow: hidden;
       border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: var(--transition);
-      position: relative; aspect-ratio: 16/10;
+      position: relative; aspect-ratio: 1/1;
     }
     .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
     .card:hover { border-color: var(--asmaa-purple); transform: translateY(-5px); box-shadow: 0 0 25px rgba(128, 0, 128, 0.4); }
     .card:hover img { opacity: 1; }
-    .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 15px; background: linear-gradient(transparent, #000); }
+    .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); }
 
-    /* COMPACT NEWS TICKER */
-    .news-container {
+    /* NEWS TICKER (Nur dieser Bereich ist scrollbar) */
+    .news-archive {
       flex: 1; overflow-y: auto; background: rgba(255,255,255,0.02);
       border-radius: 20px; border: 1px solid rgba(128, 0, 128, 0.1);
-      padding: 20px; scrollbar-width: thin; scrollbar-color: var(--asmaa-purple) transparent;
+      padding: 25px; scrollbar-width: thin; scrollbar-color: var(--asmaa-purple) transparent;
     }
-    .news-container h3 { margin: 0 0 15px; font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
-    
-    .day-group { margin-bottom: 15px; }
-    .day-date { font-size: 10px; color: var(--asmaa-purple); font-weight: 700; margin-bottom: 8px; display: block; }
-    
+    .news-archive h3 { margin: 0 0 15px; font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
+    .day-group { margin-bottom: 20px; }
+    .day-date { font-size: 11px; color: var(--asmaa-purple); font-weight: 700; margin-bottom: 10px; display: block; }
     .news-row {
-      display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-      background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 5px;
-      cursor: pointer; transition: 0.2s; font-size: 11px; color: #aaa;
+      display: flex; align-items: center; gap: 12px; padding: 10px 15px;
+      background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 6px;
+      cursor: pointer; transition: 0.2s; font-size: 12px; color: #bbb;
       white-space: nowrap; overflow: hidden;
     }
     .news-row:hover { background: rgba(128, 0, 128, 0.15); color: #fff; transform: translateX(5px); }
-    .news-tag { color: var(--accent); font-weight: bold; min-width: 60px; }
+    .news-tag { color: var(--accent); font-weight: bold; min-width: 70px; }
     .news-files { overflow: hidden; text-overflow: ellipsis; }
 
-    /* ARCHIVE COLLAPSE */
-    details.archive-section { margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
-    summary.archive-trigger { 
-      font-size: 11px; color: var(--asmaa-purple); cursor: pointer; 
-      padding: 5px; list-style: none; text-align: center; font-weight: bold;
-    }
+    details.archive-section { margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
+    summary.archive-trigger { font-size: 11px; color: var(--asmaa-purple); cursor: pointer; text-align: center; font-weight: bold; list-style: none; }
     summary.archive-trigger:hover { color: var(--accent); }
 
-    /* PHOTO GRID (In Galleries) */
+    /* PHOTO GRID (In Galerien) */
     .photo-grid { 
       display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-      gap: 15px; overflow-y: auto; flex: 1; padding-right: 10px;
+      gap: 15px; overflow-y: auto; flex: 1;
     }
     .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
     .photo-item:hover { border-color: var(--asmaa-purple); transform: scale(1.02); }
@@ -124,36 +116,35 @@
     #player-bar {
       height: 95px; background: rgba(10,10,10,0.98); backdrop-filter: blur(25px);
       border-top: 1px solid rgba(255,255,255,0.05);
-      display: grid; grid-template-columns: 280px 1fr 280px; align-items: center;
+      display: grid; grid-template-columns: 300px 1fr 300px; align-items: center;
       padding: 0 40px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
     }
     .p-info-block { display: flex; align-items: center; gap: 15px; overflow: hidden; }
-    .p-info-block img { width: 50px; height: 50px; border-radius: 8px; border: 1px solid var(--asmaa-purple); flex-shrink: 0; cursor: zoom-in; }
-    .p-meta h4 { margin: 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .p-info-block img { width: 55px; height: 55px; border-radius: 8px; border: 1px solid var(--asmaa-purple); flex-shrink: 0; cursor: zoom-in; }
+    .p-meta h4 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .next-label { font-size: 9px; color: var(--accent); opacity: 0.8; }
 
-    .p-ctrl-block { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .buttons { display: flex; align-items: center; gap: 15px; }
+    .p-ctrl-block { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .buttons { display: flex; align-items: center; gap: 18px; }
     .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; }
-    .btn-svg svg { width: 20px; height: 20px; fill: currentColor; }
-    .active-mode svg { color: var(--accent) !important; filter: drop-shadow(0 0 10px var(--accent)); }
-    .play-trigger { width: 40px; height: 40px; border-radius: 50%; background: #fff; color: #000; }
+    .btn-svg svg { width: 22px; height: 22px; fill: currentColor; }
+    .btn-svg.active-mode svg { color: var(--accent) !important; filter: drop-shadow(0 0 10px var(--accent)); }
+    .play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; }
 
     .progress-container { width: 100%; max-width: 450px; display: flex; align-items: center; gap: 10px; font-size: 9px; color: #555; }
     #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 3px; cursor: pointer; }
-    .repeat-badge { position: absolute; font-size: 8px; font-weight: bold; margin-top: 12px; color: var(--accent); pointer-events: none; }
+    .repeat-badge { position: absolute; font-size: 8px; font-weight: bold; margin-top: 14px; color: var(--accent); }
 
-    /* DIASHOW */
+    /* LIGHTBOX & PLAYLIST */
     #slideshow-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 2000; display: none; justify-content: center; align-items: center; }
     #slideshow-overlay.active { display: flex; }
     .glass-frame { position: relative; padding: 15px; border-radius: 20px; background: rgba(255,255,255,0.03); backdrop-filter: blur(25px); box-shadow: 0 0 50px 10px var(--asmaa-purple); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; }
     .glass-frame img { max-width: 85vw; max-height: 75vh; border-radius: 15px; }
     .ss-console { position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; align-items: center; background: rgba(15,15,15,0.95); padding: 15px 30px; border-radius: 40px; border: 1px solid var(--glass); }
-
     #playlist-box { position: fixed; bottom: 105px; right: 40px; width: 280px; background: #111; border: 1px solid var(--glass); border-radius: 15px; padding: 15px; display: none; z-index: 2000; }
     #playlist-box.active { display: block; }
-    .pl-item { padding: 10px; cursor: move; border-radius: 8px; font-size: 12px; color: #666; margin-bottom: 4px; }
-    .pl-item.active { color: #fff; background: var(--asmaa-purple); }
+    .pl-item { padding: 10px; cursor: move; border-radius: 8px; font-size: 13px; color: #666; margin-bottom: 5px; }
+    .pl-item.active { color: #fff; background: var(--asmaa-purple); font-weight: bold; }
   </style>
 </head>
 <body>
@@ -182,15 +173,14 @@
 
     <main id="main-content">
       <section id="view-overview" class="view-section active">
-        <h2 style="font-weight: 300; margin-bottom: 25px; color: var(--accent);">Zentrale</h2>
-        
-        <div class="dashboard-grid">
+        <h2 style="font-weight: 300; margin-bottom: 40px; color: var(--accent);">Zentrale</h2>
+        <div class="grid">
           <div class="card" onclick="showCategory('fotos')"><img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg"><div class="card-info"><h3>Fotos</h3></div></div>
           <div class="card" onclick="showCategory('rezepte')"><img src="https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0193.jpeg"><div class="card-info"><h3>Rezepte</h3></div></div>
           <div class="card" onclick="showCategory('comics')"><img src="https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1494.jpeg"><div class="card-info"><h3>Comics</h3></div></div>
         </div>
 
-        <div class="news-container">
+        <div class="news-archive">
           <h3>Update News</h3>
           
           <div class="day-group">
@@ -212,7 +202,11 @@
           <details class="archive-section">
             <summary class="archive-trigger">Ältere Updates anzeigen</summary>
             <div class="day-group" style="margin-top:15px;">
-              <span class="day-date">Vorgänger-Version</span>
+              <span class="day-date">Vorherige Updates</span>
+              <div class="news-row" onclick="openG('comics', 'Featuring Foxy')">
+                <span class="news-tag">🎨 Comics</span>
+                <span class="news-files">Featuring Foxy: IMG_0685.png</span>
+              </div>
               <div class="news-row" onclick="openG('rezepte', 'Arabisch')">
                 <span class="news-tag">🍳 Rezepte</span>
                 <span class="news-files">Arabisch: IMG_0193.jpeg / IMG_0164.jpeg / IMG_0166.jpeg</span>
@@ -223,8 +217,8 @@
       </section>
 
       <section id="view-category" class="view-section">
-        <h2 id="category-title" style="font-weight: 300; color: var(--accent);">Name</h2>
-        <div class="dashboard-grid" id="series-grid"></div>
+        <h2 id="category-title" style="font-weight: 300; color: var(--accent);">Kategorie</h2>
+        <div class="grid" id="series-grid"></div>
       </section>
 
       <section id="view-gallery" class="view-section">
@@ -240,7 +234,9 @@
       </div>
       <div class="p-ctrl-block">
         <div class="buttons">
-          <button class="btn-svg" id="m-shuffle" onclick="toggleMusicShuffle()"><svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg></button>
+          <button class="btn-svg" id="m-shuffle" onclick="toggleMusicShuffle()">
+            <svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg>
+          </button>
           <button class="btn-svg" onclick="prevT()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
           <button class="btn-svg play-trigger" onclick="togglePlay()" id="btn-play"><svg viewBox="0 0 24 24" id="play-i"><path d="M8 5v14l11-7z"/></svg></button>
           <button class="btn-svg" onclick="nextT()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg></button>
@@ -271,7 +267,7 @@
 <script>
   const prefix = "https://xanderfoxy.github.io/Dabdoubi/";
   const fImgs = [prefix+"IMG_7319.jpeg",prefix+"IMG_7320.jpeg",prefix+"IMG_7321.jpeg",prefix+"IMG_7323.jpeg",prefix+"IMG_7324.jpeg"];
-  const allDesires = [prefix+"ior5FlF3.jpeg",prefix+"JuE5ywM3.jpeg",prefix+"7ylO8SbO.jpeg",prefix+"reVuied4.jpeg",prefix+"wyXz6MhB.jpeg",prefix+"m6l7tlxB.jpeg",prefix+"OJX7O4Fr.jpeg",prefix+"4JVKv09e.jpeg",prefix+"1xOOKJLC.jpeg",prefix+"Facetune_19-11-2025-19-56-41.jpeg",prefix+"ezf2Tv5I.jpeg",prefix+"ql8RdbJd.jpeg",prefix+"iz2rF6Ij.jpeg",prefix+"W1mDxlcp.jpeg",prefix+"XZ3icISY.jpeg",prefix+"ffFONwpT.jpeg",prefix+"tlzPDVhj.jpeg",prefix+"SMiPFnfR.jpeg",prefix+"ErdqXcJI.jpeg",prefix+"qJZbWC3S.jpeg",prefix+"vPYAotQA.jpeg",prefix+"VX0lnX6g.jpeg",prefix+"IyRcZtkA.jpeg",prefix+"GlXnTkeo.jpeg",prefix+"6biiHT6s.jpeg",prefix+"gQkLuhS6.jpeg",prefix+"FXDCBl3h.jpeg",prefix+"X17hRNIE.jpeg",prefix+"N4zNC8G0.jpeg",prefix+"INgUi8jX.jpeg",prefix+"8nRaIrlI.jpeg",prefix+"EFw6E4yW.jpeg",prefix+"CBFT20xr.jpeg",prefix+"KE7XkyKt.jpeg",prefix+"qxEU7X6x.jpeg",prefix+"c4rbD2M1.jpeg",prefix+"2kRjl0Wt.jpeg",prefix+"kXgCsero.jpeg",prefix+"rtNC43KZ.jpeg",prefix+"4zquuQEo.jpeg",prefix+"YjCBzA9Q.jpeg",prefix+"WGWDVqJ0.jpeg",prefix+"kjAxz9eK.jpeg",prefix+"zDsgQfU3.jpeg",prefix+"DYMdPKOD.jpeg",prefix+"IMG_5070.png",prefix+"IMG_5409.png",prefix+"IMG_5416.png",prefix+"IMG_5730.png",prefix+"IMG_5036.png",prefix+"IMG_6054.png",prefix+"IMG_6082.png",prefix+"IMG_6114.png",prefix+"IMG_7193.png",prefix+"IMG_4485.jpeg",prefix+"IMG_5948.png",prefix+"IMG_4709.png",prefix+"IMG_5413.png",prefix+"IMG_4708.png",prefix+"IMG_4705.png",prefix+"IMG_4657.png",prefix+"IMG_6115.png",prefix+"IMG_4501.jpeg",prefix+"IMG_5733.png",prefix+"IMG_4540.png",prefix+"IMG_4555.png",prefix+"IMG_4637.png",prefix+"IMG_4703.png",prefix+"IMG_4992.png",prefix+"IMG_5037.png",prefix+"IMG_5075.png",prefix+"IMG_5279.png",prefix+"IMG_5665.png",prefix+"IMG_5036.png",prefix+"IMG_5051.png",prefix+"IMG_6253.png",prefix+"IMG_6299.png",prefix+"IMG_6504.png",prefix+"IMG_6510.png",prefix+"IMG_6512.png",prefix+"IMG_6514.png",prefix+"IMG_6517.png",prefix+"IMG_6518.png",prefix+"IMG_6519.png",prefix+"IMG_6539.png",prefix+"IMG_6554.png",prefix+"IMG_6745.png",prefix+"IMG_7056.png",prefix+"IMG_4418.webp",prefix+"IMG_7138.webp"];
+  const allDesires = [prefix+"ior5FlF3.jpeg",prefix+"JuE5ywM3.jpeg",prefix+"7ylO8SbO.jpeg",prefix+"reVuied4.jpeg",prefix+"wyXz6MhB.jpeg",prefix+"m6l7tlxB.jpeg",prefix+"OJX7O4Fr.jpeg",prefix+"4JVKv09e.jpeg",prefix+"1xOOKJLC.jpeg",prefix+"Facetune_19-11-2025-19-56-41.jpeg",prefix+"ezf2Tv5I.jpeg",prefix+"ql8RdbJd.jpeg",prefix+"iz2rF6Ij.jpeg",prefix+"W1mDxlcp.jpeg",prefix+"XZ3icISY.jpeg",prefix+"ffFONwpT.jpeg",prefix+"tlzPDVhj.jpeg",prefix+"SMiPFnfR.jpeg",prefix+"ErdqXcJI.jpeg",prefix+"qJZbWC3S.jpeg",prefix+"vPYAotQA.jpeg",prefix+"VX0lnX6g.jpeg",prefix+"IyRcZtkA.jpeg",prefix+"GlXnTkeo.jpeg",prefix+"6biiHT6s.jpeg",prefix+"gQkLuhS6.jpeg",prefix+"FXDCBl3h.jpeg",prefix+"X17hRNIE.jpeg",prefix+"N4zNC8G0.jpeg",prefix+"INgUi8jX.jpeg",prefix+"8nRaIrlI.jpeg",prefix+"EFw6E4yW.jpeg",prefix+"CBFT20xr.jpeg",prefix+"KE7XkyKt.jpeg",prefix+"qxEU7X6x.jpeg",prefix+"c4rbD2M1.jpeg",prefix+"2kRjl0Wt.jpeg",prefix+"kXgCsero.jpeg",prefix+"rtNC43KZ.jpeg",prefix+"4zquuQEo.jpeg",prefix+"YjCBzA9Q.jpeg",prefix+"WGWDVqJ0.jpeg",prefix+"kjAxz9eK.jpeg",prefix+"zDsgQfU3.jpeg",prefix+"DYMdPKOD.jpeg",prefix+"IMG_5070.png",prefix+"IMG_5409.png",prefix+"IMG_5416.png",prefix+"IMG_5730.png",prefix+"IMG_5036.png",prefix+"IMG_6054.png",prefix+"IMG_6082.png",prefix+"IMG_6114.png",prefix+"IMG_7193.png",prefix+"IMG_4485.jpeg",prefix+"IMG_5948.png",prefix+"IMG_4709.png",prefix+"IMG_5413.png",prefix+"IMG_4708.png",prefix+"IMG_4705.png",prefix+"IMG_4657.png",prefix+"IMG_6115.png",prefix+"IMG_4501.jpeg",prefix+"IMG_5733.png",prefix+"IMG_4540.png",prefix+"IMG_4555.png",prefix+"IMG_4637.png",prefix+"IMG_4703.png",prefix+"IMG_4992.png",prefix+"IMG_5037.png",prefix+"IMG_5075.png",prefix+"IMG_5279.png",prefix+"IMG_5665.png",prefix+"IMG_5051.png",prefix+"IMG_6253.png",prefix+"IMG_6299.png",prefix+"IMG_6504.png",prefix+"IMG_6510.png",prefix+"IMG_6512.png",prefix+"IMG_6514.png",prefix+"IMG_6517.png",prefix+"IMG_6518.png",prefix+"IMG_6519.png",prefix+"IMG_6539.png",prefix+"IMG_6554.png",prefix+"IMG_6745.png",prefix+"IMG_7056.png",prefix+"IMG_4418.webp",prefix+"IMG_7138.webp"];
 
   const data = {
     fotos: { title: "Fotos", series: [
