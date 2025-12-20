@@ -57,7 +57,7 @@
       box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 15px rgba(128, 0, 128, 0.3);
     }
 
-    /* MAIN CONTENT AREA */
+    /* MAIN CONTENT */
     #main-content { 
       flex: 1; display: flex; flex-direction: column; 
       height: 100vh; padding: 60px 60px 120px 60px; box-sizing: border-box;
@@ -65,10 +65,9 @@
     }
     .view-section { display: none; height: 100%; flex-direction: column; overflow: hidden; }
     .view-section.active { display: flex; animation: fadeIn 0.4s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     /* DASHBOARD */
-    .dashboard-grid { 
+    .grid { 
       display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
       gap: 30px; flex-shrink: 0; margin-bottom: 30px;
     }
@@ -82,7 +81,7 @@
     .card:hover img { opacity: 1; }
     .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); pointer-events: none; }
 
-    /* UPDATE NEWS (SCROLLBAR FIX) */
+    /* NEWS ARCHIV */
     .news-archive {
       flex: 1; overflow-y: auto; background: rgba(255,255,255,0.02);
       border-radius: 20px; border: 1px solid rgba(128, 0, 128, 0.1);
@@ -94,7 +93,7 @@
     .news-row {
       display: flex; align-items: center; gap: 12px; padding: 10px 15px;
       background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 6px;
-      cursor: pointer; transition: 0.2s; font-size: 11px; color: #bbb;
+      cursor: pointer; transition: 0.2s; font-size: 12px; color: #bbb;
       white-space: nowrap; overflow: hidden;
     }
     .news-row:hover { background: rgba(128, 0, 128, 0.15); color: #fff; transform: translateX(5px); }
@@ -104,7 +103,7 @@
     details.archive-section { margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
     summary.archive-trigger { font-size: 11px; color: var(--asmaa-purple); cursor: pointer; text-align: center; font-weight: bold; list-style: none; }
 
-    /* GALLERY GRID */
+    /* PHOTO GRID (FIXED CLEAN GRID) */
     .photo-grid { 
       display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
       gap: 15px; overflow-y: auto; flex: 1;
@@ -127,16 +126,16 @@
 
     .p-ctrl-block { display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .buttons { display: flex; align-items: center; gap: 18px; }
-    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; }
+    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; transition: 0.2s; }
     .btn-svg svg { width: 22px; height: 22px; fill: currentColor; }
     .btn-svg.active-mode svg { color: var(--accent) !important; filter: drop-shadow(0 0 10px var(--accent)); }
     .play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; }
 
-    .progress-container { width: 100%; max-width: 450px; display: flex; align-items: center; gap: 10px; font-size: 9px; color: #555; }
-    #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 3px; cursor: pointer; }
+    .progress-container { width: 100%; max-width: 450px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #444; }
+    #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 4px; cursor: pointer; }
     .repeat-badge { position: absolute; font-size: 8px; font-weight: bold; margin-top: 14px; color: var(--accent); pointer-events: none; }
 
-    /* LIGHTBOX */
+    /* LIGHTBOX & SLIDER (FIX: GELB) */
     #slideshow-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 2000; display: none; justify-content: center; align-items: center; }
     #slideshow-overlay.active { display: flex; }
     .glass-frame { position: relative; padding: 15px; border-radius: 20px; background: rgba(255,255,255,0.03); backdrop-filter: blur(25px); box-shadow: 0 0 50px 10px var(--asmaa-purple); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; }
@@ -177,7 +176,7 @@
     <main id="main-content">
       <section id="view-overview" class="view-section active">
         <h2 style="font-weight: 300; margin-bottom: 40px; color: var(--accent);">Zentrale</h2>
-        <div class="dashboard-grid">
+        <div class="dashboard-grid grid">
           <div class="card" onclick="showCategory('fotos')"><img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg"><div class="card-info"><h3>Fotos</h3></div></div>
           <div class="card" onclick="showCategory('rezepte')"><img src="https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0193.jpeg"><div class="card-info"><h3>Rezepte</h3></div></div>
           <div class="card" onclick="showCategory('comics')"><img src="https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1494.jpeg"><div class="card-info"><h3>Comics</h3></div></div>
@@ -194,7 +193,7 @@
           <details class="archive-section">
             <summary class="archive-trigger">Ältere Updates anzeigen</summary>
             <div class="day-group" style="margin-top:15px;">
-              <span class="day-date">Vorgänger</span>
+              <span class="day-date">Archiv</span>
               <div class="news-row" onclick="openG('comics', 'Featuring Foxy')"><span class="news-tag">🎨 Comics</span><span class="news-files">Featuring Foxy: IMG_0685.png</span></div>
               <div class="news-row" onclick="openG('rezepte', 'Arabisch')"><span class="news-tag">🍳 Rezepte</span><span class="news-files">Arabisch: IMG_0193.jpeg / IMG_0164.jpeg / IMG_0166.jpeg</span></div>
             </div>
@@ -204,7 +203,7 @@
 
       <section id="view-category" class="view-section">
         <h2 id="category-title" style="font-weight: 300; color: var(--accent);">Kategorie</h2>
-        <div class="dashboard-grid" id="series-grid"></div>
+        <div class="grid" id="series-grid"></div>
       </section>
 
       <section id="view-gallery" class="view-section">
@@ -274,12 +273,10 @@
   }
 
   function showCategory(k) {
-    const c = data[k]; document.getElementById('category-title').innerText = c.title;
-    document.getElementById('series-grid').innerHTML = '';
+    const c = data[k]; document.getElementById('series-grid').innerHTML = '';
     c.series.forEach(s => { document.getElementById('series-grid').innerHTML += `<div class="card" onclick="openG('${k}', '${s.name}')">${s.img ? `<img src="${s.img}">` : `<div class="placeholder-card">${s.name[0]}</div>`}<div class="card-info"><h3>${s.name}</h3></div></div>`; });
     showView('category'); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    const navId = (k==='fotos'?'nav-fotos':(k==='rezepte'?'nav-rezepte':'nav-comics'));
-    document.getElementById(navId).classList.add('active');
+    document.getElementById('nav-'+(k==='fotos'?'fotos':(k==='rezepte'?'nav-rezepte':'nav-comics'))).classList.add('active');
   }
 
   function openG(k, n) {
@@ -315,9 +312,14 @@
   audio.onended = () => { if(repMode === 1) { audio.currentTime = 0; audio.play(); } else nextT(); }
   function openCoverZoom() { curG = [document.getElementById('p-img').src]; openSS(0); }
   function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
+  
   function updatePl() { 
     const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; 
-    tracks.forEach((t, i) => { const it = document.createElement('div'); it.className = 'pl-item' + (i === trIdx ? ' active' : ''); it.innerText = t.title; it.draggable = true; it.onclick = () => { loadT(i); audio.play(); document.getElementById('play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; togglePl(); }; b.appendChild(it); }); 
+    tracks.forEach((t, i) => { 
+      const it = document.createElement('div'); it.className = 'pl-item' + (i === trIdx ? ' active' : ''); it.innerText = t.title; it.draggable = true; 
+      it.onclick = () => { loadT(i); audio.play(); document.getElementById('play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; togglePl(); }; 
+      b.appendChild(it); 
+    }); 
     initDrag(); 
   }
 
