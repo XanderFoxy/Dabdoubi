@@ -24,7 +24,7 @@
 
     #app-container { display: flex; height: 100vh; width: 100vw; position: relative; }
 
-    /* SIDEBAR */
+    /* --- SIDEBAR --- */
     #sidebar {
       width: 260px; background: var(--sidebar-bg);
       border-right: 1px solid rgba(255,255,255,0.1);
@@ -51,24 +51,26 @@
     }
     .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
     .nav-item:hover { color: #fff; background: var(--glass); }
+    
     .nav-item.active {
       color: #fff; background: rgba(128, 0, 128, 0.15);
       border-left: 5px solid var(--asmaa-purple);
       box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 15px rgba(128, 0, 128, 0.3);
     }
 
-    /* MAIN CONTENT AREA */
+    /* --- MAIN CONTENT AREA --- */
     #main-content { 
-      flex: 1; display: flex; flex-direction: column; 
-      height: 100vh; padding: 60px 60px 140px 60px; box-sizing: border-box; 
+      flex: 1; overflow-y: auto; padding: 60px; padding-bottom: 140px; 
+      box-sizing: border-box; 
     }
-    .view-section { display: none; height: 100%; flex-direction: column; }
-    .view-section.active { display: flex; animation: fadeIn 0.4s ease; }
+    .view-section { display: none; }
+    .view-section.active { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* DASHBOARD GRID */
+    /* DASHBOARD GRID (UNVERÄNDERT) */
     .grid { 
       display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-      gap: 30px; flex-shrink: 0; margin-bottom: 40px;
+      gap: 30px; margin-bottom: 40px;
     }
     .card {
       background: var(--glass); border-radius: 20px; overflow: hidden;
@@ -80,11 +82,10 @@
     .card:hover img { opacity: 1; }
     .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); }
 
-    /* NEWS TICKER (Nur dieser Bereich ist scrollbar) */
+    /* UPDATE NEWS ARCHIV */
     .news-archive {
-      flex: 1; overflow-y: auto; background: rgba(255,255,255,0.02);
+      margin-top: 50px; background: var(--glass); padding: 25px;
       border-radius: 20px; border: 1px solid rgba(128, 0, 128, 0.1);
-      padding: 25px; scrollbar-width: thin; scrollbar-color: var(--asmaa-purple) transparent;
     }
     .news-archive h3 { margin: 0 0 15px; font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
     .day-group { margin-bottom: 20px; }
@@ -96,17 +97,16 @@
       white-space: nowrap; overflow: hidden;
     }
     .news-row:hover { background: rgba(128, 0, 128, 0.15); color: #fff; transform: translateX(5px); }
-    .news-tag { color: var(--accent); font-weight: bold; min-width: 70px; }
+    .news-tag { color: var(--accent); font-weight: bold; min-width: 75px; }
     .news-files { overflow: hidden; text-overflow: ellipsis; }
 
     details.archive-section { margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
     summary.archive-trigger { font-size: 11px; color: var(--asmaa-purple); cursor: pointer; text-align: center; font-weight: bold; list-style: none; }
-    summary.archive-trigger:hover { color: var(--accent); }
 
-    /* PHOTO GRID (In Galerien) */
+    /* PHOTO GRID (FIX: KEIN STAPELN MEHR) */
     .photo-grid { 
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-      gap: 15px; overflow-y: auto; flex: 1;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+      gap: 15px; 
     }
     .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
     .photo-item:hover { border-color: var(--asmaa-purple); transform: scale(1.02); }
@@ -116,31 +116,34 @@
     #player-bar {
       height: 95px; background: rgba(10,10,10,0.98); backdrop-filter: blur(25px);
       border-top: 1px solid rgba(255,255,255,0.05);
-      display: grid; grid-template-columns: 300px 1fr 300px; align-items: center;
+      display: grid; grid-template-columns: 280px 1fr 280px; align-items: center;
       padding: 0 40px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
     }
     .p-info-block { display: flex; align-items: center; gap: 15px; overflow: hidden; }
-    .p-info-block img { width: 55px; height: 55px; border-radius: 8px; border: 1px solid var(--asmaa-purple); flex-shrink: 0; cursor: zoom-in; }
+    .p-info-block img { width: 55px; height: 55px; border-radius: 8px; border: 1px solid var(--asmaa-purple); flex-shrink: 0; cursor: pointer; }
     .p-meta h4 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .next-label { font-size: 9px; color: var(--accent); opacity: 0.8; }
+    .next-label { font-size: 9px; color: var(--accent); opacity: 0.8; margin-top: 2px; }
 
     .p-ctrl-block { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .buttons { display: flex; align-items: center; gap: 18px; }
+    .buttons { display: flex; align-items: center; gap: 15px; }
     .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; }
     .btn-svg svg { width: 22px; height: 22px; fill: currentColor; }
     .btn-svg.active-mode svg { color: var(--accent) !important; filter: drop-shadow(0 0 10px var(--accent)); }
     .play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; }
 
-    .progress-container { width: 100%; max-width: 450px; display: flex; align-items: center; gap: 10px; font-size: 9px; color: #555; }
-    #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 3px; cursor: pointer; }
-    .repeat-badge { position: absolute; font-size: 8px; font-weight: bold; margin-top: 14px; color: var(--accent); }
+    .progress-container { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #444; }
+    #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 4px; cursor: pointer; }
 
-    /* LIGHTBOX & PLAYLIST */
+    /* DIASHOW / LIGHTBOX */
     #slideshow-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 2000; display: none; justify-content: center; align-items: center; }
     #slideshow-overlay.active { display: flex; }
     .glass-frame { position: relative; padding: 15px; border-radius: 20px; background: rgba(255,255,255,0.03); backdrop-filter: blur(25px); box-shadow: 0 0 50px 10px var(--asmaa-purple); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; }
     .glass-frame img { max-width: 85vw; max-height: 75vh; border-radius: 15px; }
     .ss-console { position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; align-items: center; background: rgba(15,15,15,0.95); padding: 15px 30px; border-radius: 40px; border: 1px solid var(--glass); }
+    
+    /* SPEED SLIDER (FIX: GELB) */
+    .ss-slider { width: 100px; accent-color: var(--accent); cursor: pointer; }
+
     #playlist-box { position: fixed; bottom: 105px; right: 40px; width: 280px; background: #111; border: 1px solid var(--glass); border-radius: 15px; padding: 15px; display: none; z-index: 2000; }
     #playlist-box.active { display: block; }
     .pl-item { padding: 10px; cursor: move; border-radius: 8px; font-size: 13px; color: #666; margin-bottom: 5px; }
@@ -182,7 +185,6 @@
 
         <div class="news-archive">
           <h3>Update News</h3>
-          
           <div class="day-group">
             <span class="day-date">20.12.2025</span>
             <div class="news-row" onclick="openG('comics', 'Garfield')">
@@ -198,15 +200,10 @@
               <span class="news-files">All around the World: IMG_0700.png</span>
             </div>
           </div>
-
           <details class="archive-section">
             <summary class="archive-trigger">Ältere Updates anzeigen</summary>
             <div class="day-group" style="margin-top:15px;">
-              <span class="day-date">Vorherige Updates</span>
-              <div class="news-row" onclick="openG('comics', 'Featuring Foxy')">
-                <span class="news-tag">🎨 Comics</span>
-                <span class="news-files">Featuring Foxy: IMG_0685.png</span>
-              </div>
+              <span class="day-date">Archiv</span>
               <div class="news-row" onclick="openG('rezepte', 'Arabisch')">
                 <span class="news-tag">🍳 Rezepte</span>
                 <span class="news-files">Arabisch: IMG_0193.jpeg / IMG_0164.jpeg / IMG_0166.jpeg</span>
@@ -240,7 +237,7 @@
           <button class="btn-svg" onclick="prevT()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
           <button class="btn-svg play-trigger" onclick="togglePlay()" id="btn-play"><svg viewBox="0 0 24 24" id="play-i"><path d="M8 5v14l11-7z"/></svg></button>
           <button class="btn-svg" onclick="nextT()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg></button>
-          <button class="btn-svg" id="m-repeat" onclick="toggleMusicRepeat()" style="position:relative;"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg><span id="rep-badge" class="repeat-badge"></span></button>
+          <button class="btn-svg" id="m-repeat" onclick="toggleMusicRepeat()" style="position:relative;"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg><span id="rep-badge" style="position:absolute; font-size:8px; top:12px; color:var(--accent);"></span></button>
         </div>
         <div class="progress-container"><span id="t-cur">0:00</span><input type="range" id="progress-bar" value="0"><span id="t-dur">0:00</span></div>
       </div>
