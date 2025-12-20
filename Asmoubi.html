@@ -50,11 +50,12 @@
       display: flex; align-items: center; gap: 15px; color: #444;
     }
     .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
-    .nav-item:hover { color: #fff; background: var(--glass); }
+    .nav-item:hover { color: #fff; background: var(--glass); box-shadow: 0 0 10px rgba(128, 0, 128, 0.2); }
+    
     .nav-item.active {
       color: #fff; background: rgba(128, 0, 128, 0.15);
       border-left: 5px solid var(--asmaa-purple);
-      box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 15px rgba(128, 0, 128, 0.2);
+      box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 15px rgba(128, 0, 128, 0.3);
     }
 
     /* CONTENT */
@@ -225,7 +226,7 @@
 
   const data = {
     fotos: { title: "Fotos", series: [{ name: "Familie", img: fImgs[0], images: fImgs }, { name: "Desires", img: allDesires[0], images: allDesires }, { name: "Baby Fox", img: null, images: [] }, { name: "Döbeln", img: null, images: [] }, { name: "Weihnachten", img: null, images: [] }, { name: "Italien", img: null, images: [] }] },
-    rezepte: { title: "Rezepte", series: [{ name: "Arabisch", img: prefix+"Rezepte/IMG_0193.jpeg", images: [prefix+"Rezepte/IMG_0193.jpeg",prefix+"Rezepte/IMG_0164.jpeg",prefix+"Rezepte/IMG_0166.jpeg"] }, { name: "All around the World", img: prefix+"Rezepte/IMG_0167.jpeg", images: [prefix+"Rezepte/IMG_0167.jpeg",prefix+"Rezepte/IMG_0169.jpeg"] }, { name: "Lieblingsessen", img: null, images: [] }, { name: "Deutsch", img: null, images: [] }, { name: "Weihnachten", img: prefix+"Rezepte/IMG_0197.jpeg", images: [prefix+"Rezepte/IMG_0197.jpeg"] }] },
+    rezepte: { title: "Rezepte", series: [{ name: "Arabisch", img: prefix+"Rezepte/IMG_0193.jpeg", images: [prefix+"Rezepte/IMG_0193.jpeg",prefix+"Rezepte/IMG_0164.jpeg",prefix+"Rezepte/IMG_0166.jpeg"] }, { name: "All around the World", img: prefix+"Rezepte/IMG_0167.jpeg", images: [prefix+"Rezepte/IMG_0167.jpeg",prefix+"Rezepte/IMG_0169.jpeg", prefix+"Rezepte/IMG_0700.png"] }, { name: "Lieblingsessen", img: null, images: [] }, { name: "Deutsch", img: null, images: [] }, { name: "Weihnachten", img: prefix+"Rezepte/IMG_0197.jpeg", images: [prefix+"Rezepte/IMG_0197.jpeg"] }] },
     comics: { title: "Comics", series: [{ name: "Asmaa & Foxy", img: prefix+"Comics/IMG_1494.jpeg", images: [prefix+"Comics/IMG_1494.jpeg",prefix+"Comics/IMG_1135.jpeg"] }, { name: "Garfield", img: null, images: [] }, { name: "Featuring Foxy", img: prefix+"Comics/IMG_0685.png", images: [prefix+"Comics/IMG_0685.png"] }] }
   };
 
@@ -242,8 +243,7 @@
   }
 
   function showCategory(k) {
-    const c = data[k]; document.getElementById('category-title').innerText = c.title;
-    document.getElementById('series-grid').innerHTML = '';
+    const c = data[k]; document.getElementById('series-grid').innerHTML = '';
     c.series.forEach(s => { document.getElementById('series-grid').innerHTML += `<div class="card" onclick="openG('${k}', '${s.name}')">${s.img ? `<img src="${s.img}">` : `<div class="placeholder-card">${s.name[0]}</div>`}<div class="card-info"><h3>${s.name}</h3></div></div>`; });
     showView('category'); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     document.getElementById('nav-'+(k==='fotos'?'fotos':k)).classList.add('active');
@@ -272,7 +272,8 @@
   
   function toggleSSShuffle() { 
     isShuf = !isShuf;
-    document.getElementById('ss-shuffle').classList.toggle('active-mode', isShuf);
+    const btn = document.getElementById('ss-shuffle');
+    if(isShuf) btn.classList.add('active-mode'); else btn.classList.remove('active-mode');
   }
 
   function loadT(i) { trIdx = i; audio.src = tracks[i].src; document.getElementById('p-title').innerText = tracks[i].title; document.getElementById('p-img').src = tracks[i].cover; updatePl(); updateN(); }
@@ -280,7 +281,12 @@
   function nextT() { if(mShuf) trIdx = Math.floor(Math.random()*tracks.length); else trIdx = (trIdx+1)%tracks.length; loadT(trIdx); audio.play(); }
   function prevT() { trIdx = (trIdx-1+tracks.length)%tracks.length; loadT(trIdx); audio.play(); }
 
-  function toggleMusicShuffle() { mShuf = !mShuf; document.getElementById('m-shuffle').classList.toggle('active-mode', mShuf); updateN(); }
+  function toggleMusicShuffle() { 
+    mShuf = !mShuf; 
+    const btn = document.getElementById('m-shuffle');
+    if(mShuf) btn.classList.add('active-mode'); else btn.classList.remove('active-mode');
+    updateN(); 
+  }
   function toggleMusicRepeat() { repMode = (repMode + 1) % 3; const b = document.getElementById('rep-badge'); document.getElementById('m-repeat').classList.toggle('active-mode', repMode > 0); b.innerText = repMode === 1 ? '1' : (repMode === 2 ? 'All' : ''); }
   function updateN() { document.getElementById('p-next').innerText = "Next: " + (mShuf ? "Shuffle" : tracks[(trIdx + 1) % tracks.length].title); }
   audio.onended = () => { if(repMode === 1) { audio.currentTime = 0; audio.play(); } else nextT(); }
