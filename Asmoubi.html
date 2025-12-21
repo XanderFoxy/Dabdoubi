@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Asmoubi Media Hub</title>
   <link rel="stylesheet" href="asmoubi.css">
+  <link rel="stylesheet" href="asmoubi-dashboard.css">
+  <link rel="stylesheet" href="asmoubi-gallery.css">
 </head>
 <body>
 
@@ -39,32 +41,28 @@
           <div class="card" onclick="showCategory('comics')"><img src="https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1494.jpeg"><div class="card-info"><h3>Comics</h3></div></div>
         </div>
 
-        <div class="news-archive">
-          <h3>Update News</h3>
-          <div class="day-group">
-            <span class="day-date">21.12.2025</span>
-            <div class="news-row"><span class="news-tag">📌 Info</span><span class="news-files">Dateien aufgesplittet (Asmoubi.html / asmoubi.css / asmoubi.js).</span></div>
-          </div>
-          <details class="archive-section">
-            <summary class="archive-trigger">Ältere Updates anzeigen</summary>
-            <div class="day-group" style="margin-top:20px;">
-              <span class="day-date">20.12.2025</span>
-              <div class="news-row" onclick="openG('comics', 'Garfield')"><span class="news-tag">🎨 Comics</span><span class="news-files">Garfield: IMG_0356.png / IMG_0427.png / IMG_0483.png / IMG_0484.png</span></div>
-              <div class="news-row" onclick="openG('fotos', 'Weihnachten')"><span class="news-tag">✨ Fotos</span><span class="news-files">Weihnachten: IMG_0725.jpeg</span></div>
-              <div class="news-row" onclick="openG('rezepte', 'All around the World')"><span class="news-tag">🍳 Rezepte</span><span class="news-files">All around the World: IMG_0700.png</span></div>
-            </div>
+        <div class="news-container">
+          <div class="news-archive">
+            <h3>Update News</h3>
             <div class="day-group">
-              <span class="day-date">19.12.2025</span>
-              <div class="news-row" onclick="openG('comics', 'Featuring Foxy')"><span class="news-tag">🎨 Comics</span><span class="news-files">Featuring Foxy: IMG_0685.png</span></div>
-              <div class="news-row" onclick="openG('rezepte', 'Arabisch')"><span class="news-tag">🍳 Rezepte</span><span class="news-files">Arabisch: IMG_0193.jpeg / IMG_0164.jpeg / IMG_0166.jpeg</span></div>
+              <span class="day-date">21.12.2025</span>
+              <div class="news-row"><span class="news-tag">📌 System</span><span class="news-files">Umstellung auf Asmoubi-Framework (CSS/JS Splitting).</span></div>
             </div>
-          </details>
+            <details class="archive-section">
+              <summary class="archive-trigger">Ältere Updates anzeigen</summary>
+              <div class="day-group" style="margin-top:20px;">
+                <span class="day-date">20.12.2025</span>
+                <div class="news-row" onclick="openG('comics', 'Garfield')"><span class="news-tag">🎨 Comics</span><span class="news-files">Garfield: IMG_0356.png / IMG_0427.png / ...</span></div>
+                <div class="news-row" onclick="openG('fotos', 'Weihnachten')"><span class="news-tag">✨ Fotos</span><span class="news-files">Weihnachten: IMG_0725.jpeg</span></div>
+              </div>
+            </details>
+          </div>
         </div>
       </section>
 
       <section id="view-category" class="view-section">
         <h2 id="category-title" class="view-title">Kategorie</h2>
-        <div class="grid" id="series-grid"></div>
+        <div class="dashboard-grid" id="series-grid"></div>
       </section>
 
       <section id="view-gallery" class="view-section">
