@@ -2,49 +2,21 @@
 <html lang="de">
 <head>
   <link rel="stylesheet" href="asmoubi.css">
-  <style>
-    body { padding: 40px; overflow-y: auto; background: transparent; }
-    #image-view { display: none; }
-  </style>
+  <style>body { padding: 40px; overflow-y: auto; background: transparent; }</style>
 </head>
 <body>
-  <div id="category-view">
-    <h2 style="color: var(--accent); font-weight: 300; margin-bottom: 30px;">Galerie</h2>
-    <div id="cat-grid" class="dashboard-grid"></div>
-  </div>
-
-  <div id="image-view">
-    <h2 id="gallery-title" style="color: var(--accent); font-weight: 300; margin-bottom: 30px;"></h2>
-    <div id="photo-grid" class="photo-grid"></div>
-  </div>
-
+  <h2 style="color: var(--accent); font-weight: 300; margin-bottom: 30px;">Galerie</h2>
+  <div id="grid" class="dashboard-grid"></div>
   <script src="asmoubi.js"></script>
   <script>
-    const catGrid = document.getElementById('cat-grid');
-    const photoGrid = document.getElementById('photo-grid');
-    
-    // 1. Kategorien aus der JS laden
+    // Zeigt die 6 Foto-Unterkategorien aus der Original-Datei
     data.fotos.series.forEach(s => {
-      catGrid.innerHTML += `
-        <div class="card" onclick="showImages('${s.name}')">
-          <img src="${s.img || ''}">
+      document.getElementById('grid').innerHTML += `
+        <div class="card" onclick="window.parent.openSubCategory('fotos', '${s.name}')">
+          ${s.img ? `<img src="${s.img}">` : `<div style="height:100%; display:flex; align-items:center; justify-content:center; color:#444;">${s.name}</div>`}
           <div class="card-info"><h3>${s.name}</h3></div>
         </div>`;
     });
-
-    // 2. Bilder einer Kategorie anzeigen
-    function showImages(name) {
-      const s = data.fotos.series.find(x => x.name === name);
-      document.getElementById('gallery-title').innerText = name;
-      photoGrid.innerHTML = '';
-      s.images.forEach((img, i) => {
-        photoGrid.innerHTML += `<div class="photo-item" onclick="window.parent.openSS_from_frame('fotos', '${name}', ${i})"><img src="${img}"></div>`;
-      });
-      document.getElementById('category-view').style.display = 'none';
-      document.getElementById('image-view').style.display = 'block';
-      // Sidebar ausblenden & Häuschen an
-      window.parent.toggleSidebar(false);
-    }
   </script>
 </body>
 </html>
