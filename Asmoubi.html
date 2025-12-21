@@ -3,77 +3,35 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Asmoubi Media Hub</title>
+  <title>Asmoubi Hub</title>
   <link rel="stylesheet" href="asmoubi.css">
-  <link rel="stylesheet" href="asmoubi-dashboard.css">
-  <link rel="stylesheet" href="asmoubi-gallery.css">
 </head>
 <body>
-
   <div id="app-container">
-    <div id="home-link" onclick="showView('overview')">
-      <svg viewBox="0 0 24 24" fill="currentColor" width="22"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    </div>
-
     <aside id="sidebar">
       <nav class="nav-list">
-        <div class="nav-item active" id="nav-home" onclick="showView('overview')">
+        <div class="nav-item active" onclick="loadContent('Asmoubi-Uebersicht.html', this)">
           <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Übersicht
         </div>
-        <div class="nav-item" id="nav-fotos" onclick="showCategory('fotos')">
+        <div class="nav-item" onclick="loadContent('Asmoubi-Galerie.html', this)">
           <svg viewBox="0 0 24 24"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4z"/></svg> Galerie
         </div>
-        <div class="nav-item" id="nav-rezepte" onclick="showCategory('rezepte')">
+        <div class="nav-item" onclick="loadContent('Asmoubi-Rezepte.html', this)">
           <svg viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg> Rezepte
         </div>
-        <div class="nav-item" id="nav-comics" onclick="showCategory('comics')">
+        <div class="nav-item" onclick="loadContent('Asmoubi-Comics.html', this)">
           <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5-1.17 0-2.39.15-3.5.5V19c1.11-.35 2.33-.5 3.5-.5 1.95 0 4.05.4 5.5 1.5 1.45-1.1 3.55-1.5 5.5-1.5 1.17 0 2.39.15 3.5.5V5z"/></svg> Comics
         </div>
       </nav>
     </aside>
 
     <main id="main-content">
-      <section id="view-overview" class="view-section active">
-        <h2 class="view-title">Zentrale</h2>
-        <div class="dashboard-grid">
-          <div class="card" onclick="showCategory('fotos')"><img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg"><div class="card-info"><h3>Fotos</h3></div></div>
-          <div class="card" onclick="showCategory('rezepte')"><img src="https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0193.jpeg"><div class="card-info"><h3>Rezepte</h3></div></div>
-          <div class="card" onclick="showCategory('comics')"><img src="https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1494.jpeg"><div class="card-info"><h3>Comics</h3></div></div>
-        </div>
-
-        <div class="news-container">
-          <div class="news-archive">
-            <h3>Update News</h3>
-            <div class="day-group">
-              <span class="day-date">21.12.2025</span>
-              <div class="news-row"><span class="news-tag">📌 System</span><span class="news-files">Umstellung auf Asmoubi-Framework (CSS/JS Splitting).</span></div>
-            </div>
-            <details class="archive-section">
-              <summary class="archive-trigger">Ältere Updates anzeigen</summary>
-              <div class="day-group" style="margin-top:20px;">
-                <span class="day-date">20.12.2025</span>
-                <div class="news-row" onclick="openG('comics', 'Garfield')"><span class="news-tag">🎨 Comics</span><span class="news-files">Garfield: IMG_0356.png / IMG_0427.png / ...</span></div>
-                <div class="news-row" onclick="openG('fotos', 'Weihnachten')"><span class="news-tag">✨ Fotos</span><span class="news-files">Weihnachten: IMG_0725.jpeg</span></div>
-              </div>
-            </details>
-          </div>
-        </div>
-      </section>
-
-      <section id="view-category" class="view-section">
-        <h2 id="category-title" class="view-title">Kategorie</h2>
-        <div class="dashboard-grid" id="series-grid"></div>
-      </section>
-
-      <section id="view-gallery" class="view-section">
-        <h2 id="gallery-title" class="view-title">Titel</h2>
-        <div class="photo-grid" id="photo-grid"></div>
-      </section>
+      <iframe src="Asmoubi-Uebersicht.html" id="content-frame" frameBorder="0"></iframe>
     </main>
 
     <footer id="player-bar">
       <div class="p-info-block">
-        <img id="p-img" src="" onclick="openCoverZoom()">
+        <img id="p-img" src="">
         <div class="p-meta"><h4 id="p-title">Lade...</h4><p id="p-next" class="next-label">Next: --</p></div>
       </div>
       <div class="p-ctrl-block">
@@ -97,19 +55,13 @@
     <div id="playlist-box"></div>
   </div>
 
-  <div id="slideshow-overlay" onclick="closeSS()">
-    <div class="glass-frame" onclick="event.stopPropagation(); closeSS();">
-      <img id="ss-img" src="">
-      <div class="ss-console" onclick="event.stopPropagation();">
-        <button class="btn-svg" onclick="ssPrev()"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
-        <button class="btn-svg" id="ss-play" onclick="toggleSS()"><svg viewBox="0 0 24 24" id="ss-play-i"><path d="M8 5v14l11-7z"/></svg></button>
-        <button class="btn-svg" id="ss-shuffle" onclick="toggleSSShuffle()"><svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg></button>
-        <input type="range" class="ss-slider" id="ss-speed" min="500" max="5000" value="2000" oninput="saveSpeed()">
-        <button class="btn-svg" onclick="ssNext()"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
-      </div>
-    </div>
-  </div>
-
   <script src="asmoubi.js"></script>
+  <script>
+    function loadContent(url, el) {
+      document.getElementById('content-frame').src = url;
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      if(el) el.classList.add('active');
+    }
+  </script>
 </body>
 </html>
