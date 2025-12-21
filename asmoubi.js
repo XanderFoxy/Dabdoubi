@@ -1,5 +1,4 @@
 /* MODEL-REMINDER: NUR BILD-ARRAYS BEI UPDATES ANPASSEN. */
-
 const prefix = "https://xanderfoxy.github.io/Dabdoubi/";
 const fImgs = [prefix+"IMG_7319.jpeg",prefix+"IMG_7320.jpeg",prefix+"IMG_7321.jpeg",prefix+"IMG_7323.jpeg",prefix+"IMG_7324.jpeg"];
 const allDesires = [prefix+"ior5FlF3.jpeg",prefix+"JuE5ywM3.jpeg",prefix+"7ylO8SbO.jpeg",prefix+"reVuied4.jpeg",prefix+"wyXz6MhB.jpeg",prefix+"m6l7tlxB.jpeg",prefix+"OJX7O4Fr.jpeg",prefix+"4JVKv09e.jpeg",prefix+"1xOOKJLC.jpeg",prefix+"Facetune_19-11-2025-19-56-41.jpeg",prefix+"ezf2Tv5I.jpeg",prefix+"ql8RdbJd.jpeg",prefix+"iz2rF6Ij.jpeg",prefix+"W1mDxlcp.jpeg",prefix+"XZ3icISY.jpeg",prefix+"ffFONwpT.jpeg",prefix+"tlzPDVhj.jpeg",prefix+"SMiPFnfR.jpeg",prefix+"ErdqXcJI.jpeg",prefix+"qJZbWC3S.jpeg",prefix+"vPYAotQA.jpeg",prefix+"VX0lnX6g.jpeg",prefix+"IyRcZtkA.jpeg",prefix+"GlXnTkeo.jpeg",prefix+"6biiHT6s.jpeg",prefix+"gQkLuhS6.jpeg",prefix+"FXDCBl3h.jpeg",prefix+"X17hRNIE.jpeg",prefix+"N4zNC8G0.jpeg",prefix+"INgUi8jX.jpeg",prefix+"8nRaIrlI.jpeg",prefix+"EFw6E4yW.jpeg",prefix+"CBFT20xr.jpeg",prefix+"KE7XkyKt.jpeg",prefix+"qxEU7X6x.jpeg",prefix+"c4rbD2M1.jpeg",prefix+"2kRjl0Wt.jpeg",prefix+"kXgCsero.jpeg",prefix+"rtNC43KZ.jpeg",prefix+"4zquuQEo.jpeg",prefix+"YjCBzA9Q.jpeg",prefix+"WGWDVqJ0.jpeg",prefix+"kjAxz9eK.jpeg",prefix+"zDsgQfU3.jpeg",prefix+"DYMdPKOD.jpeg",prefix+"IMG_5070.png",prefix+"IMG_5409.png",prefix+"IMG_5416.png",prefix+"IMG_5730.png",prefix+"IMG_5036.png",prefix+"IMG_6054.png",prefix+"IMG_6082.png",prefix+"IMG_6114.png",prefix+"IMG_7193.png",prefix+"IMG_4485.jpeg",prefix+"IMG_5948.png",prefix+"IMG_4709.png",prefix+"IMG_5413.png",prefix+"IMG_4708.png",prefix+"IMG_4705.png",prefix+"IMG_4657.png",prefix+"IMG_6115.png",prefix+"IMG_4501.jpeg",prefix+"IMG_5733.png",prefix+"IMG_4540.png",prefix+"IMG_4555.png",prefix+"IMG_4637.png",prefix+"IMG_4703.png",prefix+"IMG_4992.png",prefix+"IMG_5037.png",prefix+"IMG_5075.png",prefix+"IMG_5279.png",prefix+"IMG_5665.png",prefix+"IMG_5036.png",prefix+"IMG_5051.png",prefix+"IMG_6253.png",prefix+"IMG_6299.png",prefix+"IMG_6504.png",prefix+"IMG_6510.png",prefix+"IMG_6512.png",prefix+"IMG_6514.png",prefix+"IMG_6517.png",prefix+"IMG_6518.png",prefix+"IMG_6519.png",prefix+"IMG_6539.png",prefix+"IMG_6554.png",prefix+"IMG_6745.png",prefix+"IMG_7056.png",prefix+"IMG_4418.webp",prefix+"IMG_7138.webp"];
@@ -13,7 +12,7 @@ const data = {
 let tracks = [{ title: "Weihnacht", src: prefix+"Musik/Weihnacht.mp3", cover: prefix+"Bilder/IMG_1840.jpeg" }, { title: "Ein Leben Lang", src: prefix+"Musik/One Day In Rome - Ein Leben Lang.mp3", cover: fImgs[0] }];
 let audio = new Audio(); let trIdx = 0; let curG = []; let ssIdx = 0; let isSS = false; let isShuf = false; let ssT = null; let mShuf = false; let repMode = 0;
 
-window.onload = () => { const s = localStorage.getItem('ssSpeed') || 2000; document.getElementById('ss-speed').value = s; loadT(0); initDrag(); }
+window.onload = () => { loadT(0); initDrag(); }
 
 function showView(v) { 
   document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
@@ -45,11 +44,10 @@ function ssPrev() { ssIdx = (ssIdx-1+curG.length)%curG.length; document.getEleme
 
 function toggleSS() {
   isSS = !isSS; const btn = document.getElementById('ss-play');
-  if(isSS) { ssT = setInterval(ssNext, document.getElementById('ss-speed').value); document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; btn.classList.add('active-mode'); }
+  if(isSS) { ssT = setInterval(ssNext, 2000); document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; btn.classList.add('active-mode'); }
   else stopSS();
 }
 function stopSS() { isSS = false; clearInterval(ssT); document.getElementById('ss-play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; document.getElementById('ss-play').classList.remove('active-mode'); }
-function saveSpeed() { localStorage.setItem('ssSpeed', document.getElementById('ss-speed').value); if(isSS) { clearInterval(ssT); ssT = setInterval(ssNext, document.getElementById('ss-speed').value); } }
 function toggleSSShuffle() { isShuf = !isShuf; document.getElementById('ss-shuffle').classList.toggle('active-mode', isShuf); }
 
 function loadT(i) { trIdx = i; audio.src = tracks[i].src; document.getElementById('p-title').innerText = tracks[i].title; document.getElementById('p-img').src = tracks[i].cover; updatePl(); updateN(); }
@@ -63,7 +61,6 @@ function updateN() { document.getElementById('p-next').innerText = "Next: " + (m
 audio.onended = () => { if(repMode === 1) { audio.currentTime = 0; audio.play(); } else nextT(); }
 function openCoverZoom() { curG = [document.getElementById('p-img').src]; openSS(0); }
 function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
-
 function updatePl() { 
   const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; 
   tracks.forEach((t, i) => { 
