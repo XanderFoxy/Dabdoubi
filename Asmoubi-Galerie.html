@@ -3,33 +3,25 @@
 <head>
   <link rel="stylesheet" href="asmoubi.css">
   <style>
-    body { padding: 60px; overflow-y: auto; background: transparent; }
-    /* STRENGES GITTER-SYSTEM GEGEN STAPELN */
-    .photo-grid { 
-      display: grid !important; 
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important; 
-      gap: 20px !important; 
-      align-content: start;
-    }
-    .photo-item { aspect-ratio: 1/1; border-radius: 15px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
+    body { padding: 40px; overflow-y: auto; background: transparent; }
+    .photo-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important; gap: 15px !important; }
+    .photo-item { aspect-ratio: 1/1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
   </style>
 </head>
 <body>
-  <h2 style="color: var(--accent); font-weight: 300; margin-bottom: 40px; font-size: 32px;">Galerie</h2>
+  <h2 id="title" style="color: var(--accent); font-weight: 300; margin-bottom: 30px;">Galerie</h2>
   <div id="grid-box" class="photo-grid"></div>
-
   <script src="asmoubi.js"></script>
   <script>
-    // Automatisches Laden der Bilder aus der JS-Datenbank
     const box = document.getElementById('grid-box');
-    const category = localStorage.getItem('currentCategory') || 'fotos';
-    const series = localStorage.getItem('currentSeries') || 'Desires';
-    
-    const sData = data[category].series.find(x => x.name === series);
+    const cat = localStorage.getItem('currentCategory') || 'fotos';
+    const ser = localStorage.getItem('currentSeries') || 'Desires';
+    document.getElementById('title').innerText = ser;
+    const sData = data[cat].series.find(x => x.name === ser);
     if(sData) {
       sData.images.forEach((img, i) => {
-        box.innerHTML += `<div class="photo-item" onclick="window.parent.openSS_from_frame('${category}', '${series}', ${i})"><img src="${img}"></div>`;
+        box.innerHTML += `<div class="photo-item" onclick="window.parent.openSS_from_frame('${cat}', '${ser}', ${i})"><img src="${img}"></div>`;
       });
     }
   </script>
