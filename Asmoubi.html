@@ -57,10 +57,10 @@
       box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 15px rgba(128, 0, 128, 0.3);
     }
 
-    /* MAIN CONTENT */
+    /* MAIN CONTENT AREA */
     #main-content { 
       flex: 1; display: flex; flex-direction: column; 
-      height: 100vh; padding: 60px 60px 140px 60px; box-sizing: border-box;
+      height: 100vh; padding: 60px 60px 120px 60px; box-sizing: border-box;
       overflow: hidden;
     }
     .view-section { display: none; height: 100%; flex-direction: column; overflow: hidden; }
@@ -80,9 +80,9 @@
     .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
     .card:hover { border-color: var(--asmaa-purple); transform: translateY(-5px); box-shadow: 0 0 25px rgba(128, 0, 128, 0.4); }
     .card:hover img { opacity: 1; }
-    .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); }
+    .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); pointer-events: none; }
 
-    /* UPDATE NEWS (FIX: EIGENES SCROLLEN AKTIVIERT) */
+    /* UPDATE NEWS BOX */
     .news-archive {
       flex: 1; overflow-y: auto; background: rgba(255,255,255,0.02);
       border-radius: 20px; border: 1px solid rgba(128, 0, 128, 0.1);
@@ -102,15 +102,18 @@
     .news-files { overflow: hidden; text-overflow: ellipsis; }
 
     details.archive-section { margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
-    summary.archive-trigger { font-size: 11px; color: var(--asmaa-purple); cursor: pointer; text-align: center; font-weight: bold; list-style: none; }
+    summary.archive-trigger { font-size: 11px; color: var(--asmaa-purple); cursor: pointer; text-align: center; font-weight: bold; list-style: none; padding: 10px; }
 
-    /* PHOTO GRID (FESTES GITTER OHNE STAPELN) */
+    /* PHOTO GRID (FIX: STRENGES GITTER) */
     .photo-grid { 
       display: grid !important; 
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important; 
-      gap: 15px; overflow-y: auto; flex: 1; align-content: start;
+      gap: 15px !important; 
+      overflow-y: auto !important; 
+      flex: 1;
+      align-content: start !important;
     }
-    .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
+    .photo-item { width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
     .photo-item:hover { border-color: var(--asmaa-purple); transform: scale(1.02); }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -118,7 +121,7 @@
     #player-bar {
       height: 95px; background: rgba(10,10,10,0.98); backdrop-filter: blur(25px);
       border-top: 1px solid rgba(255,255,255,0.05);
-      display: grid; grid-template-columns: 300px 1fr 300px; align-items: center;
+      display: grid; grid-template-columns: 280px 1fr 280px; align-items: center;
       padding: 0 40px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
     }
     .p-info-block { display: flex; align-items: center; gap: 15px; overflow: hidden; }
@@ -128,16 +131,18 @@
 
     .p-ctrl-block { display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .buttons { display: flex; align-items: center; gap: 18px; }
-    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; }
+    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; position: relative; }
     .btn-svg svg { width: 22px; height: 22px; fill: currentColor; }
     .btn-svg.active-mode svg { color: var(--accent) !important; filter: drop-shadow(0 0 10px var(--accent)); }
     .play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; }
 
-    .progress-container { width: 100%; max-width: 450px; display: flex; align-items: center; gap: 10px; font-size: 9px; color: #555; }
-    #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 3px; cursor: pointer; }
-    .repeat-badge { position: absolute; font-size: 8px; font-weight: bold; margin-top: 14px; color: var(--accent); }
+    /* REPEAT BADGE (FIX: UNTEN) */
+    .repeat-badge { position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: bold; color: var(--accent); pointer-events: none; }
 
-    /* DIASHOW / LIGHTBOX */
+    .progress-container { width: 100%; max-width: 450px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #444; }
+    #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 4px; cursor: pointer; }
+
+    /* DIASHOW & SLIDER */
     #slideshow-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 2000; display: none; justify-content: center; align-items: center; }
     #slideshow-overlay.active { display: flex; }
     .glass-frame { position: relative; padding: 15px; border-radius: 20px; background: rgba(255,255,255,0.03); backdrop-filter: blur(25px); box-shadow: 0 0 50px 10px var(--asmaa-purple); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; }
@@ -188,7 +193,7 @@
           <h3>Update News</h3>
           <div class="day-group">
             <span class="day-date">21.12.2025</span>
-            <div class="news-row"><span class="news-tag">📌 Info</span><span class="news-files">Optimierung des Player-Layouts & Scroll-Bereichs.</span></div>
+            <div class="news-row"><span class="news-tag">📌 Info</span><span class="news-files">Optimierung des Player-Layouts & Gitter-Stabilisierung.</span></div>
           </div>
           <details class="archive-section">
             <summary class="archive-trigger">Ältere Updates anzeigen</summary>
@@ -231,7 +236,10 @@
           <button class="btn-svg" onclick="prevT()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
           <button class="btn-svg play-trigger" onclick="togglePlay()" id="btn-play"><svg viewBox="0 0 24 24" id="play-i"><path d="M8 5v14l11-7z"/></svg></button>
           <button class="btn-svg" onclick="nextT()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg></button>
-          <button class="btn-svg" id="m-repeat" onclick="toggleMusicRepeat()" style="position:relative;"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg><span id="rep-badge" class="repeat-badge"></span></button>
+          <button class="btn-svg" id="m-repeat" onclick="toggleMusicRepeat()">
+            <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+            <span id="rep-badge" class="repeat-badge"></span>
+          </button>
         </div>
         <div class="progress-container"><span id="t-cur">0:00</span><input type="range" id="progress-bar" value="0"><span id="t-dur">0:00</span></div>
       </div>
@@ -319,6 +327,7 @@
   audio.onended = () => { if(repMode === 1) { audio.currentTime = 0; audio.play(); } else nextT(); }
   function openCoverZoom() { curG = [document.getElementById('p-img').src]; openSS(0); }
   function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
+  
   function updatePl() { 
     const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; 
     tracks.forEach((t, i) => { 
