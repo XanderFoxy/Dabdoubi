@@ -4,155 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Private Media Hub</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600&family=Inter:wght@300;400;600;700&display=swap');
-
-    :root {
-      --accent: #f3c64a;
-      --asmaa-purple: #800080;
-      --bg-dark: #080808;
-      --sidebar-bg: #0f0f0f;
-      --glass: rgba(255, 255, 255, 0.05);
-      --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    body, html {
-      margin: 0; padding: 0; height: 100%;
-      background: var(--bg-dark); color: #fff;
-      font-family: 'Inter', sans-serif; overflow: hidden;
-    }
-
-    #app-container { display: flex; height: 100vh; width: 100vw; position: relative; }
-
-    /* SIDEBAR */
-    #sidebar {
-      width: 260px; background: var(--sidebar-bg);
-      border-right: 1px solid rgba(255,255,255,0.1);
-      display: flex; flex-direction: column;
-      transition: transform 0.5s ease;
-      z-index: 1000;
-    }
-    .sidebar-collapsed #sidebar { transform: translateX(-100%); position: absolute; }
-
-    #home-link {
-      position: fixed; top: 25px; left: 25px; z-index: 1100;
-      width: 45px; height: 45px; background: var(--sidebar-bg);
-      border-radius: 12px; border: 1px solid var(--asmaa-purple);
-      display: none; align-items: center; justify-content: center;
-      cursor: pointer; box-shadow: 0 0 15px var(--asmaa-purple); color: var(--accent);
-    }
-    .sidebar-collapsed #home-link { display: flex; }
-
-    .nav-list { flex: 1; padding: 40px 15px; }
-    .nav-item {
-      padding: 14px 20px; margin-bottom: 12px; border-radius: 12px;
-      cursor: pointer; transition: var(--transition);
-      display: flex; align-items: center; gap: 15px; color: #444;
-    }
-    .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
-    .nav-item:hover { color: #fff; background: var(--glass); }
-    .nav-item.active {
-      color: #fff; background: rgba(128, 0, 128, 0.15);
-      border-left: 5px solid var(--asmaa-purple);
-      box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 15px rgba(128, 0, 128, 0.3);
-    }
-
-    /* MAIN CONTENT */
-    #main-content { 
-      flex: 1; display: flex; flex-direction: column; 
-      height: 100vh; padding: 60px 60px 120px 60px; box-sizing: border-box; 
-      overflow: hidden;
-    }
-    .view-section { display: none; height: 100%; flex-direction: column; overflow: hidden; }
-    .view-section.active { display: flex; }
-
-    /* DASHBOARD */
-    .dashboard-grid { 
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
-      gap: 30px; flex-shrink: 0; margin-bottom: 30px;
-    }
-    .card {
-      background: var(--glass); border-radius: 20px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: var(--transition);
-      position: relative; aspect-ratio: 1/1;
-    }
-    .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
-    .card:hover { border-color: var(--asmaa-purple); transform: translateY(-5px); box-shadow: 0 0 25px rgba(128, 0, 128, 0.4); }
-    .card:hover img { opacity: 1; }
-    .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); pointer-events: none; }
-
-    /* UPDATE NEWS (EIGENES SCROLLEN) */
-    .news-archive {
-      flex: 1; overflow-y: auto; background: rgba(255,255,255,0.02);
-      border-radius: 20px; border: 1px solid rgba(128, 0, 128, 0.1);
-      padding: 25px; min-height: 200px; scrollbar-width: thin; scrollbar-color: var(--asmaa-purple) transparent;
-    }
-    .news-archive h3 { margin: 0 0 15px; font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
-    .day-group { margin-bottom: 20px; }
-    .day-date { font-size: 11px; color: var(--asmaa-purple); font-weight: 700; margin-bottom: 10px; display: block; }
-    .news-row {
-      display: flex; align-items: center; gap: 12px; padding: 10px 15px;
-      background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 6px;
-      cursor: pointer; transition: 0.2s; font-size: 12px; color: #bbb;
-      white-space: nowrap; overflow: hidden;
-    }
-    .news-row:hover { background: rgba(128, 0, 128, 0.15); color: #fff; transform: translateX(5px); }
-    .news-tag { color: var(--accent); font-weight: bold; min-width: 70px; }
-
-    details.archive-section { margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
-    summary.archive-trigger { font-size: 11px; color: var(--asmaa-purple); cursor: pointer; text-align: center; font-weight: bold; list-style: none; padding: 10px; }
-
-    /* FOTO-GITTER (GARANTIERT KEIN STAPELN) */
-    .photo-grid { 
-      display: grid !important; 
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important; 
-      gap: 15px !important; 
-      overflow-y: auto !important; 
-      flex: 1;
-      width: 100%;
-      align-content: start !important;
-    }
-    .photo-item { width: 100%; aspect-ratio: 1 / 1 !important; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; flex-shrink: 0; }
-    .photo-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    /* PLAYER BAR */
-    #player-bar {
-      height: 100px; background: rgba(10,10,10,0.98); backdrop-filter: blur(25px);
-      border-top: 1px solid rgba(255,255,255,0.05);
-      display: grid; grid-template-columns: 300px 1fr 300px; align-items: center;
-      padding: 0 40px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
-    }
-    .p-info-block { display: flex; align-items: center; gap: 15px; overflow: hidden; }
-    .p-info-block img { width: 55px; height: 55px; border-radius: 8px; border: 1px solid var(--asmaa-purple); flex-shrink: 0; cursor: pointer; }
-    .p-meta h4 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .next-label { font-size: 9px; color: var(--accent); opacity: 0.8; margin-top: 2px; }
-
-    .p-ctrl-block { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .buttons { display: flex; align-items: center; gap: 18px; }
-    .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; position: relative; }
-    .btn-svg svg { width: 22px; height: 22px; fill: currentColor; }
-    .btn-svg.active-mode svg { color: var(--accent) !important; filter: drop-shadow(0 0 10px var(--accent)); }
-    .play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; }
-
-    /* REPEAT & PLAYLIST FIX (MITTE) */
-    .repeat-badge { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: bold; color: var(--accent); pointer-events: none; }
-
-    .progress-container { width: 100%; max-width: 450px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #444; }
-    #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 4px; cursor: pointer; }
-
-    /* DIASHOW */
-    #slideshow-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 2000; display: none; justify-content: center; align-items: center; }
-    #slideshow-overlay.active { display: flex; }
-    .glass-frame { position: relative; padding: 15px; border-radius: 20px; background: rgba(255,255,255,0.03); backdrop-filter: blur(25px); box-shadow: 0 0 50px 10px var(--asmaa-purple); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; }
-    .glass-frame img { max-width: 85vw; max-height: 75vh; border-radius: 15px; }
-    .ss-console { position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; align-items: center; background: rgba(15,15,15,0.95); padding: 15px 30px; border-radius: 40px; border: 1px solid var(--glass); }
-    .ss-slider { width: 100px; accent-color: var(--accent); cursor: pointer; }
-
-    #playlist-box { position: fixed; bottom: 110px; right: 40px; width: 280px; background: #111; border: 1px solid var(--glass); border-radius: 15px; padding: 15px; display: none; z-index: 2000; }
-    #playlist-box.active { display: block; }
-    .pl-item { padding: 10px; cursor: move; border-radius: 8px; font-size: 13px; color: #666; margin-bottom: 5px; }
-    .pl-item.active { color: #fff; background: var(--asmaa-purple); font-weight: bold; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -180,7 +32,7 @@
 
     <main id="main-content">
       <section id="view-overview" class="view-section active">
-        <h2 style="font-weight: 300; margin-bottom: 40px; color: var(--accent);">Zentrale</h2>
+        <h2 class="view-title">Zentrale</h2>
         <div class="dashboard-grid">
           <div class="card" onclick="showCategory('fotos')"><img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg"><div class="card-info"><h3>Fotos</h3></div></div>
           <div class="card" onclick="showCategory('rezepte')"><img src="https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0193.jpeg"><div class="card-info"><h3>Rezepte</h3></div></div>
@@ -191,7 +43,7 @@
           <h3>Update News</h3>
           <div class="day-group">
             <span class="day-date">21.12.2025</span>
-            <div class="news-row"><span class="news-tag">📌 Info</span><span class="news-files">Layout & Player-Elemente optimiert.</span></div>
+            <div class="news-row"><span class="news-tag">📌 Info</span><span class="news-files">Dateien aufgebohrt zur endgültigen Layout-Sicherung.</span></div>
           </div>
           <details class="archive-section">
             <summary class="archive-trigger">Ältere Updates anzeigen</summary>
@@ -211,12 +63,12 @@
       </section>
 
       <section id="view-category" class="view-section">
-        <h2 id="category-title" style="font-weight: 300; color: var(--accent);">Kategorie</h2>
-        <div class="dashboard-grid" id="series-grid"></div>
+        <h2 id="category-title" class="view-title">Kategorie</h2>
+        <div class="grid" id="series-grid"></div>
       </section>
 
       <section id="view-gallery" class="view-section">
-        <h2 id="gallery-title" style="font-weight: 300; color: var(--accent);">Titel</h2>
+        <h2 id="gallery-title" class="view-title">Titel</h2>
         <div class="photo-grid" id="photo-grid"></div>
       </section>
     </main>
@@ -260,90 +112,6 @@
     </div>
   </div>
 
-<script>
-  const prefix = "https://xanderfoxy.github.io/Dabdoubi/";
-  const fImgs = [prefix+"IMG_7319.jpeg",prefix+"IMG_7320.jpeg",prefix+"IMG_7321.jpeg",prefix+"IMG_7323.jpeg",prefix+"IMG_7324.jpeg"];
-  const allDesires = [prefix+"ior5FlF3.jpeg",prefix+"JuE5ywM3.jpeg",prefix+"7ylO8SbO.jpeg",prefix+"reVuied4.jpeg",prefix+"wyXz6MhB.jpeg",prefix+"m6l7tlxB.jpeg",prefix+"OJX7O4Fr.jpeg",prefix+"4JVKv09e.jpeg",prefix+"1xOOKJLC.jpeg",prefix+"Facetune_19-11-2025-19-56-41.jpeg",prefix+"ezf2Tv5I.jpeg",prefix+"ql8RdbJd.jpeg",prefix+"iz2rF6Ij.jpeg",prefix+"W1mDxlcp.jpeg",prefix+"XZ3icISY.jpeg",prefix+"ffFONwpT.jpeg",prefix+"tlzPDVhj.jpeg",prefix+"SMiPFnfR.jpeg",prefix+"ErdqXcJI.jpeg",prefix+"qJZbWC3S.jpeg",prefix+"vPYAotQA.jpeg",prefix+"VX0lnX6g.jpeg",prefix+"IyRcZtkA.jpeg",prefix+"GlXnTkeo.jpeg",prefix+"6biiHT6s.jpeg",prefix+"gQkLuhS6.jpeg",prefix+"FXDCBl3h.jpeg",prefix+"X17hRNIE.jpeg",prefix+"N4zNC8G0.jpeg",prefix+"INgUi8jX.jpeg",prefix+"8nRaIrlI.jpeg",prefix+"EFw6E4yW.jpeg",prefix+"CBFT20xr.jpeg",prefix+"KE7XkyKt.jpeg",prefix+"qxEU7X6x.jpeg",prefix+"c4rbD2M1.jpeg",prefix+"2kRjl0Wt.jpeg",prefix+"kXgCsero.jpeg",prefix+"rtNC43KZ.jpeg",prefix+"4zquuQEo.jpeg",prefix+"YjCBzA9Q.jpeg",prefix+"WGWDVqJ0.jpeg",prefix+"kjAxz9eK.jpeg",prefix+"zDsgQfU3.jpeg",prefix+"DYMdPKOD.jpeg",prefix+"IMG_5070.png",prefix+"IMG_5409.png",prefix+"IMG_5416.png",prefix+"IMG_5730.png",prefix+"IMG_5036.png",prefix+"IMG_6054.png",prefix+"IMG_6082.png",prefix+"IMG_6114.png",prefix+"IMG_7193.png",prefix+"IMG_4485.jpeg",prefix+"IMG_5948.png",prefix+"IMG_4709.png",prefix+"IMG_5413.png",prefix+"IMG_4708.png",prefix+"IMG_4705.png",prefix+"IMG_4657.png",prefix+"IMG_6115.png",prefix+"IMG_4501.jpeg",prefix+"IMG_5733.png",prefix+"IMG_4540.png",prefix+"IMG_4555.png",prefix+"IMG_4637.png",prefix+"IMG_4703.png",prefix+"IMG_4992.png",prefix+"IMG_5037.png",prefix+"IMG_5075.png",prefix+"IMG_5279.png",prefix+"IMG_5665.png",prefix+"IMG_5036.png",prefix+"IMG_5051.png",prefix+"IMG_6253.png",prefix+"IMG_6299.png",prefix+"IMG_6504.png",prefix+"IMG_6510.png",prefix+"IMG_6512.png",prefix+"IMG_6514.png",prefix+"IMG_6517.png",prefix+"IMG_6518.png",prefix+"IMG_6519.png",prefix+"IMG_6539.png",prefix+"IMG_6554.png",prefix+"IMG_6745.png",prefix+"IMG_7056.png",prefix+"IMG_4418.webp",prefix+"IMG_7138.webp"];
-
-  const data = {
-    fotos: { title: "Fotos", series: [{ name: "Familie", img: fImgs[0], images: fImgs }, { name: "Desires", img: allDesires[0], images: allDesires }, { name: "Baby Fox", img: null, images: [] }, { name: "Döbeln", img: null, images: [] }, { name: "Weihnachten", img: prefix+"IMG_0725.jpeg", images: [prefix+"IMG_0725.jpeg"] }, { name: "Italien", img: null, images: [] }] },
-    rezepte: { title: "Rezepte", series: [{ name: "Arabisch", img: prefix+"Rezepte/IMG_0193.jpeg", images: [prefix+"Rezepte/IMG_0193.jpeg",prefix+"Rezepte/IMG_0164.jpeg",prefix+"Rezepte/IMG_0166.jpeg"] }, { name: "All around the World", img: prefix+"Rezepte/IMG_0167.jpeg", images: [prefix+"Rezepte/IMG_0167.jpeg",prefix+"Rezepte/IMG_0169.jpeg", prefix+"Rezepte/IMG_0700.png"] }, { name: "Lieblingsessen", img: null, images: [] }, { name: "Deutsch", img: null, images: [] }, { name: "Weihnachten", img: prefix+"Rezepte/IMG_0197.jpeg", images: [prefix+"Rezepte/IMG_0197.jpeg"] }] },
-    comics: { title: "Comics", series: [{ name: "Asmaa & Foxy", img: prefix+"Comics/IMG_1494.jpeg", images: [prefix+"Comics/IMG_1494.jpeg",prefix+"Comics/IMG_1135.jpeg"] }, { name: "Garfield", img: prefix+"Comics/IMG_0356.png", images: [prefix+"Comics/IMG_0356.png", prefix+"Comics/IMG_0427.png", prefix+"Comics/IMG_0483.png", prefix+"Comics/IMG_0484.png"] }, { name: "Featuring Foxy", img: prefix+"Comics/IMG_0685.png", images: [prefix+"Comics/IMG_0685.png"] }] }
-  };
-
-  let tracks = [{ title: "Weihnacht", src: prefix+"Musik/Weihnacht.mp3", cover: prefix+"Bilder/IMG_1840.jpeg" }, { title: "Ein Leben Lang", src: prefix+"Musik/One Day In Rome - Ein Leben Lang.mp3", cover: fImgs[0] }];
-  let audio = new Audio(); let trIdx = 0; let curG = []; let ssIdx = 0; let isSS = false; let isShuf = false; let ssT = null; let mShuf = false; let repMode = 0;
-
-  window.onload = () => { const s = localStorage.getItem('ssSpeed') || 2000; document.getElementById('ss-speed').value = s; loadT(0); initDrag(); }
-
-  function showView(v) { 
-    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-    document.getElementById('view-'+v).classList.add('active'); document.body.classList.remove('sidebar-collapsed');
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    if(v === 'overview') document.getElementById('nav-home').classList.add('active');
-  }
-
-  function showCategory(k) {
-    const c = data[k]; document.getElementById('series-grid').innerHTML = '';
-    c.series.forEach(s => { document.getElementById('series-grid').innerHTML += `<div class="card" onclick="openG('${k}', '${s.name}')">${s.img ? `<img src="${s.img}">` : `<div class="placeholder-card">${s.name[0]}</div>`}<div class="card-info"><h3>${s.name}</h3></div></div>`; });
-    showView('category'); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    const navId = (k==='fotos'?'nav-fotos':(k==='rezepte'?'nav-rezepte':'nav-comics'));
-    document.getElementById(navId).classList.add('active');
-  }
-
-  function openG(k, n) {
-    const s = data[k].series.find(x => x.name === n); curG = s.images;
-    document.getElementById('gallery-title').innerText = s.name;
-    document.getElementById('photo-grid').innerHTML = '';
-    curG.forEach((img, i) => { document.getElementById('photo-grid').innerHTML += `<div class="photo-item" onclick="openSS(${i})"><img src="${img}"></div>`; });
-    showView('gallery'); document.body.classList.add('sidebar-collapsed');
-  }
-
-  function openSS(i) { ssIdx = i; document.getElementById('ss-img').src = curG[ssIdx]; document.getElementById('slideshow-overlay').classList.add('active'); }
-  function closeSS() { document.getElementById('slideshow-overlay').classList.remove('active'); stopSS(); }
-  function ssNext() { if(isShuf) ssIdx = Math.floor(Math.random()*curG.length); else ssIdx = (ssIdx+1)%curG.length; document.getElementById('ss-img').src = curG[ssIdx]; }
-  function ssPrev() { ssIdx = (ssIdx-1+curG.length)%curG.length; document.getElementById('ss-img').src = curG[ssIdx]; }
-
-  function toggleSS() {
-    isSS = !isSS; const btn = document.getElementById('ss-play');
-    if(isSS) { ssT = setInterval(ssNext, document.getElementById('ss-speed').value); document.getElementById('ss-play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; btn.classList.add('active-mode'); }
-    else stopSS();
-  }
-  function stopSS() { isSS = false; clearInterval(ssT); document.getElementById('ss-play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; document.getElementById('ss-play').classList.remove('active-mode'); }
-  function saveSpeed() { localStorage.setItem('ssSpeed', document.getElementById('ss-speed').value); if(isSS) { clearInterval(ssT); ssT = setInterval(ssNext, document.getElementById('ss-speed').value); } }
-  function toggleSSShuffle() { isShuf = !isShuf; document.getElementById('ss-shuffle').classList.toggle('active-mode', isShuf); }
-
-  function loadT(i) { trIdx = i; audio.src = tracks[i].src; document.getElementById('p-title').innerText = tracks[i].title; document.getElementById('p-img').src = tracks[i].cover; updatePl(); updateN(); }
-  function togglePlay() { if(audio.paused) { audio.play(); document.getElementById('play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; } else { audio.pause(); document.getElementById('play-i').innerHTML = '<path d="M8 5v14l11-7z"/>'; } }
-  function nextT() { if(mShuf) trIdx = Math.floor(Math.random()*tracks.length); else trIdx = (trIdx+1)%tracks.length; loadT(trIdx); audio.play(); }
-  function prevT() { trIdx = (trIdx-1+tracks.length)%tracks.length; loadT(trIdx); audio.play(); }
-
-  function toggleMusicShuffle() { mShuf = !mShuf; document.getElementById('m-shuffle').classList.toggle('active-mode', mShuf); updateN(); }
-  function toggleMusicRepeat() { repMode = (repMode + 1) % 3; const b = document.getElementById('rep-badge'); document.getElementById('m-repeat').classList.toggle('active-mode', repMode > 0); b.innerText = repMode === 1 ? '1' : (repMode === 2 ? 'All' : ''); }
-  function updateN() { document.getElementById('p-next').innerText = "Next: " + (mShuf ? "Shuffle" : tracks[(trIdx + 1) % tracks.length].title); }
-  audio.onended = () => { if(repMode === 1) { audio.currentTime = 0; audio.play(); } else nextT(); }
-  function openCoverZoom() { curG = [document.getElementById('p-img').src]; openSS(0); }
-  function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
-  
-  function updatePl() { 
-    const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; 
-    tracks.forEach((t, i) => { 
-        const it = document.createElement('div'); it.className = 'pl-item' + (i === trIdx ? ' active' : ''); it.innerText = t.title; it.draggable = true; 
-        it.onclick = () => { loadT(i); audio.play(); document.getElementById('play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; togglePl(); }; 
-        b.appendChild(it); 
-    }); 
-    initDrag(); 
-  }
-
-  function initDrag() {
-    const box = document.getElementById('playlist-box'); let drg = null;
-    box.addEventListener('dragstart', (e) => { drg = e.target; e.target.classList.add('dragging'); });
-    box.addEventListener('dragend', (e) => { e.target.classList.remove('dragging'); const items = [...box.querySelectorAll('.pl-item')]; tracks = items.map(item => tracks.find(t => t.title === item.innerText)); trIdx = tracks.findIndex(t => t.src === audio.src); updateN(); });
-    box.addEventListener('dragover', (e) => { e.preventDefault(); const after = getA(box, e.clientY); if (!after) box.appendChild(drg); else box.insertBefore(drg, after); });
-  }
-  function getA(c, y) { const el = [...c.querySelectorAll('.pl-item:not(.dragging)')]; return el.reduce((closest, child) => { const box = child.getBoundingClientRect(); const offset = y - box.top - box.height / 2; if (offset < 0 && offset > closest.offset) return { offset, element: child }; else return closest; }, { offset: Number.NEGATIVE_INFINITY }).element; }
-  audio.ontimeupdate = () => { const p = document.getElementById('progress-bar'); if(!isNaN(audio.duration)) { p.max = audio.duration; p.value = audio.currentTime; document.getElementById('t-cur').innerText = Math.floor(audio.currentTime/60)+":"+Math.floor(audio.currentTime%60).toString().padStart(2,'0'); document.getElementById('t-dur').innerText = Math.floor(audio.duration/60)+":"+Math.floor(audio.duration%60).toString().padStart(2,'0'); } };
-  document.getElementById('progress-bar').oninput = (e) => audio.currentTime = e.target.value;
-</script>
+  <script src="script.js"></script>
 </body>
 </html>
