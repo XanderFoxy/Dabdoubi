@@ -36,7 +36,10 @@
     <footer id="player-bar">
       <div class="p-info-block">
         <img id="p-img" src="" onclick="openCoverZoom()">
-        <div class="p-meta"><h4 id="p-title">Lade...</h4><p id="p-next" class="next-label">Next: --</p></div>
+        <div class="p-meta">
+          <h4 id="p-title">Lade...</h4>
+          <p id="p-next" class="next-label">next: --</p>
+        </div>
       </div>
       <div class="p-ctrl-block">
         <div class="buttons">
@@ -44,7 +47,9 @@
             <svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg>
           </button>
           <button class="btn-svg" onclick="prevT()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-          <button class="btn-svg play-trigger" onclick="togglePlay()" id="btn-play"><svg viewBox="0 0 24 24" id="play-i"><path d="M8 5v14l11-7z"/></svg></button>
+          <button class="btn-svg play-trigger" onclick="togglePlay()" id="btn-play">
+            <svg viewBox="0 0 24 24" id="play-i"><path d="M8 5v14l11-7z"/></svg>
+          </button>
           <button class="btn-svg" onclick="nextT()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg></button>
           <button class="btn-svg" id="m-repeat" onclick="toggleMusicRepeat()">
             <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
@@ -52,7 +57,11 @@
           </button>
           <button class="btn-svg" onclick="togglePl()"><svg viewBox="0 0 24 24"><path d="M4 10h12v2H4zm0-4h12v2H4zm0 8h8v2H4zm10 0v6l5-3-5-3z"/></svg></button>
         </div>
-        <div class="progress-container"><span id="t-cur">0:00</span><input type="range" id="progress-bar" value="0"><span id="t-dur">0:00</span></div>
+        <div class="progress-container">
+          <span id="t-cur">0:00</span>
+          <input type="range" id="progress-bar" value="0">
+          <span id="t-dur">0:00</span>
+        </div>
       </div>
       <div></div>
     </footer>
@@ -60,9 +69,9 @@
   </div>
 
   <div id="slideshow-overlay" onclick="closeSS()">
-    <div class="glass-frame" onclick="event.stopPropagation(); closeSS();">
+    <div class="glass-frame" onclick="event.stopPropagation();">
       <img id="ss-img" src="">
-      <div class="ss-console" onclick="event.stopPropagation();">
+      <div class="ss-console">
         <button class="btn-svg" onclick="ssPrev()"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
         <button class="btn-svg" id="ss-play" onclick="toggleSS()"><svg viewBox="0 0 24 24" id="ss-play-i"><path d="M8 5v14l11-7z"/></svg></button>
         <button class="btn-svg" id="ss-shuffle" onclick="toggleSSShuffle()"><svg viewBox="0 0 24 24"><path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M7,9c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2 S8.1,9,7,9z M12,14c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S13.1,14,12,14z M17,19c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S18.1,19,17,19z"/></svg></button>
