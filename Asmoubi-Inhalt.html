@@ -2,17 +2,14 @@
 <html lang="de">
 <head>
   <link rel="stylesheet" href="asmoubi.css">
-  <style>body { padding: 40px; overflow-y: auto; background: transparent; }</style>
+  <style>body { overflow-y: auto; background: transparent; }</style>
 </head>
 <body>
-  <h2 id="title" class="full-view-header" style="color: var(--accent); font-weight: 300;"></h2>
+  <h2 id="title" style="color: var(--accent); font-weight: 300; margin: 80px 40px 0 40px;"></h2>
   <div id="grid-box" class="photo-grid"></div>
 
   <script src="asmoubi.js"></script>
   <script>
-    // Sidebar in der Hülle verstecken
-    window.parent.loadContent(window.location.href, false);
-
     const box = document.getElementById('grid-box');
     const cat = localStorage.getItem('currentCategory');
     const ser = localStorage.getItem('currentSeries');
