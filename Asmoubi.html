@@ -58,7 +58,7 @@
       box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 15px rgba(128, 0, 128, 0.3);
     }
 
-    /* MAIN CONTENT */
+    /* MAIN CONTENT - FIX: KEIN GLOBALER SCROLL */
     #main-content { 
       flex: 1; display: flex; flex-direction: column; 
       height: 100vh; padding: 60px 60px 120px 60px; box-sizing: border-box;
@@ -66,7 +66,6 @@
     }
     .view-section { display: none; height: 100%; flex-direction: column; overflow: hidden; }
     .view-section.active { display: flex; animation: fadeIn 0.4s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     /* DASHBOARD */
     .dashboard-grid { 
@@ -83,7 +82,7 @@
     .card:hover img { opacity: 1; }
     .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); pointer-events: none; }
 
-    /* UPDATE NEWS ARCHIV (Eigenständiges Scrollen) */
+    /* UPDATE NEWS ARCHIV (EIGENES SCROLLEN) */
     .news-archive {
       flex: 1; overflow-y: auto; background: rgba(255,255,255,0.02);
       border-radius: 20px; border: 1px solid rgba(128, 0, 128, 0.1);
@@ -103,7 +102,8 @@
     .news-files { overflow: hidden; text-overflow: ellipsis; }
 
     details.archive-section { margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
-    summary.archive-trigger { font-size: 11px; color: var(--asmaa-purple); cursor: pointer; text-align: center; font-weight: bold; list-style: none; }
+    summary.archive-trigger { font-size: 11px; color: var(--asmaa-purple); cursor: pointer; text-align: center; font-weight: bold; list-style: none; padding: 10px; }
+    summary.archive-trigger:hover { color: var(--accent); }
 
     /* PHOTO GRID (STRENGES GITTER - KEIN STAPELN) */
     .photo-grid { 
@@ -112,13 +112,14 @@
       gap: 15px !important; 
       overflow-y: auto !important; 
       flex: 1;
+      width: 100%;
       align-items: start !important;
     }
-    .photo-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
+    .photo-item { width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
     .photo-item:hover { border-color: var(--asmaa-purple); transform: scale(1.02); }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* PLAYER BAR - FIX GEGEN STAPELN */
+    /* PLAYER BAR */
     #player-bar {
       height: 95px; background: rgba(10,10,10,0.98); backdrop-filter: blur(25px);
       border-top: 1px solid rgba(255,255,255,0.05);
@@ -190,20 +191,24 @@
 
         <div class="news-archive">
           <h3>Update News</h3>
+          
           <div class="day-group">
             <span class="day-date">21.12.2025</span>
-            <div class="news-row"><span class="news-tag">📌 Info</span><span class="news-files">Optimierung der Ansicht und des Scroll-Verhaltens.</span></div>
+            <div class="news-row"><span class="news-tag">📌 Info</span><span class="news-files">Ansicht optimiert & Foto-Gitter stabilisiert.</span></div>
           </div>
+
           <details class="archive-section">
             <summary class="archive-trigger">Ältere Updates anzeigen</summary>
-            <div class="day-group" style="margin-top:15px;">
+            
+            <div class="day-group" style="margin-top:20px;">
               <span class="day-date">20.12.2025</span>
               <div class="news-row" onclick="openG('comics', 'Garfield')"><span class="news-tag">🎨 Comics</span><span class="news-files">Garfield: IMG_0356.png / IMG_0427.png / IMG_0483.png / IMG_0484.png</span></div>
               <div class="news-row" onclick="openG('fotos', 'Weihnachten')"><span class="news-tag">✨ Fotos</span><span class="news-files">Weihnachten: IMG_0725.jpeg</span></div>
               <div class="news-row" onclick="openG('rezepte', 'All around the World')"><span class="news-tag">🍳 Rezepte</span><span class="news-files">All around the World: IMG_0700.png</span></div>
             </div>
+
             <div class="day-group">
-              <span class="day-date">Vorherige Updates</span>
+              <span class="day-date">19.12.2025</span>
               <div class="news-row" onclick="openG('comics', 'Featuring Foxy')"><span class="news-tag">🎨 Comics</span><span class="news-files">Featuring Foxy: IMG_0685.png</span></div>
               <div class="news-row" onclick="openG('rezepte', 'Arabisch')"><span class="news-tag">🍳 Rezepte</span><span class="news-files">Arabisch: IMG_0193.jpeg / IMG_0164.jpeg / IMG_0166.jpeg</span></div>
             </div>
@@ -286,8 +291,7 @@
     const c = data[k]; document.getElementById('series-grid').innerHTML = '';
     c.series.forEach(s => { document.getElementById('series-grid').innerHTML += `<div class="card" onclick="openG('${k}', '${s.name}')">${s.img ? `<img src="${s.img}">` : `<div class="placeholder-card">${s.name[0]}</div>`}<div class="card-info"><h3>${s.name}</h3></div></div>`; });
     showView('category'); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    const navId = (k==='fotos'?'nav-fotos':(k==='rezepte'?'nav-rezepte':'nav-comics'));
-    document.getElementById(navId).classList.add('active');
+    document.getElementById('nav-'+(k==='fotos'?'fotos':(k==='rezepte'?'nav-rezepte':'nav-comics'))).classList.add('active');
   }
 
   function openG(k, n) {
@@ -323,6 +327,7 @@
   audio.onended = () => { if(repMode === 1) { audio.currentTime = 0; audio.play(); } else nextT(); }
   function openCoverZoom() { curG = [document.getElementById('p-img').src]; openSS(0); }
   function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
+  
   function updatePl() { 
     const b = document.getElementById('playlist-box'); b.innerHTML = '<h4>Playlist</h4>'; 
     tracks.forEach((t, i) => { 
