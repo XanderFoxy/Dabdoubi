@@ -1,4 +1,4 @@
-/* ASMOUBI CORE LOGIC - FULL RESTORATION */
+/* ASMOUBI CORE LOGIC - RESTORED DATABASE */
 const prefix = "https://xanderfoxy.github.io/Dabdoubi/";
 
 const data = {
@@ -23,24 +23,12 @@ const data = {
 
 // MUSIK PLAYER
 let tracks = [{ title: "Weihnacht", src: prefix+"Musik/Weihnacht.mp3", cover: prefix+"Bilder/IMG_1840.jpeg" }, { title: "Ein Leben Lang", src: prefix+"Musik/One Day In Rome - Ein Leben Lang.mp3", cover: prefix+"ior5FlF3.jpeg" }];
-let audio = new Audio(); let trIdx = 0; let mShuf = false; let repMode = 0; let curG = []; let ssIdx = 0; let isSS = false; let ssT = null;
-
-window.onload = () => { if(document.getElementById('p-title')) { loadT(0); updatePl(); } };
+let audio = new Audio(); let trIdx = 0; let mShuf = false; let repMode = 0; let curG = []; let ssIdx = 0;
 
 function loadT(i) {
   trIdx = i; audio.src = tracks[i].src;
   const t = document.getElementById('p-title'), img = document.getElementById('p-img');
   if(t) { t.innerText = tracks[i].title; img.src = tracks[i].cover; updateN(); updatePl(); }
-}
-
-function updatePl() {
-  const b = document.getElementById('playlist-box'); if(!b) return;
-  b.innerHTML = '<h4>Playlist</h4>';
-  tracks.forEach((t, i) => {
-    const it = document.createElement('div'); it.className = 'pl-item' + (i === trIdx ? ' active' : ''); it.innerText = t.title;
-    it.onclick = () => { loadT(i); audio.play(); document.getElementById('play-i').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; };
-    b.appendChild(it);
-  });
 }
 
 function togglePlay() {
@@ -51,27 +39,24 @@ function togglePlay() {
 
 function nextT() { trIdx = mShuf ? Math.floor(Math.random()*tracks.length) : (trIdx+1)%tracks.length; loadT(trIdx); audio.play(); }
 function prevT() { trIdx = (trIdx-1+tracks.length)%tracks.length; loadT(trIdx); audio.play(); }
-
-audio.ontimeupdate = () => {
-  const p = document.getElementById('progress-bar'), cur = document.getElementById('t-cur'), dur = document.getElementById('t-dur');
-  if(p && !isNaN(audio.duration)) {
-    p.max = audio.duration; p.value = audio.currentTime;
-    cur.innerText = Math.floor(audio.currentTime/60)+":"+Math.floor(audio.currentTime%60).toString().padStart(2,'0');
-    dur.innerText = Math.floor(audio.duration/60)+":"+Math.floor(audio.duration%60).toString().padStart(2,'0');
-  }
-};
-
-if(document.getElementById('progress-bar')) { document.getElementById('progress-bar').oninput = (e) => audio.currentTime = e.target.value; }
-
 function toggleMusicShuffle() { mShuf = !mShuf; document.getElementById('m-shuffle').classList.toggle('active-mode', mShuf); updateN(); }
 function toggleMusicRepeat() { repMode = (repMode + 1) % 3; document.getElementById('rep-badge').innerText = repMode === 1 ? '1' : (repMode === 2 ? 'All' : ''); }
-function updateN() { document.getElementById('p-next').innerText = "Next: " + (mShuf ? "Shuffle" : tracks[(trIdx + 1) % tracks.length].title); }
+function updateN() { document.getElementById('p-next').innerText = "next: " + (mShuf ? "shuffle" : tracks[(trIdx + 1) % tracks.length].title); }
+function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
 
-// --- FRAMEWORK LOGIC ---
+function updatePl() {
+  const b = document.getElementById('playlist-box'); if(!b) return;
+  b.innerHTML = '<h4>Playlist</h4>';
+  tracks.forEach((t, i) => {
+    const it = document.createElement('div'); it.className = 'pl-item' + (i === trIdx ? ' active' : ''); it.innerText = t.title;
+    it.onclick = () => { loadT(i); audio.play(); }; b.appendChild(it);
+  });
+}
+
+// FRAMEWORK LOGIC
 function openSubCategory(kat, name) {
   localStorage.setItem('currentCategory', kat);
   localStorage.setItem('currentSeries', name);
-  // Sidebar ausblenden, da jetzt die Inhaltsseite geladen wird
   window.parent.loadContent('Asmoubi-Inhalt.html', false);
 }
 
@@ -84,4 +69,3 @@ function openSS_from_frame(kat, ser, idx) {
 
 function closeSS() { document.getElementById('slideshow-overlay').classList.remove('active'); }
 function openCoverZoom() { curG = [document.getElementById('p-img').src]; ssIdx = 0; document.getElementById('ss-img').src = curG[0]; document.getElementById('slideshow-overlay').classList.add('active'); }
-function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
