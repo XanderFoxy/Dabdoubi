@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <link rel="stylesheet" href="asmoubi.css">
+  <style>body { padding: 40px; overflow-y: auto; background: transparent; }</style>
+</head>
+<body>
+  <h2 id="title" style="color: var(--accent); font-weight: 300; margin-bottom: 30px;"></h2>
+  <div id="grid-box" class="photo-grid"></div>
+  <script src="asmoubi.js"></script>
+  <script>
+    const box = document.getElementById('grid-box');
+    const cat = localStorage.getItem('currentCategory');
+    const ser = localStorage.getItem('currentSeries');
+    document.getElementById('title').innerText = ser;
+    const sData = data[cat].series.find(x => x.name === ser);
+    if(sData) {
+      sData.images.forEach((img, i) => {
+        box.innerHTML += `<div class="photo-item" onclick="window.parent.openSS_from_frame('${cat}', '${ser}', ${i})"><img src="${img}"></div>`;
+      });
+    }
+  </script>
+</body>
+</html>
