@@ -1,4 +1,4 @@
-/* ASMOUBI CORE LOGIC - UPDATED */
+/* ASMOUBI CORE LOGIC - RESTORED */
 const prefix = "https://xanderfoxy.github.io/Dabdoubi/";
 
 const data = {
@@ -14,23 +14,11 @@ window.onload = () => { if(document.getElementById('p-title')) { loadT(0); updat
 
 function loadT(i) {
   trIdx = i; audio.src = tracks[i].src;
-  if(document.getElementById('p-title')) {
-    document.getElementById('p-title').innerText = tracks[i].title;
-    document.getElementById('p-img').src = tracks[i].cover;
-    updateN(); updatePl(); // Update Playlist Status
-  }
-}
-
-function updatePl() {
-  const b = document.getElementById('playlist-box'); if(!b) return;
-  b.innerHTML = '<h4 style="color:var(--accent); font-size:12px; margin-bottom:10px;">Playlist</h4>';
-  tracks.forEach((t, i) => {
-    const it = document.createElement('div');
-    it.className = 'pl-item' + (i === trIdx ? ' active' : '');
-    it.innerText = t.title;
-    it.onclick = () => { loadT(i); audio.play(); };
-    b.appendChild(it);
-  });
+  const t = document.getElementById('p-title');
+  const img = document.getElementById('p-img');
+  if(t) t.innerText = tracks[i].title;
+  if(img) img.src = tracks[i].cover;
+  updateN(); updatePl();
 }
 
 function togglePlay() {
@@ -41,6 +29,20 @@ function togglePlay() {
 
 function nextT() { trIdx = mShuf ? Math.floor(Math.random()*tracks.length) : (trIdx+1)%tracks.length; loadT(trIdx); audio.play(); }
 function prevT() { trIdx = (trIdx-1+tracks.length)%tracks.length; loadT(trIdx); audio.play(); }
+
+audio.ontimeupdate = () => {
+  const p = document.getElementById('progress-bar');
+  const cur = document.getElementById('t-cur');
+  const dur = document.getElementById('t-dur');
+  if(p && !isNaN(audio.duration)) {
+    p.max = audio.duration; p.value = audio.currentTime;
+    cur.innerText = Math.floor(audio.currentTime/60)+":"+Math.floor(audio.currentTime%60).toString().padStart(2,'0');
+    dur.innerText = Math.floor(audio.duration/60)+":"+Math.floor(audio.duration%60).toString().padStart(2,'0');
+  }
+};
+
+if(document.getElementById('progress-bar')) { document.getElementById('progress-bar').oninput = (e) => audio.currentTime = e.target.value; }
+
 function toggleMusicShuffle() { mShuf = !mShuf; document.getElementById('m-shuffle').classList.toggle('active-mode', mShuf); updateN(); }
 function toggleMusicRepeat() { repMode = (repMode + 1) % 3; document.getElementById('rep-badge').innerText = repMode === 1 ? '1' : (repMode === 2 ? 'All' : ''); }
 function updateN() { document.getElementById('p-next').innerText = "next: " + (mShuf ? "shuffle" : tracks[(trIdx + 1) % tracks.length].title); }
@@ -68,3 +70,14 @@ function openCoverZoom() {
 
 function closeSS() { document.getElementById('slideshow-overlay').classList.remove('active'); }
 function togglePl() { document.getElementById('playlist-box').classList.toggle('active'); }
+function updatePl() {
+  const b = document.getElementById('playlist-box'); if(!b) return;
+  b.innerHTML = '<h4 style="color:var(--accent); font-size:12px; margin-bottom:10px;">Playlist</h4>';
+  tracks.forEach((t, i) => {
+    const it = document.createElement('div');
+    it.className = 'pl-item' + (i === trIdx ? ' active' : '');
+    it.innerText = t.title;
+    it.onclick = () => { loadT(i); audio.play(); };
+    b.appendChild(it);
+  });
+}
