@@ -24,7 +24,7 @@
 
     #app-container { display: flex; height: 100vh; width: 100vw; position: relative; }
 
-    /* --- SIDEBAR --- */
+    /* SIDEBAR */
     #sidebar {
       width: 260px; background: var(--sidebar-bg);
       border-right: 1px solid rgba(255,255,255,0.1);
@@ -51,27 +51,25 @@
     }
     .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
     .nav-item:hover { color: #fff; background: var(--glass); }
-    
     .nav-item.active {
       color: #fff; background: rgba(128, 0, 128, 0.15);
       border-left: 5px solid var(--asmaa-purple);
       box-shadow: inset 15px 0 20px -15px var(--asmaa-purple), 0 0 15px rgba(128, 0, 128, 0.3);
     }
 
-    /* --- CONTENT AREA --- */
+    /* MAIN CONTENT */
     #main-content { 
-      flex: 1; display: block; 
-      height: 100vh; padding: 60px 60px 140px 60px; box-sizing: border-box;
+      flex: 1; display: flex; flex-direction: column; 
+      height: 100vh; padding: 60px 60px 120px 60px; box-sizing: border-box; 
       overflow: hidden;
     }
-    .view-section { display: none; height: 100%; width: 100%; }
-    .view-section.active { display: block; animation: fadeIn 0.4s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .view-section { display: none; height: 100%; flex-direction: column; overflow: hidden; }
+    .view-section.active { display: flex; }
 
     /* DASHBOARD */
     .dashboard-grid { 
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-      gap: 30px; margin-bottom: 30px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+      gap: 30px; flex-shrink: 0; margin-bottom: 30px;
     }
     .card {
       background: var(--glass); border-radius: 20px; overflow: hidden;
@@ -83,11 +81,11 @@
     .card:hover img { opacity: 1; }
     .card-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); pointer-events: none; }
 
-    /* NEWS ARCHIV (SCROLLBAR) */
+    /* UPDATE NEWS (EIGENES SCROLLEN) */
     .news-archive {
-      height: 40vh; overflow-y: auto; background: rgba(255,255,255,0.02);
+      flex: 1; overflow-y: auto; background: rgba(255,255,255,0.02);
       border-radius: 20px; border: 1px solid rgba(128, 0, 128, 0.1);
-      padding: 25px; scrollbar-width: thin; scrollbar-color: var(--asmaa-purple) transparent;
+      padding: 25px; min-height: 200px; scrollbar-width: thin; scrollbar-color: var(--asmaa-purple) transparent;
     }
     .news-archive h3 { margin: 0 0 15px; font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
     .day-group { margin-bottom: 20px; }
@@ -99,29 +97,29 @@
       white-space: nowrap; overflow: hidden;
     }
     .news-row:hover { background: rgba(128, 0, 128, 0.15); color: #fff; transform: translateX(5px); }
-    .news-tag { color: var(--accent); font-weight: bold; min-width: 75px; }
+    .news-tag { color: var(--accent); font-weight: bold; min-width: 70px; }
 
     details.archive-section { margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
     summary.archive-trigger { font-size: 11px; color: var(--asmaa-purple); cursor: pointer; text-align: center; font-weight: bold; list-style: none; padding: 10px; }
 
-    /* PHOTO GRID (FIX: ABSOLUT KEIN STAPELN) */
+    /* FOTO-GITTER (GARANTIERT KEIN STAPELN) */
     .photo-grid { 
       display: grid !important; 
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important; 
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important; 
       gap: 15px !important; 
       overflow-y: auto !important; 
-      height: 80vh;
+      flex: 1;
       width: 100%;
       align-content: start !important;
     }
-    .photo-item { width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; }
+    .photo-item { width: 100%; aspect-ratio: 1 / 1 !important; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid transparent; flex-shrink: 0; }
     .photo-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     /* PLAYER BAR */
     #player-bar {
-      height: 95px; background: rgba(10,10,10,0.98); backdrop-filter: blur(25px);
+      height: 100px; background: rgba(10,10,10,0.98); backdrop-filter: blur(25px);
       border-top: 1px solid rgba(255,255,255,0.05);
-      display: grid; grid-template-columns: 280px 1fr 280px; align-items: center;
+      display: grid; grid-template-columns: 300px 1fr 300px; align-items: center;
       padding: 0 40px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
     }
     .p-info-block { display: flex; align-items: center; gap: 15px; overflow: hidden; }
@@ -129,21 +127,18 @@
     .p-meta h4 { margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .next-label { font-size: 9px; color: var(--accent); opacity: 0.8; margin-top: 2px; }
 
-    .p-ctrl-block { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .p-ctrl-block { display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .buttons { display: flex; align-items: center; gap: 18px; }
     .btn-svg { background: none; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; padding: 5px; position: relative; }
     .btn-svg svg { width: 22px; height: 22px; fill: currentColor; }
     .btn-svg.active-mode svg { color: var(--accent) !important; filter: drop-shadow(0 0 10px var(--accent)); }
     .play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; }
 
-    /* REPEAT BADGE (POSITION FIX) */
-    .repeat-badge { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: bold; color: var(--accent); pointer-events: none; }
+    /* REPEAT & PLAYLIST FIX (MITTE) */
+    .repeat-badge { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: bold; color: var(--accent); pointer-events: none; }
 
     .progress-container { width: 100%; max-width: 450px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #444; }
     #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 4px; cursor: pointer; }
-
-    /* RIGHT SECTION PLAYER */
-    .p-right-block { display: flex; justify-content: flex-end; align-items: center; }
 
     /* DIASHOW */
     #slideshow-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 2000; display: none; justify-content: center; align-items: center; }
@@ -153,7 +148,7 @@
     .ss-console { position: absolute; bottom: -100px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; align-items: center; background: rgba(15,15,15,0.95); padding: 15px 30px; border-radius: 40px; border: 1px solid var(--glass); }
     .ss-slider { width: 100px; accent-color: var(--accent); cursor: pointer; }
 
-    #playlist-box { position: fixed; bottom: 105px; right: 40px; width: 280px; background: #111; border: 1px solid var(--glass); border-radius: 15px; padding: 15px; display: none; z-index: 2000; }
+    #playlist-box { position: fixed; bottom: 110px; right: 40px; width: 280px; background: #111; border: 1px solid var(--glass); border-radius: 15px; padding: 15px; display: none; z-index: 2000; }
     #playlist-box.active { display: block; }
     .pl-item { padding: 10px; cursor: move; border-radius: 8px; font-size: 13px; color: #666; margin-bottom: 5px; }
     .pl-item.active { color: #fff; background: var(--asmaa-purple); font-weight: bold; }
@@ -196,7 +191,7 @@
           <h3>Update News</h3>
           <div class="day-group">
             <span class="day-date">21.12.2025</span>
-            <div class="news-row"><span class="news-tag">📌 Info</span><span class="news-files">Stabilisierung der Foto-Galerie & Player-Positionierung.</span></div>
+            <div class="news-row"><span class="news-tag">📌 Info</span><span class="news-files">Layout & Player-Elemente optimiert.</span></div>
           </div>
           <details class="archive-section">
             <summary class="archive-trigger">Ältere Updates anzeigen</summary>
@@ -243,12 +238,11 @@
             <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
             <span id="rep-badge" class="repeat-badge"></span>
           </button>
+          <button class="btn-svg" onclick="togglePl()"><svg viewBox="0 0 24 24"><path d="M4 10h12v2H4zm0-4h12v2H4zm0 8h8v2H4zm10 0v6l5-3-5-3z"/></svg></button>
         </div>
         <div class="progress-container"><span id="t-cur">0:00</span><input type="range" id="progress-bar" value="0"><span id="t-dur">0:00</span></div>
       </div>
-      <div class="p-right-block">
-        <button class="btn-svg" onclick="togglePl()"><svg viewBox="0 0 24 24"><path d="M4 10h12v2H4zm0-4h12v2H4zm0 8h8v2H4zm10 0v6l5-3-5-3z"/></svg></button>
-      </div>
+      <div></div>
     </footer>
     <div id="playlist-box"></div>
   </div>
@@ -353,4 +347,3 @@
 </script>
 </body>
 </html>
-
