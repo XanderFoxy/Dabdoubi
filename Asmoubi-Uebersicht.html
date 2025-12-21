@@ -2,11 +2,11 @@
 <html lang="de">
 <head>
   <link rel="stylesheet" href="asmoubi.css">
-  <style>body { padding: 40px; overflow: hidden; height: 100vh; display: flex; flex-direction: column; background: transparent; box-sizing: border-box; }</style>
+  <style>body { overflow: hidden; height: 100vh; display: flex; flex-direction: column; background: transparent; }</style>
 </head>
 <body>
-  <h2 style="font-weight: 300; margin-bottom: 40px; color: var(--accent);">Zentrale</h2>
-  <div class="dashboard-grid" style="flex-shrink: 0;">
+  <h2 style="font-weight: 300; margin: 40px 40px 0 40px; color: var(--accent);">Zentrale</h2>
+  <div class="grid">
     <div class="card" onclick="window.parent.loadContent('Asmoubi-Galerie.html', true)"><img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg"><div class="card-info"><h3>Fotos</h3></div></div>
     <div class="card" onclick="window.parent.loadContent('Asmoubi-Rezepte.html', true)"><img src="https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0193.jpeg"><div class="card-info"><h3>Rezepte</h3></div></div>
     <div class="card" onclick="window.parent.loadContent('Asmoubi-Comics.html', true)"><img src="https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1494.jpeg"><div class="card-info"><h3>Comics</h3></div></div>
@@ -16,16 +16,16 @@
     <h3>Update News</h3>
     <div class="day-group">
       <span class="day-date">20.12.2025</span>
-      <div class="news-row" onclick="window.parent.openSubCategory('comics', 'Garfield')"><span class="news-tag">🎨 Comics</span><span class="news-files">Garfield: Update</span></div>
+      <div class="news-row" onclick="window.parent.openSubCategory('comics', 'Garfield')"><span class="news-tag">🎨 Comics</span><span class="news-files">Garfield Update</span></div>
       <div class="news-row" onclick="window.parent.openSubCategory('fotos', 'Weihnachten')"><span class="news-tag">✨ Fotos</span><span class="news-files">Weihnachten: IMG_0725.jpeg</span></div>
-      <div class="news-row" onclick="window.parent.openSubCategory('rezepte', 'All around the World')"><span class="news-tag">🍳 Rezepte</span><span class="news-files">World: IMG_0700.png</span></div>
+      <div class="news-row" onclick="window.parent.openSubCategory('rezepte', 'All around the World')"><span class="news-tag">🍳 Rezepte</span><span class="news-files">All around the World: IMG_0700.png</span></div>
     </div>
     <details class="archive-section">
       <summary class="archive-trigger">Ältere Updates anzeigen</summary>
       <div class="day-group" style="margin-top:15px;">
         <span class="day-date">Archiv</span>
-        <div class="news-row" onclick="window.parent.openSubCategory('comics', 'Featuring Foxy')"><span class="news-tag">🎨 Comics</span><span class="news-files">Featuring Foxy</span></div>
-        <div class="news-row" onclick="window.parent.openSubCategory('rezepte', 'Arabisch')"><span class="news-tag">🍳 Rezepte</span><span class="news-files">Arabisch</span></div>
+        <div class="news-row" onclick="window.parent.openSubCategory('comics', 'Featuring Foxy')"><span class="news-tag">🎨 Comics</span><span class="news-files">Featuring Foxy: IMG_0685.png</span></div>
+        <div class="news-row" onclick="window.parent.openSubCategory('rezepte', 'Arabisch')"><span class="news-tag">🍳 Rezepte</span><span class="news-files">Arabisch: IMG_0193.jpeg / ...</span></div>
       </div>
     </details>
   </div>
