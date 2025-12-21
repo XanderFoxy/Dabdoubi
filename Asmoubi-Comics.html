@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="asmoubi.css">
+  <style>
+    body { padding: 40px; overflow-y: auto; background: transparent; }
+    .dashboard-grid { 
+      display: grid !important; 
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important; 
+      gap: 25px; 
+    }
+  </style>
+</head>
+<body>
+  <h2 style="color: var(--accent); font-weight: 300; margin-bottom: 30px;">Comics</h2>
+  <div id="comics-grid" class="dashboard-grid"></div>
+
+  <script src="asmoubi.js"></script>
+  <script>
+    const grid = document.getElementById('comics-grid');
+    data.comics.series.forEach(s => {
+      grid.innerHTML += `
+        <div class="card" onclick="window.parent.openGalleryFromFrame('comics', '${s.name}')">
+          <img src="${s.img || ''}">
+          <div class="card-info"><h3>${s.name}</h3></div>
+        </div>`;
+    });
+  </script>
+</body>
+</html>
