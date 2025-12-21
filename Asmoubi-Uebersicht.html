@@ -2,25 +2,27 @@
 <html lang="de">
 <head>
   <link rel="stylesheet" href="asmoubi.css">
-  <style>
-    body { padding: 40px; overflow: hidden; height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; background: transparent; }
-    .news-archive { flex: 1; overflow-y: auto; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px solid rgba(128,0,128,0.1); padding: 25px; margin-top: 30px; }
-  </style>
+  <style>body { padding: 40px; overflow: hidden; height: 100vh; display: flex; flex-direction: column; background: transparent; box-sizing: border-box; }</style>
 </head>
 <body>
-  <h2 style="color: var(--accent); font-weight: 300; margin-bottom: 30px;">Zentrale</h2>
-  <div class="dashboard-grid">
-    <div class="card" onclick="window.parent.loadContent('Asmoubi-Galerie.html')"><img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg"><div class="card-info"><h3>Fotos</h3></div></div>
-    <div class="card" onclick="window.parent.loadContent('Asmoubi-Rezepte.html')"><img src="https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0193.jpeg"><div class="card-info"><h3>Rezepte</h3></div></div>
-    <div class="card" onclick="window.parent.loadContent('Asmoubi-Comics.html')"><img src="https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1494.jpeg"><div class="card-info"><h3>Comics</h3></div></div>
+  <h2 style="color: var(--accent); font-weight: 300; margin-bottom: 40px;">Zentrale</h2>
+  <div class="dashboard-grid" style="flex-shrink: 0;">
+    <div class="card" onclick="window.parent.loadContent('Asmoubi-Galerie.html', true)"><img src="https://xanderfoxy.github.io/Dabdoubi/ior5FlF3.jpeg"><div class="card-info"><h3>Fotos</h3></div></div>
+    <div class="card" onclick="window.parent.loadContent('Asmoubi-Rezepte.html', true)"><img src="https://xanderfoxy.github.io/Dabdoubi/Rezepte/IMG_0193.jpeg"><div class="card-info"><h3>Rezepte</h3></div></div>
+    <div class="card" onclick="window.parent.loadContent('Asmoubi-Comics.html', true)"><img src="https://xanderfoxy.github.io/Dabdoubi/Comics/IMG_1494.jpeg"><div class="card-info"><h3>Comics</h3></div></div>
   </div>
 
   <div class="news-archive">
-    <h3 style="font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px;">Update News</h3>
+    <h3>Update News</h3>
     <div class="day-group">
-      <span style="color: var(--asmaa-purple); font-size: 11px; font-weight: bold; display: block; margin-bottom: 10px;">21.12.2025</span>
-      <div style="font-size: 12px; color: #bbb; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px;">System auf modulares Framework umgestellt.</div>
+      <span class="day-date">20.12.2025</span>
+      <div class="news-row" onclick="window.parent.loadContent('Asmoubi-Comics.html', true)"><span class="news-tag">🎨 Comics</span><span class="news-files">Garfield Update</span></div>
+      <div class="news-row" onclick="window.parent.loadContent('Asmoubi-Galerie.html', true)"><span class="news-tag">✨ Fotos</span><span class="news-files">Weihnachten</span></div>
     </div>
+    <details class="archive-section">
+      <summary class="archive-trigger">Ältere Updates anzeigen</summary>
+      <div class="news-row"><span class="news-tag">📌 System</span><span class="news-files">Framework Integration abgeschlossen.</span></div>
+    </details>
   </div>
 </body>
 </html>
