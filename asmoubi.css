@@ -29,7 +29,7 @@ body, html { margin: 0; padding: 0; height: 100%; background: var(--bg-dark); co
 .view-section.active { display: flex; }
 .view-title { font-weight: 300; margin-bottom: 30px; color: var(--accent); flex-shrink: 0; }
 
-/* DASHBOARD & SERIES GRID */
+/* DASHBOARD */
 .dashboard-grid, .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; flex-shrink: 0; margin-bottom: 30px; }
 .card { background: var(--glass); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: var(--transition); position: relative; aspect-ratio: 1/1; }
 .card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
@@ -48,7 +48,7 @@ body, html { margin: 0; padding: 0; height: 100%; background: var(--bg-dark); co
 details.archive-section { margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
 summary.archive-trigger { font-size: 11px; color: var(--asmaa-purple); cursor: pointer; text-align: center; font-weight: bold; list-style: none; padding: 10px; }
 
-/* PHOTO GRID - ABSOLUTE GITTER-SICHERUNG */
+/* PHOTO GRID - STRENGES GITTER OHNE STAPEL */
 .photo-grid { 
   display: grid !important; 
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important; 
@@ -73,7 +73,10 @@ summary.archive-trigger { font-size: 11px; color: var(--asmaa-purple); cursor: p
 .btn-svg svg { width: 22px; height: 22px; fill: currentColor; }
 .btn-svg.active-mode svg { color: var(--accent) !important; filter: drop-shadow(0 0 10px var(--accent)); }
 .play-trigger { width: 42px; height: 42px; border-radius: 50%; background: #fff; color: #000; }
+
+/* REPEAT BADGE FIX */
 .repeat-badge { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: bold; color: var(--accent); pointer-events: none; }
+
 .progress-container { width: 100%; max-width: 450px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #444; }
 #progress-bar { flex: 1; accent-color: var(--asmaa-purple); height: 4px; cursor: pointer; }
 
