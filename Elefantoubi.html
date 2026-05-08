@@ -7,20 +7,8 @@
     <style>
         :root { --pink: #ff2a6d; }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            background:#0a0a0a;
-            color:white;
-            font-family:system-ui, sans-serif;
-            min-height:100vh;
-        }
-        header {
-            text-align:center;
-            padding:25px 0;
-            background:rgba(0,0,0,0.95);
-            position:sticky;
-            top:0;
-            z-index:100;
-        }
+        body { background:#0a0a0a; color:white; font-family:system-ui, sans-serif; min-height:100vh; }
+        header { text-align:center; padding:25px 0; background:rgba(0,0,0,0.95); position:sticky; top:0; z-index:100; }
         h1 { color:var(--pink); font-size:2.4rem; letter-spacing:2px; }
 
         .controls {
@@ -60,15 +48,10 @@
             box-shadow:0 6px 20px rgba(0,0,0,0.6);
         }
         .item:hover { transform:scale(1.05); transition:0.3s; }
-        .item img, .item video {
-            width:100%;
-            height:100%;
-            object-fit:cover;
-        }
+        .item img, .item video { width:100%; height:100%; object-fit:cover; }
         .favorite {
             position:absolute;
-            top:12px;
-            right:12px;
+            top:12px; right:12px;
             font-size:1.8rem;
             cursor:pointer;
             z-index:10;
@@ -78,27 +61,18 @@
         .modal {
             display:none;
             position:fixed;
-            top:0; left:0; right:0; bottom:0;
+            inset:0;
             background:rgba(0,0,0,0.98);
             z-index:1000;
             align-items:center;
             justify-content:center;
         }
         .modal.active { display:flex; }
-        .modal-content {
-            max-width:96%;
-            max-height:96%;
-            position:relative;
-        }
-        .modal-content video, .modal-content img {
-            max-width:100%;
-            max-height:92vh;
-            border-radius:12px;
-        }
+        .modal-content { max-width:96%; max-height:96%; position:relative; }
+        .modal-content video, .modal-content img { max-width:100%; max-height:92vh; border-radius:12px; }
         .close {
             position:absolute;
-            top:-55px;
-            right:10px;
+            top:-55px; right:10px;
             font-size:2.5rem;
             cursor:pointer;
             color:white;
@@ -127,22 +101,56 @@
 </div>
 
 <script>
-// ==================== MEDIEN ====================
+// ==================== ALLE MEDIEN ====================
 const media = [
-    // Videos
+    // === IMG Bilder (4er Blöcke) ===
+    "Bilder/AsmaaUndAlexSex/IMG_3545.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3602.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3607.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3609.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3610.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3608.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3613.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3614.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3615.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3617.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3619.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3641.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3646.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3647.jpg",
+    "Bilder/AsmaaUndAlexSex/IMG_3650.jpg",
+
+    // === Facetune Bilder ===
+    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-14-38-51.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-11-31-22.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-04-43-14.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-02-34-49.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-02-46-34.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-02-23-28.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-02-21-33.jpeg",
+
+    // === VIDEOS ===
     "Videos/AsmaaUndAlexSex/cd1059fb87ba09e7f9cd6146e932e72b.mov",
-    "Videos/AsmaaUndAlexSex/Image to video | Let them fuck gently.mp4",
     "Videos/AsmaaUndAlexSex/36a0e66c98b40e7413b4809cb7b9d1aa.mp4",
     "Videos/AsmaaUndAlexSex/eac76931cc54bae1774dd031345aab4e.mov",
     "Videos/AsmaaUndAlexSex/e1237b68bfc375b12301bb7c4cde94ec.mov",
     "Videos/AsmaaUndAlexSex/a564327b6d14dff6378523b031df18f6.mp4",
     "Videos/AsmaaUndAlexSex/2a5e808e4d6985bec7c23964f63f2415.mp4",
     "Videos/AsmaaUndAlexSex/fe0ae259a6f8e304433b267a7f3ae8c1.mp4",
-
-    // Weitere lange Video-Namen
+    "Videos/AsmaaUndAlexSex/Image to video | Let them fuck gently.mp4",
     "Videos/AsmaaUndAlexSex/Image to video | Let them fuck naturally and gently together good with moaning .mp4",
     "Videos/AsmaaUndAlexSex/Image to video | ultra realistic image-to-video from the exact reference image. 8.mov",
-    "Videos/AsmaaUndAlexSex/Image to video | 10-second ultra realistic video, exact same scene and camera a 2.mp4"
+    "Videos/AsmaaUndAlexSex/Image to video | 10-second ultra realistic video, exact same scene and camera a 2.mp4",
+    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 8.mp4",
+    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 5.mp4",
+    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 2.mov",
+    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 11.mp4",
+    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 10.mp4",
+    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 12.mp4",
+    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 18.mp4",
+    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 19.mp4",
+    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 20.mp4",
+    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 23.mp4"
 ];
 
 let favorites = JSON.parse(localStorage.getItem('elefantoubi_favorites')) || [];
