@@ -3,80 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elefantoubi</title>
+    <title>Elefantoubi - Galerie</title>
     <style>
-        :root { --pink: #ff2a6d; }
+        :root { --pink: #ff2a6d; --glass: rgba(255, 255, 255, 0.1); }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:#0a0a0a; color:white; font-family:system-ui, sans-serif; min-height:100vh; }
-        header { text-align:center; padding:25px 0; background:rgba(0,0,0,0.95); position:sticky; top:0; z-index:100; }
-        h1 { color:var(--pink); font-size:2.4rem; letter-spacing:2px; }
+        body { background:#0a0a0a; color:white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height:100vh; }
+        
+        header { text-align:center; padding:20px 0; background:rgba(0,0,0,0.9); position:sticky; top:0; z-index:100; border-bottom: 1px solid #222; }
+        h1 { color:var(--pink); font-size:2rem; letter-spacing:3px; text-transform: uppercase; }
 
         .controls {
             padding:15px;
             display:flex;
             flex-wrap:wrap;
-            gap:12px;
+            gap:10px;
             justify-content:center;
             background:#111;
+            border-bottom: 1px solid #222;
         }
+        
         button {
-            padding:12px 20px;
+            padding:10px 18px;
             background:#1f1f1f;
             color:white;
-            border:none;
-            border-radius:50px;
-            font-size:1.05rem;
+            border:1px solid #333;
+            border-radius:8px;
+            font-size:0.9rem;
             cursor:pointer;
+            transition: 0.3s;
         }
-        button.active, button:hover { background:var(--pink); }
+        button.active, button:hover { background:var(--pink); border-color: var(--pink); }
 
         .gallery {
             display:grid;
-            grid-template-columns:repeat(auto-fill, minmax(165px, 1fr));
-            gap:12px;
-            padding:15px;
+            grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+            gap:15px;
+            padding:20px;
             max-width:1400px;
             margin:0 auto;
         }
+        
         .item {
             aspect-ratio:9/16;
-            background:#111;
-            border-radius:14px;
+            background:#161616;
+            border-radius:12px;
             overflow:hidden;
             position:relative;
             cursor:pointer;
-            box-shadow:0 6px 20px rgba(0,0,0,0.6);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #222;
         }
-        .item:hover { transform:scale(1.05); transition:0.3s; }
-        .item img, .item video { width:100%; height:100%; object-fit:cover; }
+        .item:hover { transform:scale(1.03); z-index: 5; border-color: var(--pink); }
+        .item img, .item video { width:100%; height:100%; object-fit:cover; display: block; }
+        
         .favorite {
             position:absolute;
-            top:12px; right:12px;
-            font-size:1.8rem;
-            cursor:pointer;
+            top:8px; right:8px;
+            font-size:1.5rem;
             z-index:10;
-            text-shadow:0 2px 8px rgba(0,0,0,0.8);
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
         }
 
+        /* Modal / Player */
         .modal {
             display:none;
             position:fixed;
             inset:0;
-            background:rgba(0,0,0,0.98);
+            background:rgba(0,0,0,0.95);
             z-index:1000;
+            flex-direction: column;
             align-items:center;
             justify-content:center;
         }
         .modal.active { display:flex; }
-        .modal-content { max-width:96%; max-height:96%; position:relative; }
-        .modal-content video, .modal-content img { max-width:100%; max-height:92vh; border-radius:12px; }
-        .close {
-            position:absolute;
-            top:-55px; right:10px;
-            font-size:2.5rem;
-            cursor:pointer;
-            color:white;
+        
+        .modal-content { 
+            position:relative;
+            width: 90%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
+        
+        .media-container {
+            width: 100%;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            border: 1px solid var(--glass);
+        }
+        
+        .media-container img, .media-container video {
+            width: 100%;
+            max-height: 70vh;
+            display: block;
+            margin: auto;
+        }
+
+        /* Player Controls */
+        .player-nav {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            border: 1px solid var(--glass);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px 15px;
+        }
+        .nav-btn:hover { color: var(--pink); }
     </style>
 </head>
 <body>
@@ -86,41 +133,38 @@
 </header>
 
 <div class="controls">
-    <button onclick="showAll()" class="active">Alle</button>
-    <button onclick="showFavorites()">❤️ Favoriten</button>
-    <button onclick="randomPlay()">▶ Zufällig abspielen</button>
+    <button onclick="setFilter('all')" id="btn-all" class="active">Alle</button>
+    <button onclick="setFilter('image')">Bilder</button>
+    <button onclick="setFilter('video')">Videos</button>
+    <button onclick="toggleFavView()" id="btn-fav">❤️ Favoriten</button>
+    <button onclick="randomPlay()">🎲 Zufall</button>
 </div>
 
 <div class="gallery" id="gallery"></div>
 
 <div class="modal" id="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal()">×</span>
-        <div id="modal-media"></div>
+        <div class="media-container" id="modal-media"></div>
+        
+        <div class="player-nav">
+            <button class="nav-btn" onclick="prevMedia()">❮</button>
+            <button class="nav-btn" id="mute-btn" onclick="toggleMute()">🔇</button>
+            <button class="nav-btn" onclick="closeModal()" style="font-size: 1.2rem; font-weight: bold;">SCHLIESSEN</button>
+            <button class="nav-btn" onclick="nextMedia()">❯</button>
+        </div>
     </div>
 </div>
 
 <script>
-// ==================== ALLE DATEIEN ====================
 const media = [
-    // Bilder IMG_
-    "Bilder/AsmaaUndAlexSex/IMG_3545.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3602.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3607.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3609.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3610.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3608.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3613.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3614.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3615.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3617.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3619.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3641.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3646.jpeg",
-    "Bilder/AsmaaUndAlexSex/IMG_3647.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3545.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3602.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3607.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3609.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3610.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3608.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3613.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3614.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3615.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3617.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3619.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3641.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3646.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3647.jpeg",
     "Bilder/AsmaaUndAlexSex/IMG_3650.jpeg",
-
-    // Facetune Bilder
     "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-14-38-51.jpeg",
     "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-11-31-22.jpeg",
     "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-04-43-14.jpeg",
@@ -128,8 +172,6 @@ const media = [
     "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-02-46-34.jpeg",
     "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-02-23-28.jpeg",
     "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-02-21-33.jpeg",
-
-    // Videos
     "Videos/AsmaaUndAlexSex/cd1059fb87ba09e7f9cd6146e932e72b.mov",
     "Videos/AsmaaUndAlexSex/36a0e66c98b40e7413b4809cb7b9d1aa.mp4",
     "Videos/AsmaaUndAlexSex/eac76931cc54bae1774dd031345aab4e.mov",
@@ -154,63 +196,126 @@ const media = [
 ];
 
 let favorites = JSON.parse(localStorage.getItem('elefantoubi_favorites')) || [];
+let currentFilter = 'all'; 
+let showFavsOnly = false;
+let currentIndex = 0;
+let currentList = [];
 
-function renderGallery(items) {
+// Hilfsfunktion: Korrekte URL-Formatierung für den Browser
+function fixUrl(path) {
+    return path.split('/').map(part => encodeURIComponent(part)).join('/');
+}
+
+function renderGallery() {
     const gallery = document.getElementById('gallery');
     gallery.innerHTML = '';
 
-    items.forEach(src => {
-        const isVideo = src.endsWith('.mp4') || src.endsWith('.mov');
+    // Filter Logik
+    currentList = media.filter(src => {
+        const isVideo = src.toLowerCase().endsWith('.mp4') || src.toLowerCase().endsWith('.mov');
+        const matchesType = currentFilter === 'all' || (currentFilter === 'video' && isVideo) || (currentFilter === 'image' && !isVideo);
+        const matchesFav = !showFavsOnly || favorites.includes(src);
+        return matchesType && matchesFav;
+    });
+
+    currentList.forEach((src, index) => {
+        const isVideo = src.toLowerCase().endsWith('.mp4') || src.toLowerCase().endsWith('.mov');
         const div = document.createElement('div');
         div.className = 'item';
+        // preload="metadata" hilft gegen schwarze Video-Kacheln
         div.innerHTML = `
-            ${isVideo ? `<video src="${src}" muted loop></video>` : `<img src="${src}" alt="" loading="lazy">`}
+            ${isVideo ? `<video src="${fixUrl(src)}" preload="metadata" muted></video>` : `<img src="${fixUrl(src)}" loading="lazy">`}
             <span class="favorite" onclick="toggleFavorite('${src}', event)">${favorites.includes(src) ? '❤️' : '♡'}</span>
         `;
         div.onclick = (e) => {
-            if (!e.target.classList.contains('favorite')) showModal(src);
+            if (!e.target.classList.contains('favorite')) {
+                currentIndex = index;
+                showModal(src);
+            }
         };
         gallery.appendChild(div);
     });
 }
 
+function setFilter(type) {
+    currentFilter = type;
+    showFavsOnly = false;
+    document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderGallery();
+}
+
+function toggleFavView() {
+    showFavsOnly = !showFavsOnly;
+    event.target.classList.toggle('active', showFavsOnly);
+    renderGallery();
+}
+
 function toggleFavorite(src, e) {
-    e.stopImmediatePropagation();
+    e.stopPropagation();
     if (favorites.includes(src)) {
         favorites = favorites.filter(f => f !== src);
     } else {
         favorites.push(src);
     }
     localStorage.setItem('elefantoubi_favorites', JSON.stringify(favorites));
-    renderGallery(media);
+    renderGallery();
 }
 
 function showModal(src) {
     const modal = document.getElementById('modal');
     const container = document.getElementById('modal-media');
-    const isVideo = src.endsWith('.mp4') || src.endsWith('.mov');
+    const isVideo = src.toLowerCase().endsWith('.mp4') || src.toLowerCase().endsWith('.mov');
 
     container.innerHTML = isVideo ? 
-        `<video src="${src}" controls autoplay loop></video>` : 
-        `<img src="${src}" alt="">`;
+        `<video id="mainVideo" src="${fixUrl(src)}" autoplay loop></video>` : 
+        `<img src="${fixUrl(src)}">`;
     
     modal.classList.add('active');
+    updateMuteBtn();
+}
+
+function nextMedia() {
+    currentIndex = (currentIndex + 1) % currentList.length;
+    showModal(currentList[currentIndex]);
+}
+
+function prevMedia() {
+    currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
+    showModal(currentList[currentIndex]);
+}
+
+function toggleMute() {
+    const v = document.getElementById('mainVideo');
+    if(v) {
+        v.muted = !v.muted;
+        updateMuteBtn();
+    }
+}
+
+function updateMuteBtn() {
+    const v = document.getElementById('mainVideo');
+    const btn = document.getElementById('mute-btn');
+    if(v) {
+        btn.style.display = 'block';
+        btn.innerText = v.muted ? '🔇' : '🔊';
+    } else {
+        btn.style.display = 'none';
+    }
 }
 
 function closeModal() {
     document.getElementById('modal').classList.remove('active');
+    document.getElementById('modal-media').innerHTML = '';
 }
-
-function showAll() { renderGallery(media); }
-function showFavorites() { renderGallery(favorites); }
 
 function randomPlay() {
-    const randomSrc = media[Math.floor(Math.random() * media.length)];
-    showModal(randomSrc);
+    currentIndex = Math.floor(Math.random() * media.length);
+    showModal(media[currentIndex]);
 }
 
-// Start
-showAll();
+// Initialer Start
+renderGallery();
 </script>
 </body>
 </html>
