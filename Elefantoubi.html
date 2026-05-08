@@ -2,127 +2,80 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elefantoubi - Premium Galerie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Elefantoubi - Frame Control</title>
     <style>
-        :root { --pink: #ff2a6d; --glass: rgba(255, 255, 255, 0.1); --bg: #0a0a0a; }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:var(--bg); color:white; font-family: 'Segoe UI', sans-serif; min-height:100vh; overflow-x: hidden; }
+        :root { --pink: #ff2a6d; --bg: #050505; --ui-bg: rgba(25, 25, 25, 0.95); }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+        body { background:var(--bg); color:white; font-family: -apple-system, sans-serif; overflow: hidden; }
         
-        header { text-align:center; padding:15px 0; background:rgba(0,0,0,0.9); position:sticky; top:0; z-index:100; border-bottom: 1px solid #222; }
-        h1 { color:var(--pink); font-size:1.6rem; letter-spacing:4px; text-transform: uppercase; }
+        /* Galerie Ansicht */
+        .gallery-wrap { height: 100vh; overflow-y: auto; padding: 15px; padding-bottom: 100px; }
+        .gallery { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; }
+        .item { aspect-ratio:9/16; background:#111; border-radius:12px; overflow:hidden; position:relative; border: 1px solid #222; }
+        .item img, .item video { width:100%; height:100%; object-fit:cover; }
 
-        .controls {
-            padding:12px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
-            background:#111; border-bottom: 1px solid #222;
-        }
-        
-        button {
-            padding:8px 16px; background:#1f1f1f; color:white; border:1px solid #333;
-            border-radius:6px; font-size:0.85rem; cursor:pointer; transition: 0.3s;
-        }
-        button.active { background: transparent; border-color: var(--pink); color: var(--pink); box-shadow: inset 0 0 8px var(--pink); }
-        button:hover { background: var(--pink); color: white; }
-
-        .gallery {
-            display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
-            gap:12px; padding:15px; max-width:1400px; margin:0 auto;
-        }
-        
-        .item {
-            aspect-ratio:9/16; background:#161616; border-radius:10px; overflow:hidden;
-            position:relative; cursor:pointer; transition: 0.3s; border: 1px solid #222;
-        }
-        .item:hover { transform:scale(1.02); border-color: var(--pink); }
-        .item img, .item video { width:100%; height:100%; object-fit:cover; display: block; }
-        
-        .favorite {
-            position:absolute; top:8px; right:8px; font-size:1.3rem; z-index:10;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.9)); cursor: pointer;
-        }
-
-        /* Modal Player */
-        .modal {
-            display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98);
-            z-index:1000; flex-direction: column; align-items:center; justify-content:center;
-        }
+        /* Modal / Frame */
+        .modal { display:none; position:fixed; inset:0; background:#000; z-index:1000; flex-direction: column; }
         .modal.active { display:flex; }
         
-        .modal-content { 
-            position:relative; width: 95%; max-width: 450px;
-            display: flex; flex-direction: column; gap: 10px;
+        .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; width: 100%; }
+        .media-container img, .media-container video { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        /* Navigations-Frame (Höher platziert für Daumen-Bedienung) */
+        .player-ui {
+            position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; background: var(--ui-bg); backdrop-filter: blur(20px);
+            padding: 20px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+
+        .slider-box { width: 100%; }
+        .slider-box label { display: block; font-size: 0.65rem; color: #888; text-transform: uppercase; margin-bottom: 8px; text-align: center; }
         
-        .media-container {
-            width: 100%; background: #000; border-radius: 12px; overflow: hidden;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8); border: 1px solid var(--glass);
-            position: relative; aspect-ratio: 9/16; display: flex; align-items: center;
-        }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: #333; height: 6px; border-radius: 3px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 10px var(--pink); border: 2px solid white; }
+
+        .btn-row { display: flex; justify-content: space-between; align-items: center; }
+        .nav-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; transition: 0.2s; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
         
-        .media-container img, .media-container video {
-            width: 100%; height: 100%; object-fit: contain;
-        }
-
-        .player-nav {
-            background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(15px);
-            padding: 12px; border-radius: 12px; border: 1px solid var(--glass);
-            display: flex; flex-direction: column; gap: 10px;
-        }
-
-        .nav-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-
-        .nav-btn {
-            background: none; border: none; color: white; font-size: 1.4rem;
-            cursor: pointer; padding: 5px; transition: 0.2s; display: flex; align-items: center; justify-content: center;
-        }
-        .nav-btn:hover { color: var(--pink); }
-        .nav-btn.active { color: var(--pink); filter: drop-shadow(0 0 5px var(--pink)); }
-
-        /* Speed Slider */
-        .speed-ctrl { display: flex; align-items: center; gap: 10px; font-size: 0.7rem; color: #888; width: 100%; }
-        .speed-ctrl input { flex: 1; accent-color: var(--pink); cursor: pointer; }
+        /* Aktiver Zustand: Nur Icon-Leuchten, kein pinkes Viereck */
+        .nav-btn.active { color: var(--pink); filter: drop-shadow(0 0 8px var(--pink)); }
+        
+        .video-speed-badge { font-size: 0.7rem; color: var(--pink); border: 1px solid var(--pink); padding: 2px 5px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>Elefantoubi</h1>
-</header>
-
-<div class="controls">
-    <button onclick="setFilter('all')" class="active" id="btn-all">Alle</button>
-    <button onclick="setFilter('image')">Bilder</button>
-    <button onclick="setFilter('video')">Videos</button>
-    <button onclick="toggleFavView()" id="btn-fav">❤️ Favoriten</button>
+<div class="gallery-wrap">
+    <div class="gallery" id="gallery"></div>
 </div>
 
-<div class="gallery" id="gallery"></div>
-
 <div class="modal" id="modal">
-    <div class="modal-content">
-        <div class="media-container" id="modal-media"></div>
-        
-        <div class="player-nav">
-            <div class="nav-row">
-                <button class="nav-btn" onclick="prevMedia()">❮</button>
-                <button class="nav-btn" onclick="toggleShuffle()" id="shuffle-btn">🎲</button>
-                <button class="nav-btn" onclick="toggleSlideshow()" id="play-btn">▶</button>
-                <button class="nav-btn" onclick="toggleMute()" id="mute-btn">🔊</button>
-                <button class="nav-btn" onclick="closeModal()">✕</button>
-                <button class="nav-btn" onclick="nextMedia()">❯</button>
-            </div>
-            <div class="speed-ctrl">
-                <span>Langsam</span>
-                <input type="range" id="speed-slider" min="2000" max="15000" value="5000" step="500">
-                <span>Schnell</span>
-            </div>
+    <div class="media-container" id="modal-media"></div>
+    
+    <div class="player-ui">
+        <div class="slider-box">
+            <label id="speed-label">Wechsel-Intervall: 5s</label>
+            <input type="range" id="speed-slider" min="2000" max="15000" value="5000" step="500" oninput="updateSpeedLabel(this.value)">
+        </div>
+
+        <div class="btn-row">
+            <button class="nav-btn" onclick="prevMedia()">❮</button>
+            <button class="nav-btn" onclick="toggleShuffle()" id="shuffle-btn">🎲</button>
+            <button class="nav-btn" onclick="toggleSlideshow()" id="play-btn">▶</button>
+            <button class="nav-btn" onclick="toggleVideoSpeed()" id="speed-btn" title="Video Tempo">
+                <span class="video-speed-badge" id="v-speed-txt">1x</span>
+            </button>
+            <button class="nav-btn" onclick="toggleMute()" id="mute-btn">🔊</button>
+            <button class="nav-btn" onclick="closeModal()">✕</button>
+            <button class="nav-btn" onclick="nextMedia()">❯</button>
         </div>
     </div>
 </div>
 
 <script>
 const media = [
-    // BILDER
     "Bilder/AsmaaUndAlexSex/IMG_3545.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3602.jpeg",
     "Bilder/AsmaaUndAlexSex/IMG_3607.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3609.jpeg",
     "Bilder/AsmaaUndAlexSex/IMG_3610.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3608.jpeg",
@@ -139,168 +92,137 @@ const media = [
     "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-34-49.jpeg",
     "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-46-34.jpeg",
 
-    // VIDEOS (Exakt nach deinen GitHub-Links korrigiert)
+    // Videos mit exakter Pfad-Kodierung
     "Videos/AsmaaUndAlexSex/fe0ae259a6f8e304433b267a7f3ae8c1.mp4",
     "Videos/AsmaaUndAlexSex/eac76931cc54bae1774dd031345aab4e.mov",
     "Videos/AsmaaUndAlexSex/e1237b68bfc375b12301bb7c4cde94ec.mov",
     "Videos/AsmaaUndAlexSex/a564327b6d14dff6378523b031df18f6.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | „ultra realistic image-to-video from the exact reference image. 8.mov",
-    "Videos/AsmaaUndAlexSex/Image to video | „10-second ultra realistic video, exact same scene and camera a 2.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | zeige, wie sich das Mädchen in ihrem Zimmer am Beispiel der Ref 2.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | Let them fuck naturally and gently together good with moaning .mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 8.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 5.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 2.mov",
-    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 11.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20%E2%80%9Eultra%20realistic%20image-to-video%20from%20the%20exact%20reference%20image.%208.mov",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20%E2%80%9E10-second%20ultra%20realistic%20video%2C%20exact%20same%20scene%20and%20camera%20a%202.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20zeige%2C%20wie%20sich%20das%20Ma%CC%88dchen%20in%20ihrem%20Zimmer%20am%20Beispiel%20der%20Ref%202.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Let%20them%20fuck%20naturally%20and%20gently%20together%20good%20with%20moaning%20.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%208.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%205.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%202.mov",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2011.mp4",
     "Videos/AsmaaUndAlexSex/2a5e808e4d6985bec7c23964f63f2415.mp4",
     "Videos/AsmaaUndAlexSex/36a0e66c98b40e7413b4809cb7b9d1aa.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 10.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 12.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 18.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 19.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 20.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | 8-second ultra realistic image-to-video from the exact referenc 23.mp4",
-    "Videos/AsmaaUndAlexSex/Image to video | Let them fuck gently.mp4",
-    "Videos/AsmaaUndAlexSex/cd1059fb87ba09e7f9cd6146e932e72b.mov"
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2010.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2012.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2018.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2019.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2020.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2023.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Let%20them%20fuck%20gently.mp4"
 ];
 
-let favorites = JSON.parse(localStorage.getItem('elefantoubi_favorites')) || [];
-let isMuted = localStorage.getItem('elefantoubi_muted') !== 'false'; // Standard: Muted
-let currentFilter = 'all'; 
-let showFavsOnly = false;
 let currentIndex = 0;
-let currentList = [];
-let slideshowTimer = null;
-let isSlideshowActive = false;
-let isShuffleActive = false;
-
-function fixUrl(path) {
-    return path.split('/').map(part => encodeURIComponent(part)).join('/');
-}
+let isMuted = localStorage.getItem('v_muted') === 'true';
+let isSlideshow = false;
+let isShuffle = false;
+let videoSpeed = 1.0;
+let timer = null;
 
 function renderGallery() {
-    const gallery = document.getElementById('gallery');
-    gallery.innerHTML = '';
-    currentList = media.filter(src => {
-        const isVideo = src.toLowerCase().match(/\.(mp4|mov)$/);
-        const matchesType = currentFilter === 'all' || (currentFilter === 'video' && isVideo) || (currentFilter === 'image' && !isVideo);
-        const matchesFav = !showFavsOnly || favorites.includes(src);
-        return matchesType && matchesFav;
-    });
-    currentList.forEach((src, index) => {
-        const isVideo = src.toLowerCase().match(/\.(mp4|mov)$/);
+    const g = document.getElementById('gallery');
+    media.forEach((src, idx) => {
+        const isVid = src.match(/\.(mp4|mov)$/i);
         const div = document.createElement('div');
         div.className = 'item';
-        div.innerHTML = `
-            ${isVideo ? `<video src="${fixUrl(src)}#t=0.1" preload="metadata" muted></video>` : `<img src="${fixUrl(src)}" loading="lazy">`}
-            <span class="favorite" onclick="toggleFavorite('${src}', event)">${favorites.includes(src) ? '❤️' : '♡'}</span>
-        `;
-        div.onclick = (e) => { if (!e.target.classList.contains('favorite')) { currentIndex = index; showModal(src); } };
-        gallery.appendChild(div);
+        // Nutze den Pfad direkt ohne zusätzliche Kodierung, da er bereits kodiert ist
+        div.innerHTML = isVid ? `<video src="${src}#t=0.1" muted playsinline></video>` : `<img src="${src}">`;
+        div.onclick = () => openModal(idx);
+        g.appendChild(div);
     });
 }
 
-function showModal(src) {
+function openModal(idx) {
+    currentIndex = idx;
     const modal = document.getElementById('modal');
     const container = document.getElementById('modal-media');
-    const isVideo = src.toLowerCase().match(/\.(mp4|mov)$/);
-    clearTimeout(slideshowTimer);
-
-    // Video oder Bild im Frame einbetten
-    container.innerHTML = isVideo ? 
-        `<video id="mainVideo" src="${fixUrl(src)}" autoplay playsinline></video>` : 
-        `<img src="${fixUrl(src)}">`;
+    const src = media[currentIndex];
+    const isVid = src.match(/\.(mp4|mov)$/i);
     
+    clearTimeout(timer);
+    
+    // playsinline ist wichtig, damit das Video im Browser-Frame bleibt
+    container.innerHTML = isVid ? 
+        `<video id="player" src="${src}" autoplay playsinline></video>` : 
+        `<img src="${src}">`;
+        
     modal.classList.add('active');
     
-    const v = document.getElementById('mainVideo');
+    const v = document.getElementById('player');
     if(v) {
         v.muted = isMuted;
-        // Wenn Video endet -> Nächstes Medium wenn Diashow an, sonst Loop
-        v.onended = () => { 
-            if(isSlideshowActive) nextMedia(); 
-            else v.play(); 
-        };
-    } else if(isSlideshowActive) {
-        // Bei Bildern: Wartezeit laut Slider
-        const speed = document.getElementById('speed-slider').value;
-        slideshowTimer = setTimeout(nextMedia, speed);
+        v.playbackRate = videoSpeed;
+        v.onended = () => { if(isSlideshow) nextMedia(); else v.play(); };
+    } else if(isSlideshow) {
+        timer = setTimeout(nextMedia, document.getElementById('speed-slider').value);
     }
     updateUI();
 }
 
 function nextMedia() {
-    if(currentList.length === 0) return;
-    if(isShuffleActive) {
-        currentIndex = Math.floor(Math.random() * currentList.length);
+    if(isShuffle) {
+        currentIndex = Math.floor(Math.random() * media.length);
     } else {
-        currentIndex = (currentIndex + 1) % currentList.length;
+        currentIndex = (currentIndex + 1) % media.length;
     }
-    showModal(currentList[currentIndex]);
+    openModal(currentIndex);
 }
 
 function prevMedia() {
-    if(currentList.length === 0) return;
-    currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
-    showModal(currentList[currentIndex]);
-}
-
-function toggleMute() {
-    isMuted = !isMuted;
-    localStorage.setItem('elefantoubi_muted', isMuted);
-    const v = document.getElementById('mainVideo');
-    if(v) v.muted = isMuted;
-    updateUI();
+    currentIndex = (currentIndex - 1 + media.length) % media.length;
+    openModal(currentIndex);
 }
 
 function toggleSlideshow() {
-    isSlideshowActive = !isSlideshowActive;
-    if(isSlideshowActive) nextMedia();
-    else clearTimeout(slideshowTimer);
+    isSlideshow = !isSlideshow;
+    if(isSlideshow) nextMedia();
+    else clearTimeout(timer);
     updateUI();
 }
 
 function toggleShuffle() {
-    isShuffleActive = !isShuffleActive;
+    isShuffle = !isShuffle;
     updateUI();
 }
 
+function toggleMute() {
+    isMuted = !isMuted;
+    localStorage.setItem('v_muted', isMuted);
+    const v = document.getElementById('player');
+    if(v) v.muted = isMuted;
+    updateUI();
+}
+
+function toggleVideoSpeed() {
+    videoSpeed = videoSpeed >= 2.0 ? 1.0 : videoSpeed + 0.5;
+    const v = document.getElementById('player');
+    if(v) v.playbackRate = videoSpeed;
+    document.getElementById('v-speed-txt').innerText = videoSpeed + 'x';
+}
+
 function updateUI() {
+    document.getElementById('play-btn').innerText = isSlideshow ? '⏸' : '▶';
+    document.getElementById('play-btn').classList.toggle('active', isSlideshow);
+    document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
     document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🔊';
-    document.getElementById('play-btn').classList.toggle('active', isSlideshowActive);
-    document.getElementById('shuffle-btn').classList.toggle('active', isShuffleActive);
+}
+
+function updateSpeedLabel(val) {
+    document.getElementById('speed-label').innerText = `Wechsel-Intervall: ${val/1000}s`;
 }
 
 function closeModal() {
     document.getElementById('modal').classList.remove('active');
     document.getElementById('modal-media').innerHTML = '';
-    clearTimeout(slideshowTimer);
-    isSlideshowActive = false;
+    clearTimeout(timer);
+    isSlideshow = false;
     updateUI();
 }
 
-function setFilter(type) {
-    currentFilter = type; showFavsOnly = false;
-    document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
-    renderGallery();
-}
-
-function toggleFavView() {
-    showFavsOnly = !showFavsOnly;
-    document.getElementById('btn-fav').classList.toggle('active', showFavsOnly);
-    renderGallery();
-}
-
-function toggleFavorite(src, e) {
-    e.stopPropagation();
-    if (favorites.includes(src)) favorites = favorites.filter(f => f !== src);
-    else favorites.push(src);
-    localStorage.setItem('elefantoubi_favorites', JSON.stringify(favorites));
-    renderGallery();
-}
-
-// Start
 renderGallery();
 </script>
 </body>
