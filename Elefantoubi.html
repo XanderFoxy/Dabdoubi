@@ -39,7 +39,6 @@
             border-radius:50px;
             font-size:1.05rem;
             cursor:pointer;
-            transition:0.3s;
         }
         button.active, button:hover { background:var(--pink); }
 
@@ -76,7 +75,6 @@
             text-shadow:0 2px 8px rgba(0,0,0,0.8);
         }
 
-        /* Modal */
         .modal {
             display:none;
             position:fixed;
@@ -121,7 +119,6 @@
 
 <div class="gallery" id="gallery"></div>
 
-<!-- Modal -->
 <div class="modal" id="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">×</span>
@@ -130,28 +127,22 @@
 </div>
 
 <script>
-// ==================== DEINE DATEIEN ====================
+// ==================== MEDIEN ====================
 const media = [
-    // Bilder
-    "Bilder/AsmaaUndAlexSex/IMG_3545360236073609.jpg",
-    "Bilder/AsmaaUndAlexSex/IMG_3610360836133614.jpg",
-    "Bilder/AsmaaUndAlexSex/IMG_3615361736193641.jpg",
-    "Bilder/AsmaaUndAlexSex/IMG_364636473650.jpg",
-    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-14-38-51.jpeg",
-    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-11-31-22.jpeg",
-    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-04-43-14.jpeg",
-    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-02-34-49.jpeg",
-    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-02-46-34.jpeg",
-    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-02-23-28.jpeg",
-    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-02-21-33.jpeg",
-
-    // Videos (aus deinem Screenshot)
+    // Videos
     "Videos/AsmaaUndAlexSex/cd1059fb87ba09e7f9cd6146e932e72b.mov",
     "Videos/AsmaaUndAlexSex/Image to video | Let them fuck gently.mp4",
     "Videos/AsmaaUndAlexSex/36a0e66c98b40e7413b4809cb7b9d1aa.mp4",
     "Videos/AsmaaUndAlexSex/eac76931cc54bae1774dd031345aab4e.mov",
     "Videos/AsmaaUndAlexSex/e1237b68bfc375b12301bb7c4cde94ec.mov",
-    "Videos/AsmaaUndAlexSex/fe0ae259a6f8e304433b267a7f3ae8c1.mp4"
+    "Videos/AsmaaUndAlexSex/a564327b6d14dff6378523b031df18f6.mp4",
+    "Videos/AsmaaUndAlexSex/2a5e808e4d6985bec7c23964f63f2415.mp4",
+    "Videos/AsmaaUndAlexSex/fe0ae259a6f8e304433b267a7f3ae8c1.mp4",
+
+    // Weitere lange Video-Namen
+    "Videos/AsmaaUndAlexSex/Image to video | Let them fuck naturally and gently together good with moaning .mp4",
+    "Videos/AsmaaUndAlexSex/Image to video | ultra realistic image-to-video from the exact reference image. 8.mov",
+    "Videos/AsmaaUndAlexSex/Image to video | 10-second ultra realistic video, exact same scene and camera a 2.mp4"
 ];
 
 let favorites = JSON.parse(localStorage.getItem('elefantoubi_favorites')) || [];
@@ -165,14 +156,11 @@ function renderGallery(items) {
         const div = document.createElement('div');
         div.className = 'item';
         div.innerHTML = `
-            ${isVideo ? 
-                `<video src="${src}" muted loop></video>` : 
-                `<img src="${src}" alt="" loading="lazy">`}
+            ${isVideo ? `<video src="${src}" muted loop></video>` : `<img src="${src}" alt="" loading="lazy">`}
             <span class="favorite" onclick="toggleFavorite('${src}', event)">${favorites.includes(src) ? '❤️' : '♡'}</span>
         `;
         div.onclick = (e) => {
-            if (e.target.classList.contains('favorite')) return;
-            showModal(src);
+            if (!e.target.classList.contains('favorite')) showModal(src);
         };
         gallery.appendChild(div);
     });
@@ -205,13 +193,8 @@ function closeModal() {
     document.getElementById('modal').classList.remove('active');
 }
 
-function showAll() {
-    renderGallery(media);
-}
-
-function showFavorites() {
-    renderGallery(favorites);
-}
+function showAll() { renderGallery(media); }
+function showFavorites() { renderGallery(favorites); }
 
 function randomPlay() {
     const randomSrc = media[Math.floor(Math.random() * media.length)];
@@ -221,6 +204,5 @@ function randomPlay() {
 // Start
 showAll();
 </script>
-
 </body>
 </html>
