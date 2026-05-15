@@ -51,9 +51,10 @@
             padding: 10px; display: flex; flex-direction: column; gap: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5); min-width: 160px;
         }
-        .mp-controls { display: flex; gap: 12px; align-items: center; justify-content: center; }
-        .mp-btn { background: none; border: none; color: white; cursor: pointer; font-size: 1.1rem; }
-        .mp-btn:active { color: var(--pink); }
+        .mp-controls { display: flex; gap: 16px; align-items: center; justify-content: center; padding: 2px 0; }
+        .mp-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; padding: 0; transition: color 0.2s; }
+        .mp-btn svg { width: 100%; height: 100%; fill: currentColor; }
+        .mp-btn:hover, .mp-btn:active { color: var(--pink); filter: drop-shadow(0 0 4px var(--pink)); }
         #mp-playlist { 
             display: none; max-height: 150px; overflow-y: auto; 
             border-top: 1px solid #333; padding-top: 10px; margin-top: 5px;
@@ -65,7 +66,7 @@
         }
         .mp-track:hover { color: var(--pink); background: rgba(255,42,109,0.05); }
         .mp-track.active { color: var(--pink); font-weight: bold; }
-        .mp-info { font-size: 0.65rem; color: var(--pink); text-align: center; font-weight: bold; }
+        .mp-info { font-size: 0.65rem; color: var(--pink); text-align: center; font-weight: bold; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0 auto; }
 
         .slider-row { width: 100%; }
         .slider-row label { font-size: 0.7rem; color: #888; display: block; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
@@ -98,10 +99,18 @@
 <div id="music-player-ui">
     <div class="mp-info" id="mp-current-title">Wähle Musik</div>
     <div class="mp-controls">
-        <button class="mp-btn" onclick="prevSong()">⏮</button>
-        <button class="mp-btn" onclick="togglePlayMusic()" id="mp-play-pause">▶</button>
-        <button class="mp-btn" onclick="nextSong()">⏭</button>
-        <button class="mp-btn" onclick="document.getElementById('mp-playlist').classList.toggle('show')">☰</button>
+        <button class="mp-btn" onclick="prevSong()">
+            <svg viewBox="0 0 24 24"><path d="M6 5v14h2V5H6zm3 7l9 6V6l-9 6z"/></svg>
+        </button>
+        <button class="mp-btn" onclick="togglePlayMusic()" id="mp-play-pause">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button class="mp-btn" onclick="nextSong()">
+            <svg viewBox="0 0 24 24"><path d="M6 6v12l9-6-9-6zm10-1v14h2V5h-2z"/></svg>
+        </button>
+        <button class="mp-btn" onclick="document.getElementById('mp-playlist').classList.toggle('show')">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+        </button>
     </div>
     <div id="mp-playlist"></div>
 </div>
@@ -174,7 +183,9 @@ const media = [
 
 // MUSIK PLAYLIST
 const playlist = [
-    { name: "Ashnikko - Itty Bitty", src: "Musik/Ashnikko-Itty_Bitty.mp3" }
+    { name: "Ashnikko - Itty Bitty", src: "Musik/Ashnikko-Itty_Bitty.mp3" },
+    { name: "Brooke Candy - Yoga (feat. Only Fire)", src: "Musik/Brooke_Candy-Yoga_(feat._Only_Fire).mp3" },
+    { name: "Shygirl - Nike", src: "Musik/Shygirl-Nike.mp3" }
 ];
 
 let favs = JSON.parse(localStorage.getItem('eb_favs')) || [];
@@ -205,17 +216,33 @@ function initMusic() {
     });
 }
 
+function updateMediaSession(track) {
+    if ('mediaSession' in navigator) {
+        const parts = track.name.split(' - ');
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: parts[1] || parts[0],
+            artist: parts[0] || 'Unknown',
+            album: 'Elefantoubi Playlist'
+        });
+    }
+}
+
 function playSelectedSong(idx) {
     currentSongIdx = idx;
     musicAudio.src = playlist[currentSongIdx].src;
-    musicAudio.play();
+    musicAudio.play().catch(() => {});
+    updateMediaSession(playlist[currentSongIdx]);
     updateMusicUI();
 }
 
 function togglePlayMusic() {
     if(!musicAudio.src) musicAudio.src = playlist[currentSongIdx].src;
-    if(musicAudio.paused) musicAudio.play();
-    else musicAudio.pause();
+    if(musicAudio.paused) {
+        musicAudio.play().catch(() => {});
+        updateMediaSession(playlist[currentSongIdx]);
+    } else {
+        musicAudio.pause();
+    }
     updateMusicUI();
 }
 
@@ -230,7 +257,12 @@ function prevSong() {
 }
 
 function updateMusicUI() {
-    document.getElementById('mp-play-pause').innerText = musicAudio.paused ? '▶' : '⏸';
+    const pBtn = document.getElementById('mp-play-pause');
+    if(musicAudio.paused) {
+        pBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+    } else {
+        pBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+    }
     document.getElementById('mp-current-title').innerText = playlist[currentSongIdx].name;
     document.querySelectorAll('.mp-track').forEach((el, i) => {
         el.classList.toggle('active', i === currentSongIdx);
