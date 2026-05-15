@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Elefantoubi - Connected Logic</title>
+    <style>
+        :root { --pink: #ff2a6d; --bg: #050505; --ui-bg: rgba(15, 15, 15, 0.98); --neon-shadow: 0 0 15px rgba(255, 42, 109, 0.8); }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+        body { background:var(--bg); color:white; font-family: -apple-system, sans-serif; overflow-x: hidden; }
+        
+        header { text-align:center; padding:20px; background:#000; border-bottom: 1px solid #222; position: sticky; top:0; z-index:100; }
+        h1 { color:var(--pink); font-size:1.6rem; letter-spacing:5px; text-transform: uppercase; margin-bottom: 15px; }
+        
+        .tabs { display:flex; gap:10px; justify-content:center; flex-wrap: wrap; }
+        .tabs button { padding:12px 18px; background:#1a1a1a; color:#ccc; border:1px solid #333; border-radius:8px; font-size:0.9rem; cursor:pointer; font-weight: bold; transition: 0.2s; }
+        .tabs button.active { border-color: var(--pink); color: var(--pink); box-shadow: var(--neon-shadow); background: rgba(255,42,109,0.1); }
+
+        .gallery { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; padding:15px; padding-bottom: 100px; }
+        .item { aspect-ratio:9/16; background:#111; border-radius:12px; overflow:hidden; position:relative; border: 1px solid #222; }
+        .item img, .item video { width:100%; height:100%; object-fit:cover; }
+        
+        .item-actions { position:absolute; top:8px; right:8px; display:flex; flex-direction:column; gap:8px; z-index:10; }
+        .action-btn { font-size:1.3rem; filter: drop-shadow(0 0 5px black); cursor: pointer; }
+
+        .modal { display:none; position:fixed; inset:0; background:#000; z-index:1000; flex-direction: column; }
+        .modal.active { display:flex; }
+        .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .media-container img, .media-container video { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .burger-trigger { 
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
+            width: 60px; height: 60px; background: var(--pink); border-radius: 50%; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px;
+            z-index: 1100; box-shadow: var(--neon-shadow); border: none;
+        }
+        .burger-trigger span { width: 25px; height: 2px; background: white; border-radius: 1px; }
+
+        .player-panel { 
+            position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); 
+            width: 92%; max-width: 400px; background: var(--ui-bg); border-radius: 25px; 
+            border: 1px solid rgba(255,255,255,0.1); padding: 20px; z-index: 1050;
+            display: none; flex-direction: column; gap: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.9);
+        }
+        .player-panel.show { display: flex; animation: slideIn 0.2s ease-out; }
+
+        /* MUSIK PLAYER STYLES */
+        #music-player-ui {
+            position: fixed; bottom: 20px; left: 20px; z-index: 1200;
+            background: var(--ui-bg); border: 1px solid #333; border-radius: 15px;
+            padding: 10px; display: flex; flex-direction: column; gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); min-width: 160px;
+        }
+        .mp-controls { display: flex; gap: 12px; align-items: center; justify-content: center; }
+        .mp-btn { background: none; border: none; color: white; cursor: pointer; font-size: 1.1rem; }
+        .mp-btn:active { color: var(--pink); }
+        #mp-playlist { 
+            display: none; max-height: 150px; overflow-y: auto; 
+            border-top: 1px solid #333; padding-top: 10px; margin-top: 5px;
+        }
+        #mp-playlist.show { display: block; }
+        .mp-track { 
+            padding: 6px; font-size: 0.75rem; color: #bbb; cursor: pointer; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .mp-track:hover { color: var(--pink); background: rgba(255,42,109,0.05); }
+        .mp-track.active { color: var(--pink); font-weight: bold; }
+        .mp-info { font-size: 0.65rem; color: var(--pink); text-align: center; font-weight: bold; }
+
+        .slider-row { width: 100%; }
+        .slider-row label { font-size: 0.7rem; color: #888; display: block; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; background: #333; border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: white; border: 2px solid var(--pink); box-shadow: var(--neon-shadow); }
+
+        .btn-row { display: flex; justify-content: space-between; align-items: center; }
+        .nav-btn { background: none; border: none; color: white; font-size: 1.6rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .nav-btn.active { color: var(--pink); filter: drop-shadow(0 0 8px var(--pink)); }
+        .v-badge { font-size: 0.7rem; color: var(--pink); border: 1px solid var(--pink); padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+
+        @keyframes slideIn { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Elefantoubi</h1>
+    <div class="tabs">
+        <button onclick="setMainFilter('all')" id="tab-all" class="active">Alle</button>
+        <button onclick="setMainFilter('image')" id="tab-image">Bilder</button>
+        <button onclick="setMainFilter('video')" id="tab-video">Videos</button>
+        <button onclick="setSubFilter('favs')" id="tab-fav">❤️ Favoriten</button>
+        <button onclick="setSubFilter('daily')" id="tab-daily">🔖 Heute</button>
+    </div>
+</header>
+
+<div class="gallery" id="gallery"></div>
+
+<div id="music-player-ui">
+    <div class="mp-info" id="mp-current-title">Wähle Musik</div>
+    <div class="mp-controls">
+        <button class="mp-btn" onclick="prevSong()">⏮</button>
+        <button class="mp-btn" onclick="togglePlayMusic()" id="mp-play-pause">▶</button>
+        <button class="mp-btn" onclick="nextSong()">⏭</button>
+        <button class="mp-btn" onclick="document.getElementById('mp-playlist').classList.toggle('show')">☰</button>
+    </div>
+    <div id="mp-playlist"></div>
+</div>
+
+<div class="modal" id="modal">
+    <div class="media-container" id="modal-media" onclick="toggleUI()"></div>
+    <button class="burger-trigger" onclick="toggleUI()"><span></span><span></span><span></span></button>
+    <div class="player-panel" id="ui-panel">
+        <div class="slider-row">
+            <label id="speed-label">Intervall: 5.0s</label>
+            <input type="range" id="speed-slider" min="500" max="12000" value="5000" step="100" oninput="document.getElementById('speed-label').innerText='Intervall: '+(this.value/1000).toFixed(1)+'s'">
+        </div>
+        <div class="btn-row">
+            <button class="nav-btn" onclick="prevMedia()">❮</button>
+            <button class="nav-btn" onclick="toggleShuffle()" id="shuffle-btn">🎲</button>
+            <button class="nav-btn" onclick="toggleSlideshow()" id="play-btn">▶</button>
+            <button class="nav-btn" onclick="toggleVideoSpeed()"><span class="v-badge" id="v-speed-txt">1x</span></button>
+            <button class="nav-btn" onclick="toggleMute()" id="mute-btn">🔊</button>
+            <button class="nav-btn" onclick="closeModal()">✕</button>
+            <button class="nav-btn" onclick="nextMedia()">❯</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const media = [
+    // BILDER
+    "Bilder/AsmaaUndAlexSex/IMG_3545.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3602.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3607.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3609.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3610.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3608.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3613.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3614.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3615.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3617.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3619.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3641.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3646.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3647.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3650.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_03-05-2026-04-43-14.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-11-31-22.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-14-38-51.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-21-33.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-23-28.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-34-49.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-46-34.jpeg",
+    // VIDEOS
+    "Videos/AsmaaUndAlexSex/fe0ae259a6f8e304433b267a7f3ae8c1.mp4",
+    "Videos/AsmaaUndAlexSex/eac76931cc54bae1774dd031345aab4e.mov",
+    "Videos/AsmaaUndAlexSex/e1237b68bfc375b12301bb7c4cde94ec.mov",
+    "Videos/AsmaaUndAlexSex/a564327b6d14dff6378523b031df18f6.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20%E2%80%9Eultra%20realistic%20image-to-video%20from%20the%20exact%20reference%20image.%208.mov",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20%E2%80%9E10-second%20ultra%20realistic%20video%2C%20exact%20same%20scene%20and%20camera%20a%202.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20zeige%2C%20wie%20sich%20das%20Ma%CC%88dchen%20in%20ihrem%20Zimmer%20am%20Beispiel%20der%20Ref%202.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Let%20them%20fuck%20naturally%20and%20gently%20together%20good%20with%20moaning%20.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%208.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%205.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%202.mov",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2011.mp4",
+    "Videos/AsmaaUndAlexSex/2a5e808e4d6985bec7c23964f63f2415.mp4",
+    "Videos/AsmaaUndAlexSex/36a0e66c98b40e7413b4809cb7b9d1aa.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2010.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2012.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2018.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2019.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2020.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2023.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Let%20them%20fuck%20gently.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Lass%20ihn%20realistisch,%20ihre%20Muschi%20fingern%20und%20seine%20Finger%20dabe.mp4",
+    "Videos/AsmaaUndAlexSex/1a322345a8e75389b8497b4dc9a90ca7.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Start%20from%20the%20exact%20reference%20image%20with%20the%20exact%20same%20camera%202.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Start%20from%20the%20exact%20reference%20image%20with%20the%20exact%20same%20camera.mp4"
+];
+
+// MUSIK PLAYLIST
+const playlist = [
+    { name: "Titel 1", src: "Musik/Titel1.mp3" },
+    { name: "Titel 2", src: "Musik/Titel2.mp3" },
+    { name: "Titel 3", src: "Musik/Titel3.mp3" }
+];
+
+let favs = JSON.parse(localStorage.getItem('eb_favs')) || [];
+let daily = JSON.parse(localStorage.getItem('eb_daily')) || [];
+let mainFilter = 'all'; 
+let subFilter = 'none'; // 'none', 'favs', 'daily'
+let currentList = [];
+let currentIndex = 0;
+let isMuted = localStorage.getItem('eb_mute') === 'true';
+let isSlideshow = false;
+let isShuffle = false;
+let videoSpeed = 1.0;
+let slideTimer = null;
+
+// MUSIK PLAYER LOGIK
+let currentSongIdx = 0;
+const musicAudio = new Audio();
+musicAudio.volume = 0.5;
+
+function initMusic() {
+    const listDiv = document.getElementById('mp-playlist');
+    playlist.forEach((track, idx) => {
+        const d = document.createElement('div');
+        d.className = 'mp-track';
+        d.innerText = track.name;
+        d.onclick = () => playSelectedSong(idx);
+        listDiv.appendChild(d);
+    });
+}
+
+function playSelectedSong(idx) {
+    currentSongIdx = idx;
+    musicAudio.src = playlist[currentSongIdx].src;
+    musicAudio.play();
+    updateMusicUI();
+}
+
+function togglePlayMusic() {
+    if(!musicAudio.src) musicAudio.src = playlist[currentSongIdx].src;
+    if(musicAudio.paused) musicAudio.play();
+    else musicAudio.pause();
+    updateMusicUI();
+}
+
+function nextSong() {
+    currentSongIdx = (currentSongIdx + 1) % playlist.length;
+    playSelectedSong(currentSongIdx);
+}
+
+function prevSong() {
+    currentSongIdx = (currentSongIdx - 1 + playlist.length) % playlist.length;
+    playSelectedSong(currentSongIdx);
+}
+
+function updateMusicUI() {
+    document.getElementById('mp-play-pause').innerText = musicAudio.paused ? '▶' : '⏸';
+    document.getElementById('mp-current-title').innerText = playlist[currentSongIdx].name;
+    document.querySelectorAll('.mp-track').forEach((el, i) => {
+        el.classList.toggle('active', i === currentSongIdx);
+    });
+}
+
+musicAudio.onended = () => nextSong();
+
+function renderGallery() {
+    const g = document.getElementById('gallery');
+    g.innerHTML = '';
+    currentList = media.filter(src => {
+        const isVid = src.match(/\.(mp4|mov)$/i);
+        const matchesMain = mainFilter === 'all' || (mainFilter === 'video' && isVid) || (mainFilter === 'image' && !isVid);
+        let matchesSub = true;
+        if(subFilter === 'favs') matchesSub = favs.includes(src);
+        if(subFilter === 'daily') matchesSub = daily.includes(src);
+        return matchesMain && matchesSub;
+    });
+
+    currentList.forEach((src, idx) => {
+        const isVid = src.match(/\.(mp4|mov)$/i);
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+            ${isVid ? `<video src="${src}#t=0.1" muted playsinline></video>` : `<img src="${src}">`}
+            <div class="item-actions">
+                <span class="action-btn" onclick="toggleAction('${src}', 'favs', event)">${favs.includes(src)?'❤️':'♡'}</span>
+                <span class="action-btn" onclick="toggleAction('${src}', 'daily', event)">${daily.includes(src)?'🔖':'➕'}</span>
+            </div>
+        `;
+        div.onclick = () => openModal(idx);
+        g.appendChild(div);
+    });
+}
+
+function setMainFilter(f) {
+    mainFilter = f;
+    updateTabStyles();
+    renderGallery();
+}
+
+function setSubFilter(s) {
+    subFilter = (subFilter === s) ? 'none' : s; // Toggle-Funktion
+    updateTabStyles();
+    renderGallery();
+}
+
+function updateTabStyles() {
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + mainFilter).classList.add('active');
+    if(subFilter !== 'none') {
+        const subId = (subFilter === 'favs') ? 'tab-fav' : 'tab-daily';
+        document.getElementById(subId).classList.add('active');
+    }
+}
+
+function openModal(idx) {
+    currentIndex = idx;
+    const m = document.getElementById('modal');
+    const container = document.getElementById('modal-media');
+    const src = currentList[currentIndex];
+    const isVid = src.match(/\.(mp4|mov)$/i);
+    clearTimeout(slideTimer);
+    container.innerHTML = ''; 
+    const el = isVid ? document.createElement('video') : document.createElement('img');
+    el.src = src;
+    if(isVid) {
+        el.id = 'player'; el.autoplay = true; el.playsInline = true; el.muted = isMuted; el.playbackRate = videoSpeed;
+        el.onended = () => { if(isSlideshow) nextMedia(); else el.play(); };
+    }
+    container.appendChild(el);
+    m.classList.add('active');
+    if(!isVid && isSlideshow) slideTimer = setTimeout(nextMedia, document.getElementById('speed-slider').value);
+    updateUI();
+}
+
+function nextMedia() {
+    if(!currentList.length) return;
+    if(isShuffle) currentIndex = Math.floor(Math.random() * currentList.length);
+    else currentIndex = (currentIndex + 1) % currentList.length;
+    openModal(currentIndex);
+}
+
+function prevMedia() {
+    currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
+    openModal(currentIndex);
+}
+
+function toggleAction(src, list, e) {
+    e.stopPropagation();
+    if(list === 'favs') {
+        if(favs.includes(src)) favs = favs.filter(s => s !== src);
+        else favs.push(src);
+        localStorage.setItem('eb_favs', JSON.stringify(favs));
+    } else {
+        if(daily.includes(src)) daily = daily.filter(s => s !== src);
+        else daily.push(src);
+        localStorage.setItem('eb_daily', JSON.stringify(daily));
+    }
+    renderGallery();
+}
+
+function toggleUI() { document.getElementById('ui-panel').classList.toggle('show'); }
+function toggleSlideshow() { isSlideshow = !isSlideshow; if(isSlideshow) nextMedia(); else clearTimeout(slideTimer); updateUI(); }
+function toggleShuffle() { isShuffle = !isShuffle; updateUI(); }
+function toggleMute() { isMuted = !isMuted; localStorage.setItem('eb_mute', isMuted); if(document.getElementById('player')) document.getElementById('player').muted = isMuted; updateUI(); }
+function toggleVideoSpeed() { videoSpeed = videoSpeed >= 2.0 ? 1.0 : videoSpeed + 0.5; if(document.getElementById('player')) document.getElementById('player').playbackRate = videoSpeed; document.getElementById('v-speed-txt').innerText = videoSpeed + 'x'; }
+
+function updateUI() {
+    document.getElementById('play-btn').innerText = isSlideshow ? '⏸' : '▶';
+    document.getElementById('play-btn').classList.toggle('active', isSlideshow);
+    document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
+    document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🔊';
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+    document.getElementById('modal-media').innerHTML = ''; 
+    clearTimeout(slideTimer);
+    isSlideshow = false;
+    updateUI();
+}
+
+initMusic();
+renderGallery();
+</script>
+</body>
+</html>
