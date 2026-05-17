@@ -50,31 +50,32 @@
             background: var(--ui-bg); border: 1px solid #333; border-radius: 15px;
             padding: 10px; display: flex; flex-direction: column; gap: 4px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.6); 
-            width: auto; transition: all 0.2s ease;
+            width: 156px; transition: all 0.2s ease; overflow: hidden;
         }
-        /* Erst in der Makroversion bekommt der Player eine feste Mindestbreite */
+        /* Erst in der Makroversion darf sich die Breite verändern */
         #music-player-ui.macro-view {
-            min-width: 320px; max-width: 420px;
+            width: auto; min-width: 320px; max-width: 420px;
         }
         
-        .mp-info { font-size: 0.75rem; color: var(--pink); text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0 auto; width: 100%; max-width: 260px; }
+        .mp-info { font-size: 0.75rem; color: var(--pink); text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0 auto; width: 100%; max-width: 136px; }
+        #music-player-ui.macro-view .mp-info { max-width: 260px; }
+        
         .mp-controls { display: flex; gap: 16px; align-items: center; justify-content: center; padding: 4px 0; }
         
         .mp-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; padding: 0; position: relative; transition: color 0.2s; }
         .mp-btn svg { width: 100%; height: 100%; fill: currentColor; }
         
-        /* Farbzuweisungen für aktive Zustände */
         .mp-btn#mp-shuffle.active { color: var(--pink); filter: drop-shadow(0 0 4px var(--pink)); }
         .mp-btn#mp-master-fav.active { color: #ff3333; filter: drop-shadow(0 0 4px #ff3333); }
         .mp-btn#mp-repeat.active { color: var(--pink); filter: drop-shadow(0 0 4px var(--pink)); }
         .mp-btn.active-nav { color: var(--pink); }
 
-        /* Erweiterte Makro-Leiste direkt unter den Haupttasten */
-        .mp-macro-controls { display: none; justify-content: space-between; align-items: center; padding: 6px 8px 4px 8px; border-top: 1px solid #222; margin-top: 4px; }
+        /* Erweiterte Makro-Leiste mit zusätzlichem Padding unten für das Label */
+        .mp-macro-controls { display: none; justify-content: space-between; align-items: center; padding: 6px 8px 16px 8px; border-top: 1px solid #222; margin-top: 4px; }
         #music-player-ui.macro-view .mp-macro-controls { display: flex; }
 
-        /* Apple-Style 3-Position Switch */
-        .apple-switch-box { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        /* Apple-Style 3-Position Switch - Perfekt ausbalanciert */
+        .apple-switch-box { display: flex; flex-direction: column; align-items: center; position: relative; }
         .apple-switch-track {
             position: relative; width: 52px; height: 24px; background: #333; 
             border-radius: 12px; cursor: pointer; transition: background 0.25s ease;
@@ -82,18 +83,18 @@
         .apple-switch-knob {
             position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; 
             background: white; border-radius: 50%; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4); pointer-events: none;
         }
-        /* Schienen-Positionen & Farben */
-        .apple-switch-track.pos-0 { background: #ffaa00; } /* Hot - Orange */
-        .apple-switch-track.pos-1 { background: #ff3333; } /* Spicy - Rot */
-        .apple-switch-track.pos-2 { background: #4cd964; } /* All - Apple-Grün */
+        
+        .apple-switch-track.pos-0 { background: #ffaa00; }
+        .apple-switch-track.pos-1 { background: #ff3333; }
+        .apple-switch-track.pos-2 { background: #4cd964; }
         
         .apple-switch-track.pos-0 .apple-switch-knob { transform: translateX(0px); }
         .apple-switch-track.pos-1 .apple-switch-knob { transform: translateX(14px); }
         .apple-switch-track.pos-2 .apple-switch-knob { transform: translateX(28px); }
         
-        .vibe-text-label { font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; min-height: 12px; }
+        .vibe-text-label { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
 
         /* Playlist Bereich */
         #mp-playlist { 
@@ -161,7 +162,7 @@
         </button>
 
         <div class="apple-switch-box">
-            <div class="apple-switch-track pos-2" id="mp-apple-track" onclick="cycleVibeSwitch()">
+            <div class="apple-switch-track pos-2" id="mp-apple-track" onclick="handleVibeClick(event)">
                 <div class="apple-switch-knob"></div>
             </div>
             <span class="vibe-text-label" id="mp-vibe-text" style="color: #4cd964;">All</span>
@@ -278,17 +279,23 @@ let isShuffle = false;
 let videoSpeed = 1.0;
 let slideTimer = null;
 
-// ERWEITERTE AUDIO LOGIK CONTROLLER
 let currentSongIdx = 0;
 let musicShuffle = false;
-let musicRepeat = 0; // 0=Aus, 1=All, 2=Single
+let musicRepeat = 0; 
 let musicFavFilter = false;
-let musicVibeFilter = 'all'; // 'hot', 'spicy', 'all'
+let musicVibeFilter = 'all'; 
 let filteredPlaylist = [...playlist];
-let musicWasPlaying = false; // Status-Tracker gegen Browser-Audio-Hijacking
+let musicWasPlaying = false; 
 
 const musicAudio = new Audio();
 musicAudio.volume = 0.5;
+
+// Automatischer Re-Play Schutz gegen Stottern/Löcher bei Video-Interruptionen
+musicAudio.onpause = () => {
+    if (musicWasPlaying) {
+        musicAudio.play().catch(() => {});
+    }
+};
 
 function initMusic() {
     buildFilteredPlaylist();
@@ -375,10 +382,25 @@ function toggleMusicRepeat() {
     }
 }
 
-// 3-Wege-Rast-Logik für Apple Switch (0=hot, 1=spicy, 2=all)
+// Präzise Zonen-Auswertung für Apple Switch (Verhindert fehlerhaftes Springen)
+function handleVibeClick(e) {
+    const track = e.currentTarget;
+    const rect = track.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const width = rect.width;
+    
+    if (clickX < width / 3) {
+        currentVibePos = 0; // Hot
+    } else if (clickX < (2 * width) / 3) {
+        currentVibePos = 1; // Spicy
+    } else {
+        currentVibePos = 2; // All
+    }
+    updateVibeSwitchState();
+}
+
 let currentVibePos = 2;
-function cycleVibeSwitch() {
-    currentVibePos = (currentVibePos + 1) % 3;
+function updateVibeSwitchState() {
     const track = document.getElementById('mp-apple-track');
     const lbl = document.getElementById('mp-vibe-text');
     
@@ -424,12 +446,11 @@ function togglePlayMusic() {
         return;
     }
     if(musicAudio.paused) {
-        musicAudio.play().then(() => {
-            musicWasPlaying = true;
-        }).catch(() => {});
+        musicWasPlaying = true;
+        musicAudio.play().then(() => {}).catch(() => {});
     } else {
+        musicWasPlaying = false; 
         musicAudio.pause();
-        musicWasPlaying = false;
     }
     updateMusicUI();
 }
@@ -481,8 +502,8 @@ musicAudio.onended = () => {
         if(currentFilteredIdx < filteredPlaylist.length - 1) {
             nextSong();
         } else {
-            musicAudio.pause();
             musicWasPlaying = false;
+            musicAudio.pause();
             updateMusicUI();
         }
     }
@@ -551,20 +572,13 @@ function openModal(idx) {
     if(isVid) {
         el.id = 'player'; el.autoplay = true; el.playsInline = true; el.muted = isMuted; el.playbackRate = videoSpeed;
         
-        // Verhindert das Browser-seitige Stoppen der Musik beim Starten oder Loopen von Videos
-        el.onplay = () => {
-            if (musicWasPlaying && musicAudio.paused) {
-                setTimeout(() => { if (musicWasPlaying && musicAudio.paused) musicAudio.play().catch(() => {}); }, 40);
-            }
-        };
+        // Nutzt nahtlose native Loops bei inaktiver Diashow um Audiolöcher zu blockieren
+        el.loop = !isSlideshow; 
+        
         el.onended = () => { 
             if(isSlideshow) {
                 nextMedia(); 
-            } else { 
-                el.play(); 
-                // Erneuter Musik-Schutztrigger beim Loopen
-                if (musicWasPlaying && musicAudio.paused) setTimeout(() => { musicAudio.play().catch(() => {}); }, 40);
-            } 
+            }
         };
     }
     container.appendChild(el);
@@ -607,7 +621,7 @@ function toggleMute() { isMuted = !isMuted; localStorage.setItem('eb_mute', isMu
 function toggleVideoSpeed() { 
     if(videoSpeed === 1.0) videoSpeed = 1.5;
     else if(videoSpeed === 1.5) videoSpeed = 2.0;
-    else if(videoSpeed === 2.0) videoSpeed = 0.5; // Neue verlangsamte Geschwindigkeitsstufe
+    else if(videoSpeed === 2.0) videoSpeed = 0.5; 
     else videoSpeed = 1.0;
     if(document.getElementById('player')) document.getElementById('player').playbackRate = videoSpeed; 
     document.getElementById('v-speed-txt').innerText = videoSpeed + 'x'; 
