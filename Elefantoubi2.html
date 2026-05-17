@@ -27,7 +27,6 @@
         .modal.active { display:flex; }
         .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
         
-        /* Fest verankerte Elemente im Modal verhindern Pipeline-Aussetzer */
         #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
 
         .burger-trigger { 
@@ -55,7 +54,6 @@
             width: 156px; transition: width 0.2s ease; overflow: hidden;
         }
         
-        /* Makro-Version öffnet sich dynamisch anhand der längsten Song-Länge */
         #music-player-ui.macro-view {
             width: max-content;
             min-width: 280px;
@@ -67,7 +65,6 @@
         
         #mp-current-title { display: inline-block; white-space: nowrap; transform: translateX(0); }
         
-        /* Apple Marquee Animation (Nur für Mini-View aktiv falls nötig) */
         @keyframes musicMarquee {
             0% { transform: translateX(0); }
             15% { transform: translateX(0); }
@@ -89,7 +86,6 @@
         .mp-macro-controls { display: none; justify-content: space-between; align-items: center; padding: 6px 8px 16px 8px; border-top: 1px solid #222; margin-top: 4px; gap: 20px; }
         #music-player-ui.macro-view .mp-macro-controls { display: flex; }
 
-        /* Sattes Kaminrot & Feuerorange Switch */
         .apple-switch-box { display: flex; flex-direction: column; align-items: center; position: relative; }
         .apple-switch-track {
             position: relative; width: 52px; height: 24px; background: #333; 
@@ -101,9 +97,9 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.4); pointer-events: none;
         }
         
-        .apple-switch-track.pos-0 { background: #ff4500; } /* Kräftiges Feuer-Orange */
-        .apple-switch-track.pos-1 { background: #c40000; } /* Tiefes, scharfes Kamin-/Chili-Rot */
-        .apple-switch-track.pos-2 { background: var(--pink); } /* Elefantoubi Pink */
+        .apple-switch-track.pos-0 { background: #ff4500; } 
+        .apple-switch-track.pos-1 { background: #c40000; } 
+        .apple-switch-track.pos-2 { background: var(--pink); } 
         
         .apple-switch-track.pos-0 .apple-switch-knob { transform: translateX(0px); }
         .apple-switch-track.pos-1 .apple-switch-knob { transform: translateX(14px); }
@@ -111,7 +107,6 @@
         
         .vibe-text-label { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
 
-        /* Playlist Bereich */
         #mp-playlist { 
             display: none; max-height: 160px; overflow-y: auto; 
             border-top: 1px solid #222; padding-top: 6px; margin-top: 4px;
@@ -201,7 +196,7 @@
 <div class="modal" id="modal">
     <div class="media-container" id="modal-media" onclick="toggleUI()">
         <img id="modal-img">
-        <video id="modal-video" muted playsinline></video>
+        <video id="modal-video" playsinline></video>
     </div>
     <button class="burger-trigger" onclick="toggleUI()"><span></span><span></span><span></span></button>
     <div class="player-panel" id="ui-panel">
@@ -223,7 +218,6 @@
 
 <script>
 const media = [
-    // BILDER
     "Bilder/AsmaaUndAlexSex/IMG_3545.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3602.jpeg",
     "Bilder/AsmaaUndAlexSex/IMG_3607.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3609.jpeg",
     "Bilder/AsmaaUndAlexSex/IMG_3610.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3608.jpeg",
@@ -239,7 +233,6 @@ const media = [
     "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-23-28.jpeg",
     "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-34-49.jpeg",
     "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-46-34.jpeg",
-    // VIDEOS
     "Videos/AsmaaUndAlexSex/fe0ae259a6f8e304433b267a7f3ae8c1.mp4",
     "Videos/AsmaaUndAlexSex/eac76931cc54bae1774dd031345aab4e.mov",
     "Videos/AsmaaUndAlexSex/e1237b68bfc375b12301bb7c4cde94ec.mov",
@@ -310,7 +303,6 @@ let musicWasPlaying = false;
 const musicAudio = new Audio();
 musicAudio.volume = 0.5;
 
-// Automatischer Re-Play Schutz gegen Stottern/Löcher bei Video-Interruptionen
 musicAudio.onpause = () => {
     if (musicWasPlaying) {
         musicAudio.play().catch(() => {});
@@ -427,7 +419,7 @@ function updateVibeSwitchState() {
     track.className = 'apple-switch-track pos-' + currentVibePos;
     
     const labels = ['hot', 'spicy', 'all'];
-    const colors = ['#ff4500', '#c40000', '#ff2a6d']; // Orange-Rot, Saturation-Chili-Rot, Original Pink
+    const colors = ['#ff4500', '#c40000', '#ff2a6d']; 
     
     musicVibeFilter = labels[currentVibePos];
     lbl.innerText = labels[currentVibePos];
@@ -511,19 +503,16 @@ function updateMusicUI() {
         titleEl.style.transform = 'none';
         
         if (isMacro) {
-            // Makro-Ansicht: Voller Name (Band - Titel) ohne Limitierung, ohne Scrollen
             titleEl.innerText = fullTrackName;
             infoContainer.style.textAlign = 'center';
         } else {
-            // Mini-Ansicht: Nur den Titel anzeigen (trennt nach " - ")
             const parts = fullTrackName.split(' - ');
             const songTitleOnly = parts[1] || parts[0];
             titleEl.innerText = songTitleOnly;
             
-            titleEl.offsetHeight; // Reflow
+            titleEl.offsetHeight; 
             const containerWidth = 136;
             
-            // Fließt nur, wenn der Titel länger als das Mini-Fenster ist
             if (titleEl.scrollWidth > containerWidth) {
                 infoContainer.style.textAlign = 'left';
                 const scrollDist = titleEl.scrollWidth - containerWidth;
@@ -576,7 +565,6 @@ function renderGallery() {
         const div = document.createElement('div');
         div.className = 'item';
         
-        // Hocheffizientes Laden für Ägypten: preload="none" blockiert Datenströme in der Übersicht vollständig
         div.innerHTML = `
             ${isVid ? `<video src="${src}#t=0.1" muted playsinline preload="none"></video>` : `<img src="${src}">`}
             <div class="item-actions">
@@ -623,23 +611,30 @@ function openModal(idx) {
         imgEl.style.display = 'none';
         vidEl.style.display = 'block';
         
-        vidEl.playbackRate = videoSpeed;
+        vidEl.muted = isMuted;
+        vidEl.volume = isMuted ? 0 : 1.0;
         
-        // Dauerhafte Hardware-Stummschaltung isoliert die Audio-Pipeline vollständig von der Musik
-        vidEl.muted = true;
-        vidEl.volume = 0;
-        
-        // Ändert die Quelle nur, wenn ein neues Video gewählt wurde, um Datenleitung zu schonen
         const absoluteSrc = new URL(src, window.location.href).href;
         if(vidEl.src !== absoluteSrc) {
             vidEl.src = src;
         }
         
+        vidEl.onloadedmetadata = () => {
+            vidEl.playbackRate = videoSpeed;
+        };
+        vidEl.playbackRate = videoSpeed;
+        
         vidEl.loop = !isSlideshow; 
         vidEl.onended = () => { 
             if(isSlideshow) nextMedia();
         };
-        vidEl.play().catch(() => {});
+        
+        vidEl.play().then(() => {
+            vidEl.playbackRate = videoSpeed;
+            if (musicWasPlaying && musicAudio.paused) {
+                musicAudio.play().catch(() => {});
+            }
+        }).catch(() => {});
     } else {
         vidEl.pause();
         vidEl.style.display = 'none';
@@ -683,14 +678,31 @@ function toggleAction(src, list, e) {
 function toggleUI() { document.getElementById('ui-panel').classList.toggle('show'); }
 function toggleSlideshow() { isSlideshow = !isSlideshow; if(isSlideshow) nextMedia(); else clearTimeout(slideTimer); updateUI(); }
 function toggleShuffle() { isShuffle = !isShuffle; updateUI(); }
-function toggleMute() { isMuted = !isMuted; localStorage.setItem('eb_mute', isMuted); if(document.getElementById('modal-video')) document.getElementById('modal-video').muted = isMuted; updateUI(); }
+
+function toggleMute() { 
+    isMuted = !isMuted; 
+    localStorage.setItem('eb_mute', isMuted); 
+    const vidEl = document.getElementById('modal-video');
+    if(vidEl) {
+        vidEl.muted = isMuted;
+        vidEl.volume = isMuted ? 0 : 1.0;
+    }
+    if (musicWasPlaying && musicAudio.paused) {
+        musicAudio.play().catch(() => {});
+    }
+    updateUI(); 
+}
 
 function toggleVideoSpeed() { 
     if(videoSpeed === 1.0) videoSpeed = 1.5;
     else if(videoSpeed === 1.5) videoSpeed = 2.0;
     else if(videoSpeed === 2.0) videoSpeed = 0.5; 
     else videoSpeed = 1.0;
-    if(document.getElementById('modal-video')) document.getElementById('modal-video').playbackRate = videoSpeed; 
+    
+    const vidEl = document.getElementById('modal-video');
+    if(vidEl) {
+        vidEl.playbackRate = videoSpeed; 
+    }
     document.getElementById('v-speed-txt').innerText = videoSpeed + 'x'; 
 }
 
@@ -699,13 +711,14 @@ function updateUI() {
     document.getElementById('play-btn').classList.toggle('active', isSlideshow);
     document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
     document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🔊';
+    document.getElementById('v-speed-txt').innerText = videoSpeed + 'x';
 }
 
 function closeModal() {
     document.getElementById('modal').classList.remove('active');
     const vidEl = document.getElementById('modal-video');
     vidEl.pause();
-    vidEl.src = ''; // Leert den Stream sofort beim Schließen (wichtig für schwaches Netz)
+    vidEl.src = ''; 
     clearTimeout(slideTimer);
     isSlideshow = false;
     updateUI();
