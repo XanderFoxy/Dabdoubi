@@ -50,15 +50,26 @@
             background: var(--ui-bg); border: 1px solid #333; border-radius: 15px;
             padding: 10px; display: flex; flex-direction: column; gap: 4px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.6); 
-            width: 156px; transition: all 0.2s ease; overflow: hidden;
+            width: 156px; transition: width 0.2s ease; overflow: hidden;
         }
-        /* Erst in der Makroversion darf sich die Breite verändern */
         #music-player-ui.macro-view {
-            width: auto; min-width: 320px; max-width: 420px;
+            width: 280px;
         }
         
-        .mp-info { font-size: 0.75rem; color: var(--pink); text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0 auto; width: 100%; max-width: 136px; }
-        #music-player-ui.macro-view .mp-info { max-width: 260px; }
+        /* Fließtext-Container */
+        .mp-info { font-size: 0.75rem; color: var(--pink); text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; margin: 0 auto; width: 136px; height: 16px; position: relative; }
+        #music-player-ui.macro-view .mp-info { width: 260px; }
+        
+        #mp-current-title { display: inline-block; white-space: nowrap; transform: translateX(0); }
+        
+        /* Apple Marquee Animation */
+        @keyframes musicMarquee {
+            0% { transform: translateX(0); }
+            15% { transform: translateX(0); }
+            55% { transform: translateX(var(--scroll-dist, 0px)); }
+            70% { transform: translateX(var(--scroll-dist, 0px)); }
+            100% { transform: translateX(0); }
+        }
         
         .mp-controls { display: flex; gap: 16px; align-items: center; justify-content: center; padding: 4px 0; }
         
@@ -70,11 +81,10 @@
         .mp-btn#mp-repeat.active { color: var(--pink); filter: drop-shadow(0 0 4px var(--pink)); }
         .mp-btn.active-nav { color: var(--pink); }
 
-        /* Erweiterte Makro-Leiste mit zusätzlichem Padding unten für das Label */
         .mp-macro-controls { display: none; justify-content: space-between; align-items: center; padding: 6px 8px 16px 8px; border-top: 1px solid #222; margin-top: 4px; }
         #music-player-ui.macro-view .mp-macro-controls { display: flex; }
 
-        /* Apple-Style 3-Position Switch - Perfekt ausbalanciert */
+        /* Apple-Style 3-Position Switch - Neue feurige & konsistente Farbgebungen */
         .apple-switch-box { display: flex; flex-direction: column; align-items: center; position: relative; }
         .apple-switch-track {
             position: relative; width: 52px; height: 24px; background: #333; 
@@ -86,9 +96,9 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.4); pointer-events: none;
         }
         
-        .apple-switch-track.pos-0 { background: #ffaa00; }
-        .apple-switch-track.pos-1 { background: #ff3333; }
-        .apple-switch-track.pos-2 { background: #4cd964; }
+        .apple-switch-track.pos-0 { background: #ff4500; } /* Kräftiges feuriges Orange */
+        .apple-switch-track.pos-1 { background: #ff3333; } /* Chili-Rot */
+        .apple-switch-track.pos-2 { background: var(--pink); } /* Elefantoubi Pink */
         
         .apple-switch-track.pos-0 .apple-switch-knob { transform: translateX(0px); }
         .apple-switch-track.pos-1 .apple-switch-knob { transform: translateX(14px); }
@@ -139,7 +149,7 @@
 <div class="gallery" id="gallery"></div>
 
 <div id="music-player-ui">
-    <div class="mp-info" id="mp-current-title">Wähle Musik</div>
+    <div class="mp-info"><span id="mp-current-title">Wähle Musik</span></div>
     
     <div class="mp-controls">
         <button class="mp-btn" onclick="prevSong()">
@@ -165,7 +175,7 @@
             <div class="apple-switch-track pos-2" id="mp-apple-track" onclick="handleVibeClick(event)">
                 <div class="apple-switch-knob"></div>
             </div>
-            <span class="vibe-text-label" id="mp-vibe-text" style="color: #4cd964;">All</span>
+            <span class="vibe-text-label" id="mp-vibe-text" style="color: #ff2a6d;">All</span>
         </div>
 
         <button class="mp-btn" id="mp-master-fav" onclick="toggleMusicFavFilter()" title="Nur Favoriten abspielen">
@@ -343,6 +353,7 @@ function togglePlaylistView() {
     ui.classList.toggle('macro-view');
     p.classList.toggle('show');
     btn.classList.toggle('active-nav', p.classList.contains('show'));
+    updateMusicUI(); // Berechnet Fließtext-Dimensionen sofort neu
 }
 
 function toggleSongFavorite(src) {
@@ -407,7 +418,7 @@ function updateVibeSwitchState() {
     track.className = 'apple-switch-track pos-' + currentVibePos;
     
     const labels = ['hot', 'spicy', 'all'];
-    const colors = ['#ffaa00', '#ff3333', '#4cd964'];
+    const colors = ['#ff4500', '#ff3333', '#ff2a6d']; // Orange-Rot, Chili-Rot, Original Pink
     
     musicVibeFilter = labels[currentVibePos];
     lbl.innerText = labels[currentVibePos];
@@ -482,7 +493,29 @@ function updateMusicUI() {
         pBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
     }
     if(playlist[currentSongIdx]) {
-        document.getElementById('mp-current-title').innerText = playlist[currentSongIdx].name;
+        const titleEl = document.getElementById('mp-current-title');
+        const infoContainer = document.querySelector('.mp-info');
+        
+        titleEl.innerText = playlist[currentSongIdx].name;
+        
+        // Animation zurücksetzen für Neuberechnung
+        titleEl.style.animation = 'none';
+        titleEl.offsetHeight; // Reflow triggern
+        
+        const isMacro = document.getElementById('music-player-ui').classList.contains('macro-view');
+        const containerWidth = isMacro ? 260 : 136;
+        
+        // Wenn der Titel die Box sprengt: Apple-Fließtext aktivieren
+        if (titleEl.scrollWidth > containerWidth) {
+            infoContainer.style.textAlign = 'left';
+            const scrollDist = titleEl.scrollWidth - containerWidth;
+            titleEl.style.setProperty('--scroll-dist', `-${scrollDist + 8}px`);
+            titleEl.style.animation = 'musicMarquee 10s linear infinite';
+        } else {
+            infoContainer.style.textAlign = 'center';
+            titleEl.style.animation = 'none';
+            titleEl.style.transform = 'none';
+        }
     }
     document.querySelectorAll('.mp-track').forEach((el) => {
         if(playlist[currentSongIdx]) {
@@ -566,22 +599,33 @@ function openModal(idx) {
     const isVid = src.match(/\.(mp4|mov)$/i);
     clearTimeout(slideTimer);
     container.innerHTML = ''; 
-    const el = isVid ? document.createElement('video') : document.createElement('img');
-    el.src = src;
     
     if(isVid) {
-        el.id = 'player'; el.autoplay = true; el.playsInline = true; el.muted = isMuted; el.playbackRate = videoSpeed;
+        const el = document.createElement('video');
+        el.id = 'player';
+        el.playsInline = true;
+        el.autoplay = true;
+        el.playbackRate = videoSpeed;
         
-        // Nutzt nahtlose native Loops bei inaktiver Diashow um Audiolöcher zu blockieren
+        // Erst komplett stummschalten, DANN Quelle laden. 
+        // Verhindert zu 100% ein Aufreißen des Audio-Pipelines und blockiert Musik-Stottern.
+        el.muted = isMuted;
+        el.defaultMuted = true;
+        el.src = src; 
+        
         el.loop = !isSlideshow; 
-        
         el.onended = () => { 
             if(isSlideshow) {
                 nextMedia(); 
             }
         };
+        container.appendChild(el);
+    } else {
+        const el = document.createElement('img');
+        el.src = src;
+        container.appendChild(el);
     }
-    container.appendChild(el);
+    
     m.classList.add('active');
     if(!isVid && isSlideshow) slideTimer = setTimeout(nextMedia, document.getElementById('speed-slider').value);
     updateUI();
