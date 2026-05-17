@@ -48,25 +48,40 @@
         #music-player-ui {
             position: fixed; bottom: 20px; left: 20px; z-index: 1200;
             background: var(--ui-bg); border: 1px solid #333; border-radius: 15px;
-            padding: 10px; display: flex; flex-direction: column; gap: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); min-width: 160px;
+            padding: 12px; display: flex; flex-direction: column; gap: 8px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.6); 
+            min-width: 320px; max-width: 420px; width: auto; transition: all 0.2s ease;
         }
-        .mp-controls { display: flex; gap: 16px; align-items: center; justify-content: center; padding: 2px 0; }
-        .mp-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; padding: 0; transition: color 0.2s; }
+        .mp-info { font-size: 0.75rem; color: var(--pink); text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0 auto; width: 100%; max-width: 260px; }
+        
+        .mp-controls { display: flex; gap: 20px; align-items: center; justify-content: center; padding: 4px 0; }
+        .mp-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; padding: 0; transition: color 0.2s, filter 0.2s; }
         .mp-btn svg { width: 100%; height: 100%; fill: currentColor; }
-        .mp-btn:hover, .mp-btn:active { color: var(--pink); filter: drop-shadow(0 0 4px var(--pink)); }
+        .mp-btn:hover, .mp-btn:active { color: var(--pink); }
+        .mp-btn.active { color: var(--pink); filter: drop-shadow(0 0 4px var(--pink)); }
+
+        /* Erweiterte Makro-Leiste (wird nur angezeigt wenn Playlist offen) */
+        .mp-macro-controls { display: none; justify-content: space-between; align-items: center; padding: 4px 10px; border-bottom: 1px solid #222; margin-bottom: 4px; }
+        #mp-playlist.show ~ .mp-macro-controls { display: flex; }
+
+        /* Vibe Switch Styling */
+        .vibe-switch-container { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .vibe-slider { -webkit-appearance: none; width: 65px; height: 6px; background: #333; border-radius: 3px; outline: none; cursor: pointer; }
+        .vibe-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; cursor: pointer; transition: background 0.2s; }
+        .vibe-label { font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+
         #mp-playlist { 
-            display: none; max-height: 150px; overflow-y: auto; 
-            border-top: 1px solid #333; padding-top: 10px; margin-top: 5px;
+            display: none; max-height: 160px; overflow-y: auto; 
+            border-top: 1px solid #222; padding-top: 6px; margin-top: 2px;
         }
         #mp-playlist.show { display: block; }
-        .mp-track { 
-            padding: 6px; font-size: 0.75rem; color: #bbb; cursor: pointer; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .mp-track:hover { color: var(--pink); background: rgba(255,42,109,0.05); }
+        
+        .mp-track-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 4px; border-radius: 6px; }
+        .mp-track-row:hover { background: rgba(255,42,109,0.05); }
+        .mp-track { font-size: 0.75rem; color: #bbb; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; padding-right: 8px; }
         .mp-track.active { color: var(--pink); font-weight: bold; }
-        .mp-info { font-size: 0.65rem; color: var(--pink); text-align: center; font-weight: bold; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0 auto; }
+        .mp-track-fav-btn { background: none; border: none; color: #444; cursor: pointer; font-size: 0.85rem; padding: 0 4px; transition: color 0.2s; }
+        .mp-track-fav-btn.is-fav { color: var(--pink); filter: drop-shadow(0 0 2px var(--pink)); }
 
         .slider-row { width: 100%; }
         .slider-row label { font-size: 0.7rem; color: #888; display: block; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
@@ -98,6 +113,29 @@
 
 <div id="music-player-ui">
     <div class="mp-info" id="mp-current-title">Wähle Musik</div>
+    
+    <div id="mp-playlist"></div>
+
+    <div class="mp-macro-controls">
+        <button class="mp-btn" id="mp-shuffle" onclick="toggleMusicShuffle()" title="Shuffle">
+            <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.38 9.44l-1.42 1.42L17.96 19.9 20 17.85V23h-5.5l2.04-2.04-3.66-3.52z"/></svg>
+        </button>
+
+        <div class="vibe-switch-container">
+            <input type="range" id="mp-vibe-slider" class="vibe-slider" min="0" max="2" value="2" step="1" oninput="changeVibeFilter(this.value)">
+            <span class="vibe-label" id="mp-vibe-label" style="color: var(--pink);">All</span>
+        </div>
+
+        <button class="mp-btn" id="mp-master-fav" onclick="toggleMusicFavFilter()" title="Nur Favoriten abspielen">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </button>
+
+        <button class="mp-btn" id="mp-repeat" onclick="toggleMusicRepeat()" title="Repeat">
+            <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l4 4-4 4v-3h12v-6h-2v4z"/></svg>
+            <span id="mp-repeat-badge" style="display:none; position:absolute; font-size:0.55rem; font-weight:bold; bottom:-2px; right:-2px; background:var(--pink); color:white; border-radius:50%; width:10px; height:10px; align-items:center; justify-content:center;">1</span>
+        </button>
+    </div>
+
     <div class="mp-controls">
         <button class="mp-btn" onclick="prevSong()">
             <svg viewBox="0 0 24 24"><path d="M6 5v14h2V5H6zm3 7l9 6V6l-9 6z"/></svg>
@@ -108,11 +146,10 @@
         <button class="mp-btn" onclick="nextSong()">
             <svg viewBox="0 0 24 24"><path d="M6 6v12l9-6-9-6zm10-1v14h2V5h-2z"/></svg>
         </button>
-        <button class="mp-btn" onclick="document.getElementById('mp-playlist').classList.toggle('show')">
+        <button class="mp-btn" id="mp-burger-btn" onclick="togglePlaylistView()">
             <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
         </button>
     </div>
-    <div id="mp-playlist"></div>
 </div>
 
 <div class="modal" id="modal">
@@ -182,28 +219,30 @@ const media = [
     "Videos/AsmaaUndAlexSex/b02373a454ad4ecb7f3803f645b054dd.mp4"
 ];
 
-// MUSIK PLAYLIST
+// MUSIK PLAYLIST WITH TYPE (hot / spicy)
 const playlist = [
-    { name: "Ashnikko - Itty Bitty", src: "Musik/Ashnikko-Itty_Bitty.mp3" },
-    { name: "Brooke Candy - Yoga (feat. Only Fire)", src: "Musik/Brooke_Candy-Yoga_(feat._Only_Fire).mp3" },
-    { name: "Shygirl - Nike", src: "Musik/Shygirl-Nike.mp3" },
-    { name: "Ilkan Gunuc feat. Clara Stegall - SexyBack", src: "Musik/Ilkan%20Gunuc%20feat.%20Clara%20Stegall%20-%20SexyBack.mp3" },
-    { name: "INXS - Need You Tonight", src: "Musik/INXS%20-%20Need%20You%20Tonight.mp3" },
-    { name: "Blue System - Body Heat (Long Version)", src: "Musik/Blue_System-Body_Heat_(Long_Version).mp3" },
-    { name: "Blue System - Body Heat", src: "Musik/Blue-System-05-Body-Heat.mp3" },
-    { name: "Blue System - Save Me", src: "Musik/Blue-System-03-Save-Me.mp3" },
-    { name: "Blue System - My Bed Is Too Big", src: "Musik/Blue-System-06-My-Bed-Is-Too-Big.mp3" },
-    { name: "Blue System - Do You Wanna Be My Girlfriend", src: "Musik/Blue-System-02-Do-You-Wanna-Be-My-Girlfriend.mp3" },
-    { name: "IAMX - Your Joy Is My Low", src: "Musik/IAMX%20-%20Your%20Joy%20Is%20My%20Low.mp3" },
-    { name: "Wumpscut - Ich will dich", src: "Musik/Wumpscut%20-%20Ich%20will%20dich.mp3" },
-    { name: "Wumpscut - Ich will dich Intro", src: "Musik/Wumpscut%20-%20Boeses%20Junges%20Fleisch%2014%20Years%20Anniversary%20Edition%203CD%20Set%20CD2%20Appendix%201%202013%20-%2005.%20Ich%20Will%20Dich%20Intro.mp3" },
-    { name: "Nine Inch Nails - I Wanna Fuck U Like An Animal", src: "Musik/Nine%20Inch%20Nails%20-%20Closer%20To%20God_I%20Wanna%20Fuck%20U%20Like%20An%20Animal.mp3" }
+    { name: "Ashnikko - Itty Bitty", src: "Musik/Ashnikko-Itty_Bitty.mp3", type: "spicy" },
+    { name: "Brooke Candy - Yoga (feat. Only Fire)", src: "Musik/Brooke_Candy-Yoga_(feat._Only_Fire).mp3", type: "spicy" },
+    { name: "Shygirl - Nike", src: "Musik/Shygirl-Nike.mp3", type: "spicy" },
+    { name: "Ilkan Gunuc feat. Clara Stegall - SexyBack", src: "Musik/Ilkan%20Gunuc%20feat.%20Clara%20Stegall%20-%20SexyBack.mp3", type: "spicy" },
+    { name: "INXS - Need You Tonight", src: "Musik/INXS%20-%20Need%20You%20Tonight.mp3", type: "hot" },
+    { name: "Blue System - Body Heat (Long Version)", src: "Musik/Blue_System-Body_Heat_(Long_Version).mp3", type: "hot" },
+    { name: "Blue System - Body Heat", src: "Musik/Blue-System-05-Body-Heat.mp3", type: "hot" },
+    { name: "Blue System - Save Me", src: "Musik/Blue-System-03-Save-Me.mp3", type: "hot" },
+    { name: "Blue System - My Bed Is Too Big", src: "Musik/Blue-System-06-My-Bed-Is-Too-Big.mp3", type: "hot" },
+    { name: "Blue System - Do You Wanna Be My Girlfriend", src: "Musik/Blue-System-02-Do-You-Wanna-Be-My-Girlfriend.mp3", type: "hot" },
+    { name: "IAMX - Your Joy Is My Low", src: "Musik/IAMX%20-%20Your%20Joy%20Is%20My%20Low.mp3", type: "spicy" },
+    { name: "Wumpscut - Ich will dich", src: "Musik/Wumpscut%20-%20Ich%20will%20dich.mp3", type: "spicy" },
+    { name: "Wumpscut - Ich will dich Intro", src: "Musik/Wumpscut%20-%20Boeses%20Junges%20Fleisch%2014%20Years%20Anniversary%20Edition%203CD%20Set%20CD2%20Appendix%201%202013%20-%2005.%20Ich%20Will%20Dich%20Intro.mp3", type: "spicy" },
+    { name: "Nine Inch Nails - I Wanna Fuck U Like An Animal", src: "Musik/Nine%20Inch%20Nails%20-%20Closer%20To%20God_I%20Wanna%20Fuck%20U%20Like%20An%20Animal.mp3", type: "spicy" }
 ];
 
 let favs = JSON.parse(localStorage.getItem('eb_favs')) || [];
 let daily = JSON.parse(localStorage.getItem('eb_daily')) || [];
+let musicFavs = JSON.parse(localStorage.getItem('eb_music_favs')) || [];
+
 let mainFilter = 'all'; 
-let subFilter = 'none'; // 'none', 'favs', 'daily'
+let subFilter = 'none'; 
 let currentList = [];
 let currentIndex = 0;
 let isMuted = localStorage.getItem('eb_mute') === 'true';
@@ -212,20 +251,107 @@ let isShuffle = false;
 let videoSpeed = 1.0;
 let slideTimer = null;
 
-// MUSIK PLAYER LOGIK
+// ERWEITERTE PLAY-LOGIK STEURUNG
 let currentSongIdx = 0;
+let musicShuffle = false;
+let musicRepeat = 0; // 0 = Aus, 1 = Playlist Repeat, 2 = Single Track Repeat
+let musicFavFilter = false;
+let musicVibeFilter = 'all'; // 'hot', 'spicy', 'all'
+let filteredPlaylist = [...playlist];
+
 const musicAudio = new Audio();
 musicAudio.volume = 0.5;
 
 function initMusic() {
+    buildFilteredPlaylist();
+}
+
+function buildFilteredPlaylist() {
+    filteredPlaylist = playlist.filter(track => {
+        const matchesVibe = musicVibeFilter === 'all' || track.type === musicVibeFilter;
+        const matchesFav = !musicFavFilter || musicFavs.includes(track.src);
+        return matchesVibe && matchesFav;
+    });
+
     const listDiv = document.getElementById('mp-playlist');
-    playlist.forEach((track, idx) => {
+    listDiv.innerHTML = '';
+
+    filteredPlaylist.forEach((track, idx) => {
+        const row = document.createElement('div');
+        row.className = 'mp-track-row';
+        
         const d = document.createElement('div');
         d.className = 'mp-track';
         d.innerText = track.name;
         d.onclick = () => playSelectedSong(idx);
-        listDiv.appendChild(d);
+        if(playlist[currentSongIdx] && playlist[currentSongIdx].src === track.src) d.classList.add('active');
+
+        const fBtn = document.createElement('button');
+        fBtn.className = 'mp-track-fav-btn' + (musicFavs.includes(track.src) ? ' is-fav' : '');
+        fBtn.innerHTML = '♥';
+        fBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleSongFavorite(track.src);
+        };
+
+        row.appendChild(d);
+        row.appendChild(fBtn);
+        listDiv.appendChild(row);
     });
+}
+
+function togglePlaylistView() {
+    const p = document.getElementById('mp-playlist');
+    const btn = document.getElementById('mp-burger-btn');
+    p.classList.toggle('show');
+    btn.classList.toggle('active', p.classList.contains('show'));
+}
+
+function toggleSongFavorite(src) {
+    if(musicFavs.includes(src)) {
+        musicFavs = musicFavs.filter(s => s !== src);
+    } else {
+        musicFavs.push(src);
+    }
+    localStorage.setItem('eb_music_favs', JSON.stringify(musicFavs));
+    buildFilteredPlaylist();
+}
+
+function toggleMusicShuffle() {
+    musicShuffle = !musicShuffle;
+    document.getElementById('mp-shuffle').classList.toggle('active', musicShuffle);
+}
+
+function toggleMusicFavFilter() {
+    musicFavFilter = !musicFavFilter;
+    document.getElementById('mp-master-fav').classList.toggle('active', musicFavFilter);
+    buildFilteredPlaylist();
+}
+
+function toggleMusicRepeat() {
+    musicRepeat = (musicRepeat + 1) % 3;
+    const btn = document.getElementById('mp-repeat');
+    const badge = document.getElementById('mp-repeat-badge');
+    if(musicRepeat === 0) {
+        btn.classList.remove('active');
+        badge.style.display = 'none';
+    } else if(musicRepeat === 1) {
+        btn.classList.add('active');
+        badge.style.display = 'none';
+    } else if(musicRepeat === 2) {
+        btn.classList.add('active');
+        badge.style.display = 'flex';
+    }
+}
+
+function changeVibeFilter(val) {
+    const labels = ['hot', 'spicy', 'all'];
+    const colors = ['#ffaa00', '#ff3333', 'var(--pink)'];
+    musicVibeFilter = labels[val];
+    const lbl = document.getElementById('mp-vibe-label');
+    lbl.innerText = labels[val];
+    lbl.style.color = colors[val];
+    buildFilteredPlaylist();
 }
 
 function updateMediaSession(track) {
@@ -240,18 +366,23 @@ function updateMediaSession(track) {
 }
 
 function playSelectedSong(idx) {
-    currentSongIdx = idx;
-    musicAudio.src = playlist[currentSongIdx].src;
+    if(!filteredPlaylist.length) return;
+    const track = filteredPlaylist[idx];
+    currentSongIdx = playlist.findIndex(s => s.src === track.src);
+    musicAudio.src = track.src;
     musicAudio.play().catch(() => {});
-    updateMediaSession(playlist[currentSongIdx]);
+    updateMediaSession(track);
     updateMusicUI();
 }
 
 function togglePlayMusic() {
-    if(!musicAudio.src) musicAudio.src = playlist[currentSongIdx].src;
+    if(!filteredPlaylist.length) return;
+    if(!musicAudio.src) {
+        playSelectedSong(0);
+        return;
+    }
     if(musicAudio.paused) {
         musicAudio.play().catch(() => {});
-        updateMediaSession(playlist[currentSongIdx]);
     } else {
         musicAudio.pause();
     }
@@ -259,13 +390,22 @@ function togglePlayMusic() {
 }
 
 function nextSong() {
-    currentSongIdx = (currentSongIdx + 1) % playlist.length;
-    playSelectedSong(currentSongIdx);
+    if(!filteredPlaylist.length) return;
+    if(musicShuffle) {
+        const randIdx = Math.floor(Math.random() * filteredPlaylist.length);
+        playSelectedSong(randIdx);
+    } else {
+        const currentFilteredIdx = filteredPlaylist.findIndex(s => s.src === playlist[currentSongIdx]?.src);
+        const nextFilteredIdx = (currentFilteredIdx + 1) % filteredPlaylist.length;
+        playSelectedSong(nextFilteredIdx >= 0 ? nextFilteredIdx : 0);
+    }
 }
 
 function prevSong() {
-    currentSongIdx = (currentSongIdx - 1 + playlist.length) % playlist.length;
-    playSelectedSong(currentSongIdx);
+    if(!filteredPlaylist.length) return;
+    const currentFilteredIdx = filteredPlaylist.findIndex(s => s.src === playlist[currentSongIdx]?.src);
+    let prevFilteredIdx = (currentFilteredIdx - 1 + filteredPlaylist.length) % filteredPlaylist.length;
+    playSelectedSong(prevFilteredIdx >= 0 ? prevFilteredIdx : 0);
 }
 
 function updateMusicUI() {
@@ -275,13 +415,32 @@ function updateMusicUI() {
     } else {
         pBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
     }
-    document.getElementById('mp-current-title').innerText = playlist[currentSongIdx].name;
-    document.querySelectorAll('.mp-track').forEach((el, i) => {
-        el.classList.toggle('active', i === currentSongIdx);
+    if(playlist[currentSongIdx]) {
+        document.getElementById('mp-current-title').innerText = playlist[currentSongIdx].name;
+    }
+    document.querySelectorAll('.mp-track').forEach((el) => {
+        if(playlist[currentSongIdx]) {
+            el.classList.toggle('active', el.innerText === playlist[currentSongIdx].name);
+        }
     });
 }
 
-musicAudio.onended = () => nextSong();
+musicAudio.onended = () => {
+    if(musicRepeat === 2) {
+        musicAudio.currentTime = 0;
+        musicAudio.play().catch(() => {});
+    } else if(musicRepeat === 1 || musicShuffle) {
+        nextSong();
+    } else {
+        const currentFilteredIdx = filteredPlaylist.findIndex(s => s.src === playlist[currentSongIdx]?.src);
+        if(currentFilteredIdx < filteredPlaylist.length - 1) {
+            nextSong();
+        } else {
+            musicAudio.pause();
+            updateMusicUI();
+        }
+    }
+};
 
 function renderGallery() {
     const g = document.getElementById('gallery');
@@ -318,7 +477,7 @@ function setMainFilter(f) {
 }
 
 function setSubFilter(s) {
-    subFilter = (subFilter === s) ? 'none' : s; // Toggle-Funktion
+    subFilter = (subFilter === s) ? 'none' : s;
     updateTabStyles();
     renderGallery();
 }
@@ -382,7 +541,15 @@ function toggleUI() { document.getElementById('ui-panel').classList.toggle('show
 function toggleSlideshow() { isSlideshow = !isSlideshow; if(isSlideshow) nextMedia(); else clearTimeout(slideTimer); updateUI(); }
 function toggleShuffle() { isShuffle = !isShuffle; updateUI(); }
 function toggleMute() { isMuted = !isMuted; localStorage.setItem('eb_mute', isMuted); if(document.getElementById('player')) document.getElementById('player').muted = isMuted; updateUI(); }
-function toggleVideoSpeed() { videoSpeed = videoSpeed >= 2.0 ? 1.0 : videoSpeed + 0.5; if(document.getElementById('player')) document.getElementById('player').playbackRate = videoSpeed; document.getElementById('v-speed-txt').innerText = videoSpeed + 'x'; }
+
+function toggleVideoSpeed() { 
+    if(videoSpeed === 1.0) videoSpeed = 1.5;
+    else if(videoSpeed === 1.5) videoSpeed = 2.0;
+    else if(videoSpeed === 2.0) videoSpeed = 0.5;
+    else videoSpeed = 1.0;
+    if(document.getElementById('player')) document.getElementById('player').playbackRate = videoSpeed; 
+    document.getElementById('v-speed-txt').innerText = videoSpeed + 'x'; 
+}
 
 function updateUI() {
     document.getElementById('play-btn').innerText = isSlideshow ? '⏸' : '▶';
