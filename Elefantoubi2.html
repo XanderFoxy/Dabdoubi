@@ -38,7 +38,7 @@
             transform: none !important;
         }
 
-        /* MANUELLE ROTATION GEGEN DEN UHRZEIGERSINN (-90 DEG) */
+        /* AKKURATE ROTATIONS-STEUERUNG GEGEN DEN UHRZEIGERSINN */
         .forced-rotation {
             transform: rotate(-90deg) !important;
             width: 100vh !important;
@@ -51,7 +51,7 @@
             object-fit: fill !important;
         }
 
-        /* BEDIENBARKEITS-LEISTE AM OBEREN DISPLAYRAND */
+        /* FIXIERTE COCKPIT-STEUERUNG AM OBEREN DISPLAYRAND */
         .zoom-control-wrapper {
             position: fixed; top: 20px; right: 20px;
             display: none; gap: 10px; z-index: 2700 !important;
@@ -83,7 +83,7 @@
             display: none;
         }
 
-        /* OVERLAY HIGHEST LEVEL FÜR STETS GREIFBARES BURGER-MENÜ */
+        /* ABSOLUTE OVERLAY-PRIORITÄT FÜR DIE NAVIGATIONS-STEUERUNG */
         .burger-trigger { 
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
             width: 60px; height: 60px; background: var(--pink); border-radius: 50%; 
@@ -681,14 +681,13 @@ function openModal(idx) {
     
     // ABSOLUTER PRISTINE RESET ALLER SKALIERUNGS- UND ROTATIONSWERTE BEI MEDIENWECHSEL
     isForcedLandscapeActive = false;
-    isPivotActive = true;
     lastClickX = null;
     lastClickY = null;
     currentScale = 1;
     currentTx = 0;
     currentTy = 0;
     
-    if (orientBtn) orientBtn.style.display = 'none'; // Verhindert frühzeitiges Flackern auf schwarzem Screen
+    if (orientBtn) orientBtn.style.display = 'none';
     
     imgEl.classList.remove('fit-fill', 'forced-rotation');
     imgEl.style.cssText = 'display: none; transform: none; width: ""; height: ""; max-width: ""; max-height: "";';
@@ -758,7 +757,6 @@ function checkOrientationAndTip() {
         medH = imgEl.naturalHeight;
     }
     
-    // Verhindert das Einblenden bei quadratischen Bildern/Videos (medW === medH)
     if (!medW || !medH || medW === medH) {
         if(orientBtn) orientBtn.style.display = 'none';
         return;
@@ -849,8 +847,8 @@ function applyZoomViewLogic() {
 }
 
 function handleMediaContainerClick(e) {
-    // ABSOLUTER KLICK-SCHUTZ: Ignoriert Koordinaten-Auslösungen auf jeglichen Bedienelementen/Menüs
-    if (e.target.closest('#zoom-controls') || e.target.closest('.zoom-ui-btn') || e.target.closest('.burger-trigger') || e.target.closest('.player-panel')) {
+    // KLICK-SCHUTZ: Verhindert die Registrierung eines Pivotpoints auf sämtlichen Navigationselementen
+    if (e.target.closest('#zoom-controls') || e.target.closest('.zoom-ui-btn') || e.target.closest('.burger-trigger') || e.target.closest('.player-panel') || e.target.closest('#music-player-ui')) {
         return;
     }
 
@@ -904,20 +902,19 @@ function calculatePristinePivotScale(clientX, clientY) {
     let vy = vidH / 2;
 
     if(clientX !== null && clientY !== null) {
+        let cxInput = clientX;
+        let cyInput = clientY;
+
+        if (isForcedLandscapeActive) {
+            let tempX = cxInput;
+            cxInput = cyInput;
+            cyInput = winW - tempX;
+        }
+
         if (currentScale === 1) {
-            let cxInput = clientX;
-            let cyInput = clientY;
-
-            if (isForcedLandscapeActive) {
-                let tempX = cxInput;
-                cxInput = cyInput;
-                cyInput = winW - tempX;
-            }
-
             vx = (cxInput - vX) / scaleContain;
             vy = (cyInput - vY) / scaleContain;
         } else {
-            // Umkehr-Matrix-Abbildung zur fehlerfreien, drift-freien Klickerfassung aus dem skalierten Zustand
             if (isForcedLandscapeActive) {
                 vy = (clientX - currentTx) / currentScale;
                 vx = (currentTy - clientY) / currentScale;
@@ -927,7 +924,6 @@ function calculatePristinePivotScale(clientX, clientY) {
             }
         }
 
-        // Kanten-Clamping: Verhindert mathematischen Überlauf und Spacings/Marginale Leerräume an den Rändern
         vx = Math.max(0, Math.min(vidW, vx));
         vy = Math.max(0, Math.min(vidH, vy));
     }
@@ -1025,6 +1021,7 @@ function setImmersiveMode(hide) {
     const panel = document.getElementById('ui-panel');
     const controls = document.getElementById('zoom-controls');
     const orientBtn = document.getElementById('orientation-toggle-btn');
+    const pivotBtn = document.getElementById('pivot-indicator-btn');
     
     if(hide) {
         if(musicUI) musicUI.style.setProperty('display', 'none', 'important');
@@ -1032,16 +1029,17 @@ function setImmersiveMode(hide) {
         if(burger) burger.style.setProperty('pointer-events', 'none', 'important');
         if(panel) panel.classList.remove('show');
         if(controls) controls.classList.add('translucent');
+        if(pivotBtn) pivotBtn.classList.add('translucent');
         isUIHiddenInZoom = true;
     } else {
         if(musicUI) musicUI.style.removeProperty('display');
         if(burger) burger.style.removeProperty('opacity');
         if(burger) burger.style.removeProperty('pointer-events');
         if(controls) controls.classList.remove('translucent');
+        if(pivotBtn && isPivotActive) pivotBtn.classList.remove('translucent');
         isUIHiddenInZoom = false;
     }
     
-    // Der Orientierungs-Kreisel behält seine volle Sichtbarkeit, falls er vorgeschlagen wird
     if(orientBtn && orientBtn.style.display === 'flex') {
         orientBtn.classList.remove('translucent');
         orientBtn.style.setProperty('opacity', '1', 'important');
@@ -1059,7 +1057,6 @@ window.addEventListener('resize', function() {
         const isMediaLandscape = medW > medH;
         const isScreenLandscape = window.innerWidth > window.innerHeight;
         
-        // Löscht künstliche Drehung selbsttätig, falls die physische Lage des Displays passt
         if (isMediaLandscape === isScreenLandscape) {
             isForcedLandscapeActive = false;
         }
