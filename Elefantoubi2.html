@@ -50,11 +50,13 @@
             object-fit: fill !important;
         }
 
-        /* STEUERUNGS BUTTON BAR AM OBEREN RENDERING LIMIT */
+        /* ISOLIERTER COCKPIT-BUTTON-CONTAINER GEGEN LAYOUT-SHIFTS */
         .zoom-control-wrapper {
             position: fixed; top: 20px; right: 20px;
             display: none; gap: 10px; z-index: 2700 !important;
-            pointer-events: auto;
+            pointer-events: auto; width: auto; height: auto;
+            flex-direction: row; align-items: center; justify-content: flex-end;
+            transition: opacity 0.25s ease;
         }
 
         .zoom-ui-btn {
@@ -80,12 +82,13 @@
         }
         #pivot-memory-btn {
             display: none; color: #00ff66; border-color: #00ff66;
+            box-shadow: 0 0 12px rgba(0, 255, 102, 0.4);
         }
         #orientation-toggle-btn {
             display: none;
         }
 
-        /* OVERLAY HIGHEST LEVEL FÜR DAS BURGER-MENÜ */
+        /* OVERLAY MASTER LEVEL FÜR DIE NAVIGATION */
         .burger-trigger { 
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
             width: 60px; height: 60px; background: var(--pink); border-radius: 50%; 
@@ -902,6 +905,7 @@ function handleMediaContainerClick(e) {
     }
 }
 
+// PRISTINE PRÄZISE FIXPUNKT-ZOOM LOGIK MIT DIREKT-MAPPING (KANTEN-CLAMPING AN DEN DISPLAY-RÄNDERN)
 function calculatePristinePivotScale(clientX, clientY) {
     const container = document.getElementById('modal-media');
     const vidEl = document.getElementById('modal-video');
@@ -916,70 +920,66 @@ function calculatePristinePivotScale(clientX, clientY) {
     let winW = container.clientWidth;
     let winH = container.clientHeight;
 
-    let viewW = isForcedLandscapeActive ? winH : winW;
-    let viewH = isForcedLandscapeActive ? winW : winH;
+    let baseScale = isForcedLandscapeActive 
+        ? Math.max(winW / vidH, winH / vidW)
+        : Math.max(winW / vidW, winH / vidH);
 
-    let scaleContain = Math.min(viewW / vidW, viewH / vidH);
-    let vW = vidW * scaleContain;
-    let vH = vidH * scaleContain;
-    let vX = (viewW - vW) / 2;
-    let vY = (viewH - vH) / 2;
-
-    let px = 0.5, py = 0.5;
+    let vx = vidW / 2;
+    let vy = vidH / 2;
 
     if(clientX !== null && clientY !== null) {
-        let cxInput = clientX;
-        let cyInput = clientY;
+        if (currentScale === 1 || currentTx === 0) {
+            let viewW = isForcedLandscapeActive ? winH : winW;
+            let viewH = isForcedLandscapeActive ? winW : winH;
+            let scaleContain = Math.min(viewW / vidW, viewH / vidH);
+            let vX = (viewW - vidW * scaleContain) / 2;
+            let vY = (viewH - vidH * scaleContain) / 2;
 
-        if (isForcedLandscapeActive) {
-            let tempX = cxInput;
-            cxInput = cyInput;
-            cyInput = winW - tempX;
-        }
-
-        if (currentScale === 1) {
-            px = (cxInput - vX) / vW;
-            py = (cyInput - vY) / vH;
+            let cxInput = clientX;
+            let cyInput = clientY;
+            if (isForcedLandscapeActive) {
+                cxInput = clientY;
+                cyInput = winW - clientX;
+            }
+            vx = (cxInput - vX) / scaleContain;
+            vy = (cyInput - vY) / scaleContain;
         } else {
-            let vxCalc = (cxInput - currentTx) / currentScale;
-            let vyCalc = (cyInput - currentTy) / currentScale;
-            px = vxCalc / vidW;
-            py = vyCalc / vidH;
+            if (isForcedLandscapeActive) {
+                vy = (clientX - currentTx) / currentScale;
+                vx = (currentTy - clientY) / currentScale;
+            } else {
+                vx = (clientX - currentTx) / currentScale;
+                vy = (clientY - currentTy) / currentScale;
+            }
         }
     } else {
         if (isPivotMemoryActive && pivotMemory[src]) {
-            px = pivotMemory[src].px;
-            py = pivotMemory[src].py;
+            vx = pivotMemory[src].px * vidW;
+            vy = pivotMemory[src].py * vidH;
         }
     }
 
-    let vx = px * vidW;
-    let vy = py * vidH;
-    
+    // 5-PIXEL BÜNDIGKEITS PUFFER FÜR RAND-SNAPPING
     if (vx <= 5) vx = 0;
     if (vx >= vidW - 5) vx = vidW;
     if (vy <= 5) vy = 0;
     if (vy >= vidH - 5) vy = vidH;
 
-    px = vx / vidW;
-    py = vy / vidH;
-
     if (clientX !== null && clientY !== null && isPivotMemoryActive) {
-        pivotMemory[src] = { px: px, py: py };
+        pivotMemory[src] = { px: vx / vidW, py: vy / vidH };
         localStorage.setItem('eb_pivot_memory_data', JSON.stringify(pivotMemory));
     }
 
-    let cx = viewW / 2;
-    let cy = viewH / 2;
-    let baseCover = Math.max(viewW / vidW, viewH / vidH);
+    let cx = (isForcedLandscapeActive ? winH : winW) / 2;
+    let cy = (isForcedLandscapeActive ? winW : winH) / 2;
 
-    let sLeft = vx === 0 ? baseCover : cx / vx;
-    let sRight = vx === vidW ? baseCover : (viewW - cx) / (vidW - vx);
-    let sTop = vy === 0 ? baseCover : cy / vy;
-    let sBottom = vy === vidH ? baseCover : (viewH - cy) / (vidH - vy);
+    let sLeft = vx === 0 ? baseScale : cx / vx;
+    let sRight = vx === vidW ? baseScale : ((isForcedLandscapeActive ? winH : winW) - cx) / (vidW - vx);
+    let sTop = vy === 0 ? baseScale : cy / vy;
+    let sBottom = vy === vidH ? baseScale : ((isForcedLandscapeActive ? winW : winH) - cy) / (vidH - vy);
 
-    let S = Math.max(sLeft, sRight, sTop, sBottom);
-    if(S < baseCover || isNaN(S) || !isFinite(S)) S = baseCover;
+    let S = Math.max(sLeft, sRight, sTop, sBottom, baseScale);
+    if(S < baseScale || isNaN(S) || !isFinite(S)) S = baseScale;
 
     el.style.width = vidW + 'px';
     el.style.height = vidH + 'px';
@@ -987,19 +987,18 @@ function calculatePristinePivotScale(clientX, clientY) {
     el.style.maxHeight = 'none';
     el.style.transformOrigin = '0 0';
 
-    let TX = cx - vx * S;
-    let TY = cy - vy * S;
-
-    TX = Math.max(viewW - vidW * S, Math.min(0, TX));
-    TY = Math.max(viewH - vidH * S, Math.min(0, TY));
-
+    let TX, TY;
     if(isForcedLandscapeActive) {
-        let rTX = (winW / 2) - (vy * S);
-        let rTY = (winH / 2) + (vx * S);
-        rTX = Math.max(0, Math.min(winW, rTX));
-        rTY = Math.max(0, Math.min(winH, rTY));
-        el.style.transform = `translate(${rTX}px, ${rTY}px) rotate(-90deg) scale(${S})`;
+        TX = (winW / 2) - (vy * S);
+        TY = (winH / 2) + (vx * S);
+        TX = Math.max(winW - vidH * S, Math.min(0, TX));
+        TY = Math.max(winH, Math.min(vidW * S, TY));
+        el.style.transform = `translate(${TX}px, ${TY}px) rotate(-90deg) scale(${S})`;
     } else {
+        TX = cx - vx * S;
+        TY = cy - vy * S;
+        TX = Math.max(winW - vidW * S, Math.min(0, TX));
+        TY = Math.max(winH - vidH * S, Math.min(0, TY));
         el.style.transform = `translate(${TX}px, ${TY}px) scale(${S})`;
     }
 
@@ -1088,6 +1087,7 @@ function resetVideoUITimer() {
     clearTimeout(videoUITimer);
     if(currentZoomMode > 0) {
         setImmersiveMode(false); 
+        // Verhindert das Ausblenden, wenn die Navigationsleiste gerade aktiv geöffnet ist
         videoUITimer = setTimeout(function() {
             if(currentZoomMode > 0 && !document.getElementById('ui-panel').classList.contains('show')) {
                 setImmersiveMode(true); 
