@@ -23,12 +23,12 @@
         .item-actions { position:absolute; top:8px; right:8px; display:flex; flex-direction:column; gap:8px; z-index:10; }
         .action-btn { font-size:1.3rem; filter: drop-shadow(0 0 5px black); cursor: pointer; }
 
-        /* ABSOLUT BLICKDICHTES MODAL - VERHINDERT JEDES DURCHSCHEINEN DES HAUPTMENÜS */
-        .modal { display:none; position:fixed; inset:0 !important; background:#000000 !important; z-index:99999 !important; flex-direction: column; overflow: hidden !important; width: 100vw !important; height: 100vh !important; }
+        /* ABSOLUT BLICKDICHTES MODAL - DECKT ALLES IM HINTERGRUND AB */
+        .modal { display:none; position:fixed; inset:0 !important; background:#000000 !important; z-index:99999 !important; overflow: hidden !important; width: 100vw !important; height: 100vh !important; }
         .modal.active { display:flex; }
         
-        /* STRIKTE VERTIKALE UND HORIZONTALE VIEWPORT-ZENTRIERUNG FÜR SÄMTLICHE GERÄTE */
-        .media-container { position: absolute; inset: 0 !important; display: flex; align-items: center; justify-content: center; overflow: hidden !important; width: 100% !important; height: 100% !important; background: #000000 !important; pointer-events: auto; z-index: 1; }
+        /* HARDWARE-BASIERTE DISPLAY-ZENTRIERUNG FÜR SÄMTLICHE GERÄTE-ANSICHTEN */
+        .media-container { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; display: flex !important; align-items: center !important; justify-content: center !important; background: #000000 !important; pointer-events: auto; z-index: 2 !important; }
         
         #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; transform: translate3d(0,0,0); }
 
@@ -53,7 +53,7 @@
             object-fit: fill !important;
         }
 
-        /* ABSOLUT ISOLIERTE STEUERUNGSLEISTE - SCHÜTZT VOR JEDEM LAYOUT-SHIFT */
+        /* HARDWARE-ISOLIERTER STEUERUNGS-CONTAINER GEGEN UNERWÜNSCHTE VERSCHIEBUNGEN */
         .zoom-control-wrapper {
             position: fixed; top: 20px; right: 20px;
             display: none; gap: 10px; z-index: 100005 !important;
@@ -90,7 +90,7 @@
             display: none;
         }
 
-        /* MAXIMALER STACKING CONTEXT FÜR DIE SYSTEMSTEUERUNG */
+        /* OVERLAY SYSTEM LEVEL FÜR DIE STEUERUNGSELEMENTE */
         .burger-trigger { 
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
             width: 60px; height: 60px; background: var(--pink); border-radius: 50%; 
@@ -112,7 +112,7 @@
 
         /* MUSIK PLAYER STYLES */
         #music-player-ui {
-            position: fixed; bottom: 20px; left: 20px; z-index: 100007 !important;
+            position: fixed; bottom: 20px; left: 20px; z-index: 100006 !important;
             background: var(--ui-bg); border: 1px solid #333; border-radius: 15px;
             padding: 10px; display: flex; flex-direction: column; gap: 4px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.6); 
@@ -369,7 +369,7 @@ const playlist = [
 let favs = JSON.parse(localStorage.getItem('eb_favs')) || [];
 let daily = JSON.parse(localStorage.getItem('eb_daily')) || [];
 let musicFavs = JSON.parse(localStorage.getItem('eb_music_favs')) || [];
-let pivotMemory = JSON.parse(localStorage.getItem('eb_pivot_memory_data_v4')) || {};
+let pivotMemory = JSON.parse(localStorage.getItem('eb_pivot_memory_data_v5')) || {};
 
 let mainFilter = 'all'; 
 let subFilter = 'none'; 
@@ -698,18 +698,16 @@ function openModal(idx) {
     currentTx = 0;
     currentTy = 0;
     
-    if (!isPivotMemoryActive) {
-        lastClickX = null;
-        lastClickY = null;
-    }
-    
     if (orientBtn) orientBtn.style.display = 'none';
     
-    // PER-MEDIUM ANCHOR LOGIK: Automatische Wiederherstellung aus dem Local Storage bei aktivem Häkchen
     if (isPivotMemoryActive && pivotMemory[src]) {
         currentZoomMode = pivotMemory[src].mode ?? 0;
         videoSpeed = pivotMemory[src].speed ?? 1.0;
+        lastClickX = pivotMemory[src].cx ?? null;
+        lastClickY = pivotMemory[src].cy ?? null;
     } else {
+        lastClickX = null;
+        lastClickY = null;
         videoSpeed = 1.0;
     }
     
@@ -772,6 +770,7 @@ function openModal(idx) {
         if(isSlideshow) slideTimer = setTimeout(nextMedia, document.getElementById('speed-slider').value);
     }
     
+    resetVideoUITimer();
     m.classList.add('active');
     updateUI();
 }
@@ -835,12 +834,11 @@ function cycleVideoZoom(e) {
 function togglePivotFeature(e) {
     if(e) e.stopPropagation();
     
-    // RESET BEFEHL: Direktes Löschen des individuellen Fixpunkts bei Klick auf das Cyan-Fadenkreuz
     if (currentZoomMode === 1) {
         const src = currentList[currentIndex];
         if (isPivotMemoryActive && pivotMemory[src]) {
-            delete pivotMemory[src].px;
-            delete pivotMemory[src].py;
+            delete pivotMemory[src].cx;
+            delete pivotMemory[src].cy;
             localStorage.setItem('eb_pivot_memory_data_v4', JSON.stringify(pivotMemory));
         }
         lastClickX = null;
@@ -897,7 +895,7 @@ function applyZoomViewLogic() {
 }
 
 function handleMediaContainerClick(e) {
-    // KLICK-SCHUTZ: Verhindert die Aktivierung eines Fixpunkts bei Klicks auf Menüs oder Buttons
+    // ABSOLUTER KLICK SCHUTZ: Ignoriert Trigger auf allen Steuerungselementen komplett
     if (e.target.closest('#zoom-controls') || e.target.closest('.zoom-ui-btn') || e.target.closest('.burger-trigger') || e.target.closest('.player-panel') || e.target.closest('#music-player-ui')) {
         return;
     }
@@ -927,7 +925,7 @@ function handleMediaContainerClick(e) {
     }
 }
 
-// ARITHMETISCH REIN DETERMINISTISCHE RECHNER-LOGIK (RAND-CLAMPING MIT 5-PIXEL-PUFFER GEGEN JEDE MARGIN ODER FREIRÄUME)
+// PRISTINE DETERMINISTISCHE RECHNER-LOGIK (CLAMPING MIT 5-PIXEL PUFFER / KEINE RANDÜBERLÄUFE ODER VERSÄTZE)
 function calculatePristinePivotScale(clientX, clientY) {
     const container = document.getElementById('modal-media');
     const vidEl = document.getElementById('modal-video');
@@ -942,46 +940,37 @@ function calculatePristinePivotScale(clientX, clientY) {
     let winW = container.clientWidth;
     let winH = container.clientHeight;
 
-    let baseScale = isForcedLandscapeActive 
-        ? Math.max(winW / vidH, winH / vidW)
-        : Math.max(winW / vidW, winH / vidH);
+    let viewW = isForcedLandscapeActive ? winH : winW;
+    let viewH = isForcedLandscapeActive ? winW : winH;
+
+    let scaleContain = Math.min(viewW / vidW, viewH / vidH);
+    let vW = vidW * scaleContain;
+    let vH = vidH * scaleContain;
+    let vX = (viewW - vW) / 2;
+    let vY = (viewH - vH) / 2;
 
     let vx = vidW / 2;
     let vy = vidH / 2;
 
     if(clientX !== null && clientY !== null) {
-        if (currentScale === 1 || currentTx === 0) {
-            let viewW = isForcedLandscapeActive ? winH : winW;
-            let viewH = isForcedLandscapeActive ? winW : winH;
-            let scaleContain = Math.min(viewW / vidW, viewH / vidH);
-            let vX = (viewW - vidW * scaleContain) / 2;
-            let vY = (viewH - vidH * scaleContain) / 2;
+        let cxInput = clientX;
+        let cyInput = clientY;
 
-            let cxInput = clientX;
-            let cyInput = clientY;
-            if (isForcedLandscapeActive) {
-                cxInput = clientY;
-                cyInput = winW - clientX;
-            }
-            vx = (cxInput - vX) / scaleContain;
-            vy = (cyInput - vY) / scaleContain;
-        } else {
-            if (isForcedLandscapeActive) {
-                vy = (clientX - currentTx) / currentScale;
-                vx = (currentTy - clientY) / currentScale;
-            } else {
-                vx = (clientX - currentTx) / currentScale;
-                vy = (clientY - currentTy) / currentScale;
-            }
+        if (isForcedLandscapeActive) {
+            cxInput = clientY;
+            cyInput = winW - clientX;
         }
+
+        vx = (cxInput - vX) / scaleContain;
+        vy = (cyInput - vY) / scaleContain;
     } else {
-        if (isPivotMemoryActive && pivotMemory[src] && pivotMemory[src].px !== undefined) {
-            vx = pivotMemory[src].px * vidW;
-            vy = pivotMemory[src].py * vidH;
+        if (isPivotMemoryActive && pivotMemory[src] && pivotMemory[src].cx !== null) {
+            vx = pivotMemory[src].cx * vidW;
+            vy = pivotMemory[src].cy * vidH;
         }
     }
 
-    // 5-PIXEL BÜNDIGKEITS PUFFER
+    // 5-PIXEL RAND-SNAPPING LOGIK
     if (vx <= 5) vx = 0;
     if (vx >= vidW - 5) vx = vidW;
     if (vy <= 5) vy = 0;
@@ -989,20 +978,21 @@ function calculatePristinePivotScale(clientX, clientY) {
 
     if (isPivotMemoryActive) {
         if (!pivotMemory[src]) pivotMemory[src] = {};
-        pivotMemory[src].px = vx / vidW;
-        pivotMemory[src].py = vy / vidH;
+        pivotMemory[src].cx = vx / vidW;
+        pivotMemory[src].cy = vy / vidH;
         pivotMemory[src].mode = currentZoomMode;
         pivotMemory[src].speed = videoSpeed;
         localStorage.setItem('eb_pivot_memory_data_v4', JSON.stringify(pivotMemory));
     }
 
-    let cx = (isForcedLandscapeActive ? winH : winW) / 2;
-    let cy = (isForcedLandscapeActive ? winW : winH) / 2;
+    let cx = viewW / 2;
+    let cy = viewH / 2;
+    let baseScale = Math.max(viewW / vidW, viewH / vidH);
 
     let sLeft = vx === 0 ? baseScale : cx / vx;
-    let sRight = vx === vidW ? baseScale : ((isForcedLandscapeActive ? winH : winW) - cx) / (vidW - vx);
+    let sRight = vx === vidW ? baseScale : (viewW - cx) / (vidW - vx);
     let sTop = vy === 0 ? baseScale : cy / vy;
-    let sBottom = vy === vidH ? baseScale : ((isForcedLandscapeActive ? winW : winH) - cy) / (vidH - vy);
+    let sBottom = vy === vidH ? baseScale : (viewH - cy) / (vidH - vy);
 
     let S = Math.max(sLeft, sRight, sTop, sBottom, baseScale);
     if(S < baseScale || isNaN(S) || !isFinite(S)) S = baseScale;
@@ -1016,12 +1006,15 @@ function calculatePristinePivotScale(clientX, clientY) {
     let TX = cx - vx * S;
     let TY = cy - vy * S;
 
-    TX = Math.max((isForcedLandscapeActive ? winH : winW) - vidW * S, Math.min(0, TX));
-    TY = Math.max((isForcedLandscapeActive ? winW : winH) - vidH * S, Math.min(0, TY));
+    // Kanten-Clamping: Verhindert mathematisch jegliche Ränder und Rahmen
+    TX = Math.max(viewW - vidW * S, Math.min(0, TX));
+    TY = Math.max(viewH - vidH * S, Math.min(0, TY));
 
     if(isForcedLandscapeActive) {
         let rTX = (winW / 2) - (vy * S);
         let rTY = (winH / 2) + (vx * S);
+        rTX = Math.max(0, Math.min(winW, rTX));
+        rTY = Math.max(0, Math.min(winH, rTY));
         el.style.transform = `translate(${rTX}px, ${rTY}px) rotate(-90deg) scale(${S})`;
     } else {
         el.style.transform = `translate(${TX}px, ${TY}px) scale(${S})`;
