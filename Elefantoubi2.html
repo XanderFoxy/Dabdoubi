@@ -23,9 +23,11 @@
         .item-actions { position:absolute; top:8px; right:8px; display:flex; flex-direction:column; gap:8px; z-index:10; }
         .action-btn { font-size:1.3rem; filter: drop-shadow(0 0 5px black); cursor: pointer; }
 
-        /* ABSOLUT BLICKDICHTES MODAL - STRICKTES DURCHSCHEIN-VERBOT */
+        /* ABSOLUT BLICKDICHTES MODAL - VERHINDERT JEDES DURCHSCHEINEN DES HAUPTMENÜS */
         .modal { display:none; position:fixed; inset:0 !important; background:#000000 !important; z-index:99999 !important; flex-direction: column; overflow: hidden !important; width: 100vw !important; height: 100vh !important; }
         .modal.active { display:flex; }
+        
+        /* STRIKTE VERTIKALE UND HORIZONTALE VIEWPORT-ZENTRIERUNG FÜR SÄMTLICHE GERÄTE */
         .media-container { position: absolute; inset: 0 !important; display: flex; align-items: center; justify-content: center; overflow: hidden !important; width: 100% !important; height: 100% !important; background: #000000 !important; pointer-events: auto; z-index: 1; }
         
         #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; transform: translate3d(0,0,0); }
@@ -51,7 +53,7 @@
             object-fit: fill !important;
         }
 
-        /* FIXIERTE COCKPIT-LEISTE - VOLLKOMMEN ENTGEGEN LAYOUT-SHIFTS GESCHÜTZT */
+        /* ABSOLUT ISOLIERTE STEUERUNGSLEISTE - SCHÜTZT VOR JEDEM LAYOUT-SHIFT */
         .zoom-control-wrapper {
             position: fixed; top: 20px; right: 20px;
             display: none; gap: 10px; z-index: 100005 !important;
@@ -88,7 +90,7 @@
             display: none;
         }
 
-        /* ABSOLUTE EBENEN-PRIORITÄT FÜR INTERACTION OVERLAYS */
+        /* MAXIMALER STACKING CONTEXT FÜR DIE SYSTEMSTEUERUNG */
         .burger-trigger { 
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
             width: 60px; height: 60px; background: var(--pink); border-radius: 50%; 
@@ -367,7 +369,7 @@ const playlist = [
 let favs = JSON.parse(localStorage.getItem('eb_favs')) || [];
 let daily = JSON.parse(localStorage.getItem('eb_daily')) || [];
 let musicFavs = JSON.parse(localStorage.getItem('eb_music_favs')) || [];
-let pivotMemory = JSON.parse(localStorage.getItem('eb_pivot_memory_data_v3')) || {};
+let pivotMemory = JSON.parse(localStorage.getItem('eb_pivot_memory_data_v4')) || {};
 
 let mainFilter = 'all'; 
 let subFilter = 'none'; 
@@ -703,14 +705,11 @@ function openModal(idx) {
     
     if (orientBtn) orientBtn.style.display = 'none';
     
-    // GEDÄCHTNIS REBOOT PRO MEDIUM BEIM LADEN
+    // PER-MEDIUM ANCHOR LOGIK: Automatische Wiederherstellung aus dem Local Storage bei aktivem Häkchen
     if (isPivotMemoryActive && pivotMemory[src]) {
         currentZoomMode = pivotMemory[src].mode ?? 0;
         videoSpeed = pivotMemory[src].speed ?? 1.0;
     } else {
-        if (currentZoomMode === 1) {
-            currentZoomMode = 1; 
-        }
         videoSpeed = 1.0;
     }
     
@@ -836,13 +835,13 @@ function cycleVideoZoom(e) {
 function togglePivotFeature(e) {
     if(e) e.stopPropagation();
     
-    // RESET BEFEHL: Entfernt Fixpunkt-Koordinaten sofort bei Klick auf das Cyan-Fadenkreuz
+    // RESET BEFEHL: Direktes Löschen des individuellen Fixpunkts bei Klick auf das Cyan-Fadenkreuz
     if (currentZoomMode === 1) {
         const src = currentList[currentIndex];
         if (isPivotMemoryActive && pivotMemory[src]) {
             delete pivotMemory[src].px;
             delete pivotMemory[src].py;
-            localStorage.setItem('eb_pivot_memory_data_v3', JSON.stringify(pivotMemory));
+            localStorage.setItem('eb_pivot_memory_data_v4', JSON.stringify(pivotMemory));
         }
         lastClickX = null;
         lastClickY = null;
@@ -858,7 +857,6 @@ function togglePivotMemory(e) {
     isPivotMemoryActive = !isPivotMemoryActive;
     localStorage.setItem('eb_pivot_memory_active', isPivotMemoryActive);
     
-    // Erzwingt die sofortige Live-Synchronisierung im Local Storage
     syncCurrentSettingsToMemory();
     applyZoomViewLogic();
     resetVideoUITimer();
@@ -869,13 +867,11 @@ function applyZoomViewLogic() {
     const imgEl = document.getElementById('modal-img');
     const el = vidEl.style.display === 'block' ? vidEl : imgEl;
     const pivotBtn = document.getElementById('pivot-indicator-btn');
-    const memoryBtn = document.getElementById('pivot-memory-btn');
     
     vidEl.classList.remove('fit-fill', 'forced-rotation');
     imgEl.classList.remove('fit-fill', 'forced-rotation');
     
     pivotBtn.style.display = 'none';
-    memoryBtn.style.display = 'flex'; // Kontinuierlich sichtbar für maximale Transparenz
     
     if(currentZoomMode === 0) {
         el.style.transform = '';
@@ -901,7 +897,7 @@ function applyZoomViewLogic() {
 }
 
 function handleMediaContainerClick(e) {
-    // ABSOLUTE BLOCKADE GEGEN UNGEWOLLTE BLEED-THROUGH FIXPUNKTE AUF BEDIENELEMENTEN
+    // KLICK-SCHUTZ: Verhindert die Aktivierung eines Fixpunkts bei Klicks auf Menüs oder Buttons
     if (e.target.closest('#zoom-controls') || e.target.closest('.zoom-ui-btn') || e.target.closest('.burger-trigger') || e.target.closest('.player-panel') || e.target.closest('#music-player-ui')) {
         return;
     }
@@ -931,7 +927,7 @@ function handleMediaContainerClick(e) {
     }
 }
 
-// ARITHMETISCH REIN DETERMINISTISCHE FIXPUNKT-ZOOM BERECHNUNG (PLATFORM-AGNOSTISCH FÜR IPHONE UND IPAD)
+// ARITHMETISCH REIN DETERMINISTISCHE RECHNER-LOGIK (RAND-CLAMPING MIT 5-PIXEL-PUFFER GEGEN JEDE MARGIN ODER FREIRÄUME)
 function calculatePristinePivotScale(clientX, clientY) {
     const container = document.getElementById('modal-media');
     const vidEl = document.getElementById('modal-video');
@@ -959,7 +955,7 @@ function calculatePristinePivotScale(clientX, clientY) {
             let viewH = isForcedLandscapeActive ? winW : winH;
             let scaleContain = Math.min(viewW / vidW, viewH / vidH);
             let vX = (viewW - vidW * scaleContain) / 2;
-            let vY = (viewH - vH) / 2;
+            let vY = (viewH - vidH * scaleContain) / 2;
 
             let cxInput = clientX;
             let cyInput = clientY;
@@ -985,7 +981,7 @@ function calculatePristinePivotScale(clientX, clientY) {
         }
     }
 
-    // 5-PIXEL RAND-ANKER SCHUTZ FÜR ABSOLUTEN DISPLAYRAND-ABSCHLUSS
+    // 5-PIXEL BÜNDIGKEITS PUFFER
     if (vx <= 5) vx = 0;
     if (vx >= vidW - 5) vx = vidW;
     if (vy <= 5) vy = 0;
@@ -997,7 +993,7 @@ function calculatePristinePivotScale(clientX, clientY) {
         pivotMemory[src].py = vy / vidH;
         pivotMemory[src].mode = currentZoomMode;
         pivotMemory[src].speed = videoSpeed;
-        localStorage.setItem('eb_pivot_memory_data_v3', JSON.stringify(pivotMemory));
+        localStorage.setItem('eb_pivot_memory_data_v4', JSON.stringify(pivotMemory));
     }
 
     let cx = (isForcedLandscapeActive ? winH : winW) / 2;
@@ -1042,7 +1038,7 @@ function syncCurrentSettingsToMemory() {
         if (!pivotMemory[src]) pivotMemory[src] = {};
         pivotMemory[src].mode = currentZoomMode;
         pivotMemory[src].speed = videoSpeed;
-        localStorage.setItem('eb_pivot_memory_data_v3', JSON.stringify(pivotMemory));
+        localStorage.setItem('eb_pivot_memory_data_v4', JSON.stringify(pivotMemory));
     }
 }
 
@@ -1124,7 +1120,6 @@ function toggleNavigationPanel(e) {
 
 function resetVideoUITimer() {
     clearTimeout(videoUITimer);
-    // Verhindert das Ausblenden, falls die Transportleiste aktiv geöffnet ist
     if(currentZoomMode > 0 && !document.getElementById('ui-panel').classList.contains('show')) {
         setImmersiveMode(false); 
         videoUITimer = setTimeout(function() {
@@ -1160,7 +1155,7 @@ function setImmersiveMode(hide) {
         if(burger) burger.style.removeProperty('opacity');
         if(burger) burger.style.removeProperty('pointer-events');
         if(controls) controls.classList.remove('translucent');
-        if(pivotBtn && isPivotActive) pivotBtn.classList.remove('translucent');
+        if(pivotBtn) pivotBtn.classList.remove('translucent');
         if(memoryBtn) memoryBtn.classList.remove('translucent');
         isUIHiddenInZoom = false;
     }
