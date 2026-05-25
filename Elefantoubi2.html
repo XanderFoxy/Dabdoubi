@@ -618,24 +618,6 @@ function updateMusicUI() {
     });
 }
 
-musicAudio.onended = () => {
-    if(musicRepeat === 2) {
-        musicAudio.currentTime = 0;
-        musicAudio.play().catch(() => {});
-    } else if(musicRepeat === 1 || musicShuffle) {
-        nextSong();
-    } else {
-        const currentFilteredIdx = filteredPlaylist.findIndex(s => s.src === playlist[currentSongIdx]?.src);
-        if(currentFilteredIdx < filteredPlaylist.length - 1) {
-            nextSong();
-        } else {
-            musicWasPlaying = false;
-            musicAudio.pause();
-            updateMusicUI();
-        }
-    }
-};
-
 function renderGallery() {
     const g = document.getElementById('gallery');
     g.innerHTML = '';
@@ -692,16 +674,21 @@ function openModal(idx) {
     const imgEl = document.getElementById('modal-img');
     const vidEl = document.getElementById('modal-video');
     const ctrlWrapper = document.getElementById('zoom-controls');
+    const orientBtn = document.getElementById('orientation-toggle-btn');
     const src = currentList[currentIndex];
     const isVid = src.match(/\.(mp4|mov)$/i);
     clearTimeout(slideTimer);
     
-    // ABSOLUTER STRIP-RESET ALLER STRUKTUREN BEIM MEDIENWECHSEL
+    // ABSOLUTER PRISTINE RESET ALLER SKALIERUNGS- UND ROTATIONSWERTE BEI MEDIENWECHSEL
     isForcedLandscapeActive = false;
     isPivotActive = true;
     lastClickX = null;
     lastClickY = null;
     currentScale = 1;
+    currentTx = 0;
+    currentTy = 0;
+    
+    if (orientBtn) orientBtn.style.display = 'none'; // Verhindert frühzeitiges Flackern auf schwarzem Screen
     
     imgEl.classList.remove('fit-fill', 'forced-rotation');
     imgEl.style.cssText = 'display: none; transform: none; width: ""; height: ""; max-width: ""; max-height: "";';
@@ -723,7 +710,7 @@ function openModal(idx) {
         vidEl.onloadedmetadata = () => {
             vidEl.playbackRate = videoSpeed;
             checkOrientationAndTip();
-            applyZoomViewLogic(); // Berechnet das zentrierte Standard-Verhältnis neu, sobald die Dimensionen bereitstehen
+            applyZoomViewLogic(); 
         };
         if (vidEl.readyState >= 1) {
             checkOrientationAndTip();
@@ -732,12 +719,7 @@ function openModal(idx) {
         vidEl.playbackRate = videoSpeed;
         vidEl.loop = !isSlideshow; 
         vidEl.onended = () => { if(isSlideshow) nextMedia(); };
-        vidEl.play().then(() => {
-            vidEl.playbackRate = videoSpeed;
-            if (musicWasPlaying && musicAudio.paused) {
-                musicAudio.play().catch(() => {});
-            }
-        }).catch(() => {});
+        vidEl.play().catch(() => {});
     } else {
         vidEl.pause();
         imgEl.style.display = 'block';
@@ -769,20 +751,23 @@ function checkOrientationAndTip() {
     
     let medW = 0, medH = 0;
     if (vidEl.style.display === 'block') {
-        medW = vidEl.videoWidth || 640;
-        medH = vidEl.videoHeight || 360;
+        medW = vidEl.videoWidth;
+        medH = vidEl.videoHeight;
     } else if (imgEl.style.display === 'block') {
-        medW = imgEl.naturalWidth || 640;
-        medH = imgEl.naturalHeight || 360;
-    } else {
+        medW = imgEl.naturalWidth;
+        medH = imgEl.naturalHeight;
+    }
+    
+    // Verhindert das Einblenden bei quadratischen Bildern/Videos (medW === medH)
+    if (!medW || !medH || medW === medH) {
         if(orientBtn) orientBtn.style.display = 'none';
         return;
     }
     
     const isMediaLandscape = medW > medH;
-    const isScreenPortrait = window.innerWidth < window.innerHeight;
+    const isScreenLandscape = window.innerWidth > window.innerHeight;
     
-    if ((isMediaLandscape && isScreenPortrait) || (!isMediaLandscape && !isScreenPortrait)) {
+    if (isMediaLandscape !== isScreenLandscape) {
         if(orientBtn) {
             orientBtn.style.display = 'flex';
             orientBtn.style.setProperty('opacity', '1', 'important');
@@ -864,6 +849,11 @@ function applyZoomViewLogic() {
 }
 
 function handleMediaContainerClick(e) {
+    // ABSOLUTER KLICK-SCHUTZ: Ignoriert Koordinaten-Auslösungen auf jeglichen Bedienelementen/Menüs
+    if (e.target.closest('#zoom-controls') || e.target.closest('.zoom-ui-btn') || e.target.closest('.burger-trigger') || e.target.closest('.player-panel')) {
+        return;
+    }
+
     const vidEl = document.getElementById('modal-video');
     const imgEl = document.getElementById('modal-img');
     const el = vidEl.style.display === 'block' ? vidEl : imgEl;
@@ -889,7 +879,7 @@ function handleMediaContainerClick(e) {
     }
 }
 
-// DETERMINISTISCHE FIXPUNKT-ZOOM BERECHNUNG MIT INNENHOF-CLAMPING GEGEN SCHWARZE RÄNDER
+// PRISTINE FEHLERFREIE PIXEL-FIXPUNKTZOOM BERECHNUNG MIT STRICKTEM DISPLAYRAND-CLAMPING
 function calculatePristinePivotScale(clientX, clientY) {
     const vidEl = document.getElementById('modal-video');
     const imgEl = document.getElementById('modal-img');
@@ -914,26 +904,32 @@ function calculatePristinePivotScale(clientX, clientY) {
     let vy = vidH / 2;
 
     if(clientX !== null && clientY !== null) {
-        let cxInput = clientX;
-        let cyInput = clientY;
-
-        if (isForcedLandscapeActive) {
-            let tempX = cxInput;
-            cxInput = cyInput;
-            cyInput = winW - tempX;
-        }
-
         if (currentScale === 1) {
+            let cxInput = clientX;
+            let cyInput = clientY;
+
+            if (isForcedLandscapeActive) {
+                let tempX = cxInput;
+                cxInput = cyInput;
+                cyInput = winW - tempX;
+            }
+
             vx = (cxInput - vX) / scaleContain;
             vy = (cyInput - vY) / scaleContain;
         } else {
-            vx = (cxInput - currentTx) / currentScale;
-            vy = (cyInput - currentTy) / currentScale;
+            // Umkehr-Matrix-Abbildung zur fehlerfreien, drift-freien Klickerfassung aus dem skalierten Zustand
+            if (isForcedLandscapeActive) {
+                vy = (clientX - currentTx) / currentScale;
+                vx = (currentTy - clientY) / currentScale;
+            } else {
+                vx = (clientX - currentTx) / currentScale;
+                vy = (clientY - currentTy) / currentScale;
+            }
         }
 
-        // Kanten-Clamping: Verhindert mathematischen Überlauf und Leerräume an den äußeren Rändern
-        vx = Math.max(1, Math.min(vidW - 1, vx));
-        vy = Math.max(1, Math.min(vidH - 1, vy));
+        // Kanten-Clamping: Verhindert mathematischen Überlauf und Spacings/Marginale Leerräume an den Rändern
+        vx = Math.max(0, Math.min(vidW, vx));
+        vy = Math.max(0, Math.min(vidH, vy));
     }
 
     let cx = viewW / 2;
@@ -1045,6 +1041,7 @@ function setImmersiveMode(hide) {
         isUIHiddenInZoom = false;
     }
     
+    // Der Orientierungs-Kreisel behält seine volle Sichtbarkeit, falls er vorgeschlagen wird
     if(orientBtn && orientBtn.style.display === 'flex') {
         orientBtn.classList.remove('translucent');
         orientBtn.style.setProperty('opacity', '1', 'important');
@@ -1056,13 +1053,14 @@ window.addEventListener('resize', function() {
     const imgEl = document.getElementById('modal-img');
     const el = vidEl.style.display === 'block' ? vidEl : imgEl;
     
-    if(el && el.style.display === 'block') {
+    if(el && (vidEl.style.display === 'block' || imgEl.style.display === 'block')) {
         let medW = el.videoWidth || el.naturalWidth || 640;
         let medH = el.videoHeight || el.naturalHeight || 360;
         const isMediaLandscape = medW > medH;
         const isScreenLandscape = window.innerWidth > window.innerHeight;
         
-        if ((isMediaLandscape && isScreenLandscape) || (!isMediaLandscape && !isScreenLandscape)) {
+        // Löscht künstliche Drehung selbsttätig, falls die physische Lage des Displays passt
+        if (isMediaLandscape === isScreenLandscape) {
             isForcedLandscapeActive = false;
         }
 
