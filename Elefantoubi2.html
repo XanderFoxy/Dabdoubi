@@ -27,51 +27,62 @@
         .modal.active { display:flex; }
         .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden !important; width: 100%; height: 100%; }
         
-        #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; transition: object-position 0.15s ease-out; }
+        #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; transition: transform 0.2s ease-out; }
 
-        /* VIDEO MODI DEFINITIONEN */
-        #modal-video.fit-cover {
-            width: 100% !important;
-            height: 100% !important;
-            max-width: none !important;
-            max-height: none !important;
-            object-fit: cover !important;
-        }
         #modal-video.fit-fill {
             width: 100% !important;
             height: 100% !important;
             max-width: none !important;
             max-height: none !important;
             object-fit: fill !important;
+            transform: none !important;
         }
 
-        /* SMART DISPLAY ORIENTATION TIP */
+        /* FORCED LANDSCAPE ROTATION METHOD */
+        .forced-rotation {
+            transform: rotate(90deg) !important;
+            width: 100vh !important;
+            height: 100vw !important;
+            max-width: none !important;
+            max-height: none !important;
+        }
+
+        /* SMART DISPLAY ORIENTATION INTERACTIVE TIP */
         #landscape-tip {
             position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-            background: rgba(5, 5, 5, 0.9); padding: 8px 14px; border-radius: 20px;
-            color: var(--pink); font-size: 0.75rem; border: 1px solid var(--pink);
-            display: none; z-index: 1260; pointer-events: none; white-space: nowrap;
-            font-weight: bold; box-shadow: var(--neon-shadow);
+            background: rgba(5, 5, 5, 0.95); padding: 10px 16px; border-radius: 20px;
+            color: #00fff0; font-size: 0.75rem; border: 1px solid #00fff0;
+            display: none; z-index: 1260; white-space: nowrap; cursor: pointer;
+            font-weight: bold; box-shadow: 0 0 15px rgba(0, 255, 240, 0.6);
             animation: slideIn 0.2s ease-out;
         }
 
-        /* MULTI-FUNCTION ZOOM SWITCH BUTTON */
-        #video-zoom-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 44px;
-            height: 44px;
-            background: rgba(15, 15, 15, 0.95);
+        /* GLASS CONTROL BUTTON BAR CONTAINER */
+        .zoom-control-wrapper {
+            position: fixed; top: 20px; right: 20px;
+            display: none; gap: 8px; z-index: 1250;
+        }
+
+        .zoom-ui-btn {
+            width: 44px; height: 44px;
+            background: rgba(15, 15, 15, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1250;
-            cursor: pointer;
-            color: white;
-            transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: white; transition: all 0.2s ease;
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+        .zoom-ui-btn.translucent {
+            opacity: 0.35;
+        }
+        .zoom-ui-btn.translucent:hover {
+            opacity: 1.0;
+        }
+
+        #pivot-indicator-btn {
+            display: none; color: #00fff0; border-color: #00fff0;
+            box-shadow: 0 0 12px rgba(0, 255, 240, 0.4);
+            animation: slideIn 0.2s ease-out;
         }
 
         .burger-trigger { 
@@ -177,7 +188,7 @@
         .nav-btn.active { color: var(--pink); filter: drop-shadow(0 0 8px var(--pink)); }
         .v-badge { font-size: 0.7rem; color: var(--pink); border: 1px solid var(--pink); padding: 2px 5px; border-radius: 4px; font-weight: bold; }
 
-        @keyframes slideIn { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        @pragma-keyframes slideIn { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -244,9 +255,14 @@
         <video id="modal-video" playsinline></video>
     </div>
     
-    <div id="landscape-tip">Für bessere Ansicht ins Querformat wechseln ↻</div>
+    <div id="landscape-tip" onclick="forceLandscapeToggle(event)">Für bessere Ansicht zum Landschafts wechseln ↻</div>
     
-    <button id="video-zoom-btn" onclick="cycleVideoZoom(event)"></button>
+    <div class="zoom-control-wrapper" id="zoom-controls">
+        <button class="zoom-ui-btn" id="pivot-indicator-btn" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v20M2 12h20"/></svg>
+        </button>
+        <button class="zoom-ui-btn" id="video-zoom-btn" onclick="cycleVideoZoom(event)"></button>
+    </div>
 
     <button class="burger-trigger" onclick="toggleUI()"><span></span><span></span><span></span></button>
     <div class="player-panel" id="ui-panel">
@@ -283,6 +299,7 @@ const media = [
     "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-23-28.jpeg",
     "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-34-49.jpeg",
     "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-46-34.jpeg",
+    // VIDEOS
     "Videos/AsmaaUndAlexSex/fe0ae259a6f8e304433b267a7f3ae8c1.mp4",
     "Videos/AsmaaUndAlexSex/eac76931cc54bae1774dd031345aab4e.mov",
     "Videos/AsmaaUndAlexSex/e1237b68bfc375b12301bb7c4cde94ec.mov",
@@ -356,9 +373,10 @@ let musicVibeFilter = 'all';
 let filteredPlaylist = [...playlist];
 let musicWasPlaying = false; 
 
-// Zoom-Modus Status (0 = normal contain, 1 = fill gestaucht, 2 = proportionaler fixpunkt-zoom)
+// Zoom-Modi (0 = Original Contain, 1 = Proportionaler Fixpunkt Vollbild, 2 = Gestaucht Fill)
 let currentZoomMode = 0;
 let isUIHiddenInZoom = false;
+let isForcedLandscapeActive = false;
 
 const musicAudio = new Audio();
 musicAudio.volume = 0.5;
@@ -663,15 +681,19 @@ function openModal(idx) {
     const m = document.getElementById('modal');
     const imgEl = document.getElementById('modal-img');
     const vidEl = document.getElementById('modal-video');
-    const zoomBtn = document.getElementById('video-zoom-btn');
+    const ctrlWrapper = document.getElementById('zoom-controls');
     const src = currentList[currentIndex];
     const isVid = src.match(/\.(mp4|mov)$/i);
     clearTimeout(slideTimer);
     
+    isForcedLandscapeActive = false;
+    vidEl.classList.remove('forced-rotation');
+    vidEl.style.transform = 'none';
+    
     if(isVid) {
         imgEl.style.display = 'none';
         vidEl.style.display = 'block';
-        zoomBtn.style.display = 'flex';
+        ctrlWrapper.style.display = 'flex';
         
         vidEl.muted = isMuted;
         vidEl.volume = isMuted ? 0 : 1.0;
@@ -681,32 +703,18 @@ function openModal(idx) {
             vidEl.src = src;
         }
         
-        // Reset dynamic position to absolute center initially
-        vidEl.style.objectPosition = '50% 50%';
-
         vidEl.onloadedmetadata = () => {
             vidEl.playbackRate = videoSpeed;
-            checkLandscapeOrientationTip(vidEl);
+            checkOrientationAndTip(vidEl);
         };
         if (vidEl.readyState >= 1) {
-            checkLandscapeOrientationTip(vidEl);
+            checkOrientationAndTip(vidEl);
         }
         vidEl.playbackRate = videoSpeed;
         vidEl.loop = !isSlideshow; 
         vidEl.onended = () => { if(isSlideshow) nextMedia(); };
 
-        // Skalierungsklassen anwenden
-        vidEl.classList.remove('fit-cover', 'fit-fill');
-        if(currentZoomMode === 1) vidEl.classList.add('fit-fill');
-        if(currentZoomMode === 2) vidEl.classList.add('fit-cover');
-        updateZoomButtonUI();
-
-        // Wenn Vollbild-Modus aktiv, Steuerungselemente initial ausblenden
-        if (currentZoomMode > 0) {
-            setImmersiveMode(true);
-        } else {
-            setImmersiveMode(false);
-        }
+        applyZoomViewLogic();
         
         vidEl.play().then(() => {
             vidEl.playbackRate = videoSpeed;
@@ -717,7 +725,7 @@ function openModal(idx) {
     } else {
         vidEl.pause();
         vidEl.style.display = 'none';
-        zoomBtn.style.display = 'none';
+        ctrlWrapper.style.display = 'none';
         document.getElementById('landscape-tip').style.display = 'none';
         setImmersiveMode(false);
         
@@ -731,35 +739,151 @@ function openModal(idx) {
     updateUI();
 }
 
-// Prüft ob ein Querformat-Video unvorteilhaft im Hochformat betrachtet wird
-function checkLandscapeOrientationTip(vidEl) {
+function checkOrientationAndTip(vidEl) {
     const tip = document.getElementById('landscape-tip');
-    if(vidEl && vidEl.style.display === 'block' && vidEl.videoWidth > vidEl.videoHeight && window.innerWidth < window.innerHeight) {
+    if (!vidEl || vidEl.style.display !== 'block' || isForcedLandscapeActive) {
+        tip.style.display = 'none';
+        return;
+    }
+    
+    const isVideoLandscape = vidEl.videoWidth > vidEl.videoHeight;
+    const isScreenPortrait = window.innerWidth < window.innerHeight;
+    
+    if (isVideoLandscape && isScreenPortrait) {
         tip.style.display = 'block';
     } else {
         tip.style.display = 'none';
     }
 }
 
-// Zirkuläres Umschalten aller 3 Video-Ansichtsmodi über ein Element
+function forceLandscapeToggle(e) {
+    if(e) e.stopPropagation();
+    const vidEl = document.getElementById('modal-video');
+    if(!vidEl) return;
+    
+    isForcedLandscapeActive = !isForcedLandscapeActive;
+    if(isForcedLandscapeActive) {
+        vidEl.classList.add('forced-rotation');
+        document.getElementById('landscape-tip').style.display = 'none';
+    } else {
+        vidEl.classList.remove('forced-rotation');
+        checkOrientationAndTip(vidEl);
+    }
+    
+    if(currentZoomMode === 1) {
+        calculatePristinePivotScale(null); 
+    }
+}
+
 function cycleVideoZoom(e) {
     if(e) e.stopPropagation();
     const vidEl = document.getElementById('modal-video');
     if(!vidEl) return;
 
     currentZoomMode = (currentZoomMode + 1) % 3;
+    applyZoomViewLogic();
+}
+
+function applyZoomViewLogic() {
+    const vidEl = document.getElementById('modal-video');
+    const pivotBtn = document.getElementById('pivot-indicator-btn');
     
-    vidEl.classList.remove('fit-cover', 'fit-fill');
-    if(currentZoomMode === 1) vidEl.classList.add('fit-fill');
-    if(currentZoomMode === 2) vidEl.classList.add('fit-cover');
+    vidEl.classList.remove('fit-fill');
+    vidEl.style.transform = 'none';
+    pivotBtn.style.display = 'none';
+    
+    if(currentZoomMode === 0) {
+        // Modus 0: Standard Original
+        if(isForcedLandscapeActive) vidEl.classList.add('forced-rotation');
+        setImmersiveMode(false);
+    } else if(currentZoomMode === 1) {
+        // Modus 1: Proportionaler Fixpunkt-Vollbildmodus (Startet zentriert)
+        pivotBtn.style.display = 'flex';
+        calculatePristinePivotScale(null); 
+        setImmersiveMode(true);
+    } else if(currentZoomMode === 2) {
+        // Modus 2: Vollbild Gestaucht (Fill)
+        vidEl.classList.add('fit-fill');
+        setImmersiveMode(true);
+    }
     
     updateZoomButtonUI();
-    checkLandscapeOrientationTip(vidEl);
+    checkOrientationAndTip(vidEl);
+}
 
-    if(currentZoomMode > 0) {
-        setImmersiveMode(true);
+// Klick-Erfassung im XY-Modus zur Bestimmung des Bild-Zentrums mit intelligenter Randausgleichs-Vergrößerung
+document.getElementById('modal-media').addEventListener('click', function(e) {
+    if(currentZoomMode === 1) {
+        calculatePristinePivotScale(e);
+    }
+});
+
+function calculatePristinePivotScale(e) {
+    const vidEl = document.getElementById('modal-video');
+    if(!vidEl || vidEl.style.display !== 'block') return;
+
+    let vidW = vidEl.videoWidth;
+    let vidH = vidEl.videoHeight;
+    let winW = window.innerWidth;
+    let winH = window.innerHeight;
+
+    if(isForcedLandscapeActive) {
+        // Dimensionstausch bei erzwungener 90-Grad-Drehung berücksichtigen
+        let tempW = winW; winW = winH; winH = tempW;
+    }
+
+    // Berechnung des unskalierten Videoausschnitts im standardmäßigen Contain-Verhältnis
+    let scaleContain = Math.min(winW / vidW, winH / vidH);
+    let unscaledW = vidW * scaleContain;
+    let unscaledH = vidH * scaleContain;
+    let unscaledX = (winW - unscaledW) / 2;
+    let unscaledY = (winH - unscaledH) / 2;
+
+    let px = 0.5, py = 0.5; // Standard-Zentrum bei Initialisierung
+
+    if(e) {
+        e.stopPropagation();
+        // Umrechnung des Klicks relativ zum unskalierten Videoinhalt
+        let clickX = e.clientX;
+        let clickY = e.clientY;
+        
+        if(isForcedLandscapeActive) {
+            // Klickkoordinaten um 90 Grad zurückdrehen für exakte mathematische Lokalisierung
+            let tempX = clickX;
+            clickX = clickY;
+            clickY = window.innerHeight - tempX;
+        }
+
+        px = (clickX - unscaledX) / unscaledW;
+        py = (clickY - unscaledY) / unscaledH;
+        
+        // Werte innerhalb der Videogrenzen absichern
+        px = Math.max(0, Math.min(1, px));
+        py = Math.max(0, Math.min(1, py));
+    }
+
+    // Extremwert-Kanten-Berechnung: Ermittelt den benötigten Zoomfaktor, um trotz exzentrischer Platzierung Ränder zu vermeiden
+    let sLeft = winW / (2 * px * unscaledW);
+    let sRight = winW / (2 * (1 - px) * unscaledW);
+    let sTop = winH / (2 * py * unscaledH);
+    let sBottom = winH / (2 * (1 - py) * unscaledH);
+
+    let finalScale = Math.max(sLeft, sRight, sTop, sBottom);
+    let baseCover = Math.max(winW / unscaledW, winH / unscaledH);
+    if(finalScale < baseCover) finalScale = baseCover;
+
+    // Errechnet die genauen Offsets, um die Koordinate fließend zur Bildschirm-Mitte zu führen
+    let currentPointX = unscaledX + px * unscaledW;
+    let currentPointY = unscaledY + py * unscaledH;
+    let tx = (winW / 2) - (currentPointX * finalScale);
+    let ty = (winH / 2) - (currentPointY * finalScale);
+
+    vidEl.style.transformOrigin = "0px 0px";
+    
+    if(isForcedLandscapeActive) {
+        vidEl.style.transform = `rotate(90deg) translate(${tx}px, ${ty}px) scale(${finalScale})`;
     } else {
-        setImmersiveMode(false);
+        vidEl.style.transform = `translate(${tx}px, ${ty}px) scale(${finalScale})`;
     }
 }
 
@@ -767,6 +891,10 @@ function updateZoomButtonUI() {
     const btn = document.getElementById('video-zoom-btn');
     if(!btn) return;
     
+    // Setzt Gläserne/Transparente Eigenschaft im Vollbild- oder Stauchmodus aktiv
+    btn.className = "zoom-ui-btn" + (currentZoomMode > 0 ? " translucent" : "");
+    document.getElementById('pivot-indicator-btn').className = "zoom-ui-btn" + (currentZoomMode > 0 ? " translucent" : "");
+
     if(currentZoomMode === 0) {
         btn.style.color = 'white';
         btn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
@@ -781,44 +909,48 @@ function updateZoomButtonUI() {
         btn.style.color = '#00fff0';
         btn.style.borderColor = '#00fff0';
         btn.style.boxShadow = '0 0 15px rgba(0, 255, 240, 0.8)';
-        btn.innerHTML = '<span style="font-size: 0.65rem; font-weight: bold; font-family: monospace; letter-spacing: 0.5px;">XY ⊕</span>';
+        
+        // Dynamische Symbolprüfung der Smartphone-Stellung für den gestauchten Modus
+        const isPortrait = window.innerWidth < window.innerHeight;
+        if(isPortrait) {
+            // Hochgestelltes Rechteck-Symbol im Portrait-Modus
+            btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="3" width="12" height="18" rx="1.5"/></svg>';
+        } else {
+            // Quergestelltes Rechteck-Symbol im Landschafts-Modus
+            btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="6" width="18" height="12" rx="1.5"/></svg>';
+        }
     }
 }
 
-// Blendet Navigationselemente für ungestörten Vollbild-Genuss temporär aus
 function setImmersiveMode(hide) {
     const musicUI = document.getElementById('music-player-ui');
     const burger = document.querySelector('.burger-trigger');
     const panel = document.getElementById('ui-panel');
+    const btn = document.getElementById('video-zoom-btn');
+    const pivotBtn = document.getElementById('pivot-indicator-btn');
     
     if(hide) {
         if(musicUI) musicUI.style.setProperty('display', 'none', 'important');
         if(burger) burger.style.setProperty('display', 'none', 'important');
         if(panel) panel.classList.remove('show');
+        if(btn) btn.classList.add('translucent');
+        if(pivotBtn) pivotBtn.classList.add('translucent');
         isUIHiddenInZoom = true;
     } else {
         if(musicUI) musicUI.style.removeProperty('display');
         if(burger) burger.style.removeProperty('display');
+        if(btn) btn.classList.remove('translucent');
+        if(pivotBtn) pivotBtn.classList.remove('translucent');
         isUIHiddenInZoom = false;
     }
 }
 
-// Event-Listener für Klicks auf das Video zur Erfassung des individuellen Fixpunkts (nur im XY-Modus 2)
-document.getElementById('modal-video').addEventListener('click', function(e) {
-    if(currentZoomMode === 2) {
-        e.stopPropagation(); // Verhindert das toggeln der UI bei Koordinatenauswahl
-        const rect = this.getBoundingClientRect();
-        const clickX = ((e.clientX - rect.left) / rect.width) * 100;
-        const clickY = ((e.clientY - rect.top) / rect.height) * 100;
-        this.style.objectPosition = `${clickX}% ${clickY}%`;
-    }
-});
-
-// Automatisches Anpassen der Anzeigehinweise bei Drehung des Geräts
 window.addEventListener('resize', function() {
     const vidEl = document.getElementById('modal-video');
     if(vidEl && vidEl.style.display === 'block') {
-        checkLandscapeOrientationTip(vidEl);
+        if(currentZoomMode === 1) calculatePristinePivotScale(null);
+        updateZoomButtonUI();
+        checkOrientationAndTip(vidEl);
     }
 });
 
@@ -905,6 +1037,7 @@ function closeModal() {
     clearTimeout(slideTimer);
     isSlideshow = false;
     currentZoomMode = 0; 
+    isForcedLandscapeActive = false;
     document.getElementById('landscape-tip').style.display = 'none';
     setImmersiveMode(false);
     updateUI();
