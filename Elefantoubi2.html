@@ -27,9 +27,9 @@
         .modal.active { display:flex; }
         .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden !important; width: 100%; height: 100%; }
         
-        #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
+        #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; transition: object-position 0.15s ease-out; }
 
-        /* SKALIERUNGS-MODI FÜR DEN INTEGRIERTEN VIDEO INHALT */
+        /* VIDEO MODI DEFINITIONEN */
         #modal-video.fit-cover {
             width: 100% !important;
             height: 100% !important;
@@ -45,16 +45,24 @@
             object-fit: fill !important;
         }
 
-        /* FIXIERTES GLÄSERNES STEUERUNGS SYMBOL */
+        /* SMART DISPLAY ORIENTATION TIP */
+        #landscape-tip {
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+            background: rgba(5, 5, 5, 0.9); padding: 8px 14px; border-radius: 20px;
+            color: var(--pink); font-size: 0.75rem; border: 1px solid var(--pink);
+            display: none; z-index: 1260; pointer-events: none; white-space: nowrap;
+            font-weight: bold; box-shadow: var(--neon-shadow);
+            animation: slideIn 0.2s ease-out;
+        }
+
+        /* MULTI-FUNCTION ZOOM SWITCH BUTTON */
         #video-zoom-btn {
             position: fixed;
             top: 20px;
             right: 20px;
             width: 44px;
             height: 44px;
-            background: rgba(15, 15, 15, 0.4);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(15, 15, 15, 0.95);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
             display: none;
@@ -62,12 +70,8 @@
             justify-content: center;
             z-index: 1250;
             cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0.45;
-        }
-        #video-zoom-btn:hover, #video-zoom-btn:active {
-            opacity: 1;
-            background: rgba(15, 15, 15, 0.7);
+            color: white;
+            transition: 0.2s;
         }
 
         .burger-trigger { 
@@ -211,4 +215,703 @@
 
     <div class="mp-macro-controls">
         <button class="mp-btn" id="mp-shuffle" onclick="toggleMusicShuffle()" title="Shuffle">
-            <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4
+            <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.38 9.44l-1.42 1.42L17.96 19.9 20 17.85V23h-5.5l2.04-2.04-3.66-3.52z"/></svg>
+        </button>
+
+        <div class="apple-switch-box">
+            <div class="apple-switch-track pos-2" id="mp-apple-track" onclick="handleVibeClick(event)">
+                <div class="apple-switch-knob"></div>
+            </div>
+            <span class="vibe-text-label" id="mp-vibe-text" style="color: #ff2a6d;">All</span>
+        </div>
+
+        <button class="mp-btn" id="mp-master-fav" onclick="toggleMusicFavFilter()" title="Nur Favoriten abspielen">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </button>
+
+        <button class="mp-btn" id="mp-repeat" onclick="toggleMusicRepeat()" title="Repeat">
+            <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l4 4-4 4v-3h12v-6h-2v4z"/></svg>
+            <span id="mp-repeat-badge" style="display:none; position:absolute; font-size:0.55rem; font-weight:bold; top:2px; right:2px; background:#fff; color:var(--pink); border-radius:50%; width:10px; height:10px; display:none; align-items:center; justify-content:center; border:1px solid var(--pink);">1</span>
+        </button>
+    </div>
+
+    <div id="mp-playlist"></div>
+</div>
+
+<div class="modal" id="modal">
+    <div class="media-container" id="modal-media" onclick="toggleUI()">
+        <img id="modal-img">
+        <video id="modal-video" playsinline></video>
+    </div>
+    
+    <div id="landscape-tip">Für bessere Ansicht ins Querformat wechseln ↻</div>
+    
+    <button id="video-zoom-btn" onclick="cycleVideoZoom(event)"></button>
+
+    <button class="burger-trigger" onclick="toggleUI()"><span></span><span></span><span></span></button>
+    <div class="player-panel" id="ui-panel">
+        <div class="slider-row">
+            <label id="speed-label">Intervall: 5.0s</label>
+            <input type="range" id="speed-slider" min="500" max="12000" value="5000" step="100" oninput="document.getElementById('speed-label').innerText='Intervall: '+(this.value/1000).toFixed(1)+'s'">
+        </div>
+        <div class="btn-row">
+            <button class="nav-btn" onclick="prevMedia()">❮</button>
+            <button class="nav-btn" onclick="toggleShuffle()" id="shuffle-btn">🎲</button>
+            <button class="nav-btn" onclick="toggleSlideshow()" id="play-btn">▶</button>
+            <button class="nav-btn" onclick="toggleVideoSpeed()"><span class="v-badge" id="v-speed-txt">1x</span></button>
+            <button class="nav-btn" onclick="toggleMute()" id="mute-btn">🔊</button>
+            <button class="nav-btn" onclick="closeModal()">✕</button>
+            <button class="nav-btn" onclick="nextMedia()">❯</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const media = [
+    "Bilder/AsmaaUndAlexSex/IMG_3545.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3602.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3607.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3609.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3610.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3608.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3613.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3614.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3615.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3617.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3619.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3641.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3646.jpeg", "Bilder/AsmaaUndAlexSex/IMG_3647.jpeg",
+    "Bilder/AsmaaUndAlexSex/IMG_3650.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_03-05-2026-04-43-14.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-11-31-22.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_04-05-2026-14-38-51.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-21-33.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-23-28.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-34-49.jpeg",
+    "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-46-34.jpeg",
+    "Videos/AsmaaUndAlexSex/fe0ae259a6f8e304433b267a7f3ae8c1.mp4",
+    "Videos/AsmaaUndAlexSex/eac76931cc54bae1774dd031345aab4e.mov",
+    "Videos/AsmaaUndAlexSex/e1237b68bfc375b12301bb7c4cde94ec.mov",
+    "Videos/AsmaaUndAlexSex/a564327b6d14dff6378523b031df18f6.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20%E2%80%9Eultra%20realistic%20image-to-video%20from%20the%20exact%20reference%20image.%208.mov",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20%E2%80%9E10-second%20ultra%20realistic%20video%2C%20exact%20same%20scene%20and%20camera%20a%202.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20zeige%2C%20wie%20sich%20das%20Ma%CC%88dchen%20in%20ihrem%20Zimmer%20am%20Beispiel%20der%20Ref%202.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Let%20them%20fuck%20naturally%20and%20gently%20together%20good%20with%20moaning%20.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%208.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%205.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%202.mov",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2011.mp4",
+    "Videos/AsmaaUndAlexSex/2a5e808e4d6985bec7c23964f63f2415.mp4",
+    "Videos/AsmaaUndAlexSex/36a0e66c98b40e7413b4809cb7b9d1aa.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2010.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2012.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2018.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2019.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2020.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%208-second%20ultra%20realistic%20image-to-video%20from%20the%20exact%20referenc%2023.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Let%20them%20fuck%20gently.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Lass%20ihn%20realistisch,%20ihre%20Muschi%20fingern%20und%20seine%20Finger%20dabe.mp4",
+    "Videos/AsmaaUndAlexSex/1a322345a8e75389b8497b4dc9a90ca7.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Start%20from%20the%20exact%20reference%20image%20with%20the%20exact%20same%20camera%202.mp4",
+    "Videos/AsmaaUndAlexSex/Image%20to%20video%20%E4%B8%A8%20Start%20from%20the%20exact%20reference%20image%20with%20the%20exact%20same%20camera.mp4",
+    "Videos/AsmaaUndAlexSex/b02373a454ad4ecb7f3803f645b054dd.mp4",
+    "Videos/AsmaaUndAlexSex/Mein%20Projekt%20(78).mp4",
+    "Videos/AsmaaUndAlexSex/5c5ec37c63009678ead63218820fc8e3.mov",
+    "Videos/AsmaaUndAlexSex/21f47938e933a0013f1bddbf3dccb865.mov",
+    "Videos/AsmaaUndAlexSex/3b5165e7afcb075e90671ed717bcc512.mp4",
+    "Videos/AsmaaUndAlexSex/55ae02b7991987c6d93ab5fd69cdbc1c.mp4"
+];
+
+const playlist = [
+    { name: "Ashnikko - Itty Bitty", src: "Musik/Ashnikko-Itty_Bitty.mp3", type: "spicy" },
+    { name: "Brooke Candy - Yoga (feat. Only Fire)", src: "Musik/Brooke_Candy-Yoga_(feat._Only_Fire).mp3", type: "spicy" },
+    { name: "Shygirl - Nike", src: "Musik/Shygirl-Nike.mp3", type: "spicy" },
+    { name: "Ilkan Gunuc feat. Clara Stegall - SexyBack", src: "Musik/Ilkan%20Gunuc%20feat.%20Clara%20Stegall%20-%20SexyBack.mp3", type: "spicy" },
+    { name: "INXS - Need You Tonight", src: "Musik/INXS%20-%20Need%20You%20Tonight.mp3", type: "hot" },
+    { name: "Blue System - Body Heat (Long Version)", src: "Musik/Blue_System-Body_Heat_(Long_Version).mp3", type: "hot" },
+    { name: "Blue System - Body Heat", src: "Musik/Blue-System-05-Body-Heat.mp3", type: "hot" },
+    { name: "Blue System - Save Me", src: "Musik/Blue-System-03-Save-Me.mp3", type: "hot" },
+    { name: "Blue System - My Bed Is Too Big", src: "Musik/Blue-System-06-My-Bed-Is-Too-Big.mp3", type: "hot" },
+    { name: "Blue System - Do You Wanna Be My Girlfriend", src: "Musik/Blue-System-02-Do-You-Wanna-Be-My-Girlfriend.mp3", type: "hot" },
+    { name: "IAMX - Your Joy Is My Low", src: "Musik/IAMX%20-%20Your%20Joy%20Is%20My%20Low.mp3", type: "spicy" },
+    { name: "Wumpscut - Ich will dich", src: "Musik/Wumpscut%20-%20Ich%20will%20dich.mp3", type: "spicy" },
+    { name: "Wumpscut - Ich will dich Intro", src: "Musik/Wumpscut%20-%20Boeses%20Junges%20Fleisch%2014%20Years%20Anniversary%20Edition%203CD%20Set%20CD2%20Appendix%201%202013%20-%2005.%20Ich%20Will%20Dich%20Intro.mp3", type: "spicy" },
+    { name: "Nine Inch Nails - I Wanna Fuck U Like An Animal", src: "Musik/Nine%20Inch%20Nails%20-%20Closer%20To%20God_I%20Wanna%20Fuck%20U%20Like%20An%20Animal.mp3", type: "spicy" },
+    { name: "Mark Morrison - Let s Get Down", src: "Musik/Mark%20Morrison%20-%20Let%20s%20Get%20Down.mp3", type: "spicy" }
+];
+
+let favs = JSON.parse(localStorage.getItem('eb_favs')) || [];
+let daily = JSON.parse(localStorage.getItem('eb_daily')) || [];
+let musicFavs = JSON.parse(localStorage.getItem('eb_music_favs')) || [];
+
+let mainFilter = 'all'; 
+let subFilter = 'none'; 
+let currentList = [];
+let currentIndex = 0;
+let isMuted = localStorage.getItem('eb_mute') === 'true';
+let isSlideshow = false;
+let isShuffle = false;
+let videoSpeed = 1.0;
+let slideTimer = null;
+
+let currentSongIdx = 0;
+let musicShuffle = false;
+let musicRepeat = 0; 
+let musicFavFilter = false;
+let musicVibeFilter = 'all'; 
+let filteredPlaylist = [...playlist];
+let musicWasPlaying = false; 
+
+// Zoom-Modus Status (0 = normal contain, 1 = fill gestaucht, 2 = proportionaler fixpunkt-zoom)
+let currentZoomMode = 0;
+let isUIHiddenInZoom = false;
+
+const musicAudio = new Audio();
+musicAudio.volume = 0.5;
+
+musicAudio.onpause = () => {
+    if (musicWasPlaying) {
+        musicAudio.play().catch(() => {});
+    }
+};
+
+function initMusic() {
+    buildFilteredPlaylist();
+}
+
+function buildFilteredPlaylist() {
+    filteredPlaylist = playlist.filter(track => {
+        const matchesVibe = musicVibeFilter === 'all' || track.type === musicVibeFilter;
+        const matchesFav = !musicFavFilter || musicFavs.includes(track.src);
+        return matchesVibe && matchesFav;
+    });
+
+    const listDiv = document.getElementById('mp-playlist');
+    listDiv.innerHTML = '';
+
+    filteredPlaylist.forEach((track, idx) => {
+        const row = document.createElement('div');
+        row.className = 'mp-track-row';
+        
+        const d = document.createElement('div');
+        d.className = 'mp-track';
+        d.innerText = track.name;
+        d.onclick = () => playSelectedSong(idx);
+        if(playlist[currentSongIdx] && playlist[currentSongIdx].src === track.src) d.classList.add('active');
+
+        const fBtn = document.createElement('button');
+        fBtn.className = 'mp-track-fav-btn' + (musicFavs.includes(track.src) ? ' is-fav' : '');
+        fBtn.innerHTML = '♥';
+        fBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleSongFavorite(track.src);
+        };
+
+        row.appendChild(d);
+        row.appendChild(fBtn);
+        listDiv.appendChild(row);
+    });
+}
+
+function togglePlaylistView() {
+    const ui = document.getElementById('music-player-ui');
+    const p = document.getElementById('mp-playlist');
+    const btn = document.getElementById('mp-burger-btn');
+    
+    ui.classList.toggle('macro-view');
+    p.classList.toggle('show');
+    btn.classList.toggle('active-nav', p.classList.contains('show'));
+    updateMusicUI(); 
+}
+
+function toggleSongFavorite(src) {
+    if(musicFavs.includes(src)) {
+        musicFavs = musicFavs.filter(s => s !== src);
+    } else {
+        musicFavs.push(src);
+    }
+    localStorage.setItem('eb_music_favs', JSON.stringify(musicFavs));
+    buildFilteredPlaylist();
+}
+
+function toggleMusicShuffle() {
+    musicShuffle = !musicShuffle;
+    document.getElementById('mp-shuffle').classList.toggle('active', musicShuffle);
+}
+
+function toggleMusicFavFilter() {
+    musicFavFilter = !musicFavFilter;
+    document.getElementById('mp-master-fav').classList.toggle('active', musicFavFilter);
+    buildFilteredPlaylist();
+}
+
+function toggleMusicRepeat() {
+    musicRepeat = (musicRepeat + 1) % 3;
+    const btn = document.getElementById('mp-repeat');
+    const badge = document.getElementById('mp-repeat-badge');
+    if(musicRepeat === 0) {
+        btn.classList.remove('active');
+        badge.style.display = 'none';
+    } else if(musicRepeat === 1) {
+        btn.classList.add('active');
+        badge.style.display = 'none';
+    } else if(musicRepeat === 2) {
+        btn.classList.add('active');
+        badge.style.display = 'flex';
+    }
+}
+
+function handleVibeClick(e) {
+    const track = e.currentTarget;
+    const rect = track.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const width = rect.width;
+    
+    if (clickX < width / 3) {
+        currentVibePos = 0; 
+    } else if (clickX < (2 * width) / 3) {
+        currentVibePos = 1; 
+    } else {
+        currentVibePos = 2; 
+    }
+    updateVibeSwitchState();
+}
+
+let currentVibePos = 2;
+function updateVibeSwitchState() {
+    const track = document.getElementById('mp-apple-track');
+    const lbl = document.getElementById('mp-vibe-text');
+    
+    track.className = 'apple-switch-track pos-' + currentVibePos;
+    
+    const labels = ['hot', 'spicy', 'all'];
+    const colors = ['#ff4500', '#c40000', '#ff2a6d']; 
+    
+    musicVibeFilter = labels[currentVibePos];
+    lbl.innerText = labels[currentVibePos];
+    lbl.style.color = colors[currentVibePos];
+    
+    buildFilteredPlaylist();
+}
+
+function updateMediaSession(track) {
+    if ('mediaSession' in navigator) {
+        const parts = track.name.split(' - ');
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: parts[1] || parts[0],
+            artist: parts[0] || 'Unknown',
+            album: 'Elefantoubi Playlist'
+        });
+    }
+}
+
+function playSelectedSong(idx) {
+    if(!filteredPlaylist.length) return;
+    const track = filteredPlaylist[idx];
+    currentSongIdx = playlist.findIndex(s => s.src === track.src);
+    musicAudio.src = track.src;
+    musicAudio.play().then(() => {
+        musicWasPlaying = true;
+    }).catch(() => {});
+    updateMediaSession(track);
+    updateMusicUI();
+}
+
+function togglePlayMusic() {
+    if(!filteredPlaylist.length) return;
+    if(!musicAudio.src) {
+        playSelectedSong(0);
+        return;
+    }
+    if(musicAudio.paused) {
+        musicWasPlaying = true;
+        musicAudio.play().then(() => {}).catch(() => {});
+    } else {
+        musicWasPlaying = false; 
+        musicAudio.pause();
+    }
+    updateMusicUI();
+}
+
+function nextSong() {
+    if(!filteredPlaylist.length) return;
+    if(musicShuffle) {
+        const randIdx = Math.floor(Math.random() * filteredPlaylist.length);
+        playSelectedSong(randIdx);
+    } else {
+        const currentFilteredIdx = filteredPlaylist.findIndex(s => s.src === playlist[currentSongIdx]?.src);
+        const nextFilteredIdx = (currentFilteredIdx + 1) % filteredPlaylist.length;
+        playSelectedSong(nextFilteredIdx >= 0 ? nextFilteredIdx : 0);
+    }
+}
+
+function prevSong() {
+    if(!filteredPlaylist.length) return;
+    const currentFilteredIdx = filteredPlaylist.findIndex(s => s.src === playlist[currentSongIdx]?.src);
+    let prevFilteredIdx = (currentFilteredIdx - 1 + filteredPlaylist.length) % filteredPlaylist.length;
+    playSelectedSong(prevFilteredIdx >= 0 ? prevFilteredIdx : 0);
+}
+
+function updateMusicUI() {
+    const pBtn = document.getElementById('mp-play-pause');
+    if(musicAudio.paused) {
+        pBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+    } else {
+        pBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+    }
+    if(playlist[currentSongIdx]) {
+        const titleEl = document.getElementById('mp-current-title');
+        const infoContainer = document.querySelector('.mp-info');
+        const fullTrackName = playlist[currentSongIdx].name;
+        const isMacro = document.getElementById('music-player-ui').classList.contains('macro-view');
+        
+        titleEl.style.animation = 'none';
+        titleEl.style.transform = 'none';
+        
+        if (isMacro) {
+            titleEl.innerText = fullTrackName;
+            infoContainer.style.textAlign = 'center';
+        } else {
+            const parts = fullTrackName.split(' - ');
+            const songTitleOnly = parts[1] || parts[0];
+            titleEl.innerText = songTitleOnly;
+            
+            titleEl.offsetHeight; 
+            const containerWidth = 136;
+            
+            if (titleEl.scrollWidth > containerWidth) {
+                infoContainer.style.textAlign = 'left';
+                const scrollDist = titleEl.scrollWidth - containerWidth;
+                titleEl.style.setProperty('--scroll-dist', `-${scrollDist + 8}px`);
+                titleEl.style.animation = 'musicMarquee 8s linear infinite';
+            } else {
+                infoContainer.style.textAlign = 'center';
+            }
+        }
+    }
+    document.querySelectorAll('.mp-track').forEach((el) => {
+        if(playlist[currentSongIdx]) {
+            el.classList.toggle('active', el.innerText === playlist[currentSongIdx].name);
+        }
+    });
+}
+
+musicAudio.onended = () => {
+    if(musicRepeat === 2) {
+        musicAudio.currentTime = 0;
+        musicAudio.play().catch(() => {});
+    } else if(musicRepeat === 1 || musicShuffle) {
+        nextSong();
+    } else {
+        const currentFilteredIdx = filteredPlaylist.findIndex(s => s.src === playlist[currentSongIdx]?.src);
+        if(currentFilteredIdx < filteredPlaylist.length - 1) {
+            nextSong();
+        } else {
+            musicWasPlaying = false;
+            musicAudio.pause();
+            updateMusicUI();
+        }
+    }
+};
+
+function renderGallery() {
+    const g = document.getElementById('gallery');
+    g.innerHTML = '';
+    currentList = media.filter(src => {
+        const isVid = src.match(/\.(mp4|mov)$/i);
+        const matchesMain = mainFilter === 'all' || (mainFilter === 'video' && isVid) || (mainFilter === 'image' && !isVid);
+        let matchesSub = true;
+        if(subFilter === 'favs') matchesSub = favs.includes(src);
+        if(subFilter === 'daily') matchesSub = daily.includes(src);
+        return matchesMain && matchesSub;
+    });
+
+    currentList.forEach((src, idx) => {
+        const isVid = src.match(/\.(mp4|mov)$/i);
+        const div = document.createElement('div');
+        div.className = 'item';
+        
+        div.innerHTML = `
+            ${isVid ? `<video src="${src}#t=0.1" muted playsinline preload="none"></video>` : `<img src="${src}">`}
+            <div class="item-actions">
+                <span class="action-btn" onclick="toggleAction('${src}', 'favs', event)">${favs.includes(src)?'❤️':'♡'}</span>
+                <span class="action-btn" onclick="toggleAction('${src}', 'daily', event)">${daily.includes(src)?'🔖':'➕'}</span>
+            </div>
+        `;
+        div.onclick = () => openModal(idx);
+        g.appendChild(div);
+    });
+}
+
+function setMainFilter(f) {
+    mainFilter = f;
+    updateTabStyles();
+    renderGallery();
+}
+
+function setSubFilter(s) {
+    subFilter = (subFilter === s) ? 'none' : s;
+    updateTabStyles();
+    renderGallery();
+}
+
+function updateTabStyles() {
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + mainFilter).classList.add('active');
+    if(subFilter !== 'none') {
+        const subId = (subFilter === 'favs') ? 'tab-fav' : 'tab-daily';
+        document.getElementById(subId).classList.add('active');
+    }
+}
+
+function openModal(idx) {
+    currentIndex = idx;
+    const m = document.getElementById('modal');
+    const imgEl = document.getElementById('modal-img');
+    const vidEl = document.getElementById('modal-video');
+    const zoomBtn = document.getElementById('video-zoom-btn');
+    const src = currentList[currentIndex];
+    const isVid = src.match(/\.(mp4|mov)$/i);
+    clearTimeout(slideTimer);
+    
+    if(isVid) {
+        imgEl.style.display = 'none';
+        vidEl.style.display = 'block';
+        zoomBtn.style.display = 'flex';
+        
+        vidEl.muted = isMuted;
+        vidEl.volume = isMuted ? 0 : 1.0;
+        
+        const absoluteSrc = new URL(src, window.location.href).href;
+        if(vidEl.src !== absoluteSrc) {
+            vidEl.src = src;
+        }
+        
+        // Reset dynamic position to absolute center initially
+        vidEl.style.objectPosition = '50% 50%';
+
+        vidEl.onloadedmetadata = () => {
+            vidEl.playbackRate = videoSpeed;
+            checkLandscapeOrientationTip(vidEl);
+        };
+        if (vidEl.readyState >= 1) {
+            checkLandscapeOrientationTip(vidEl);
+        }
+        vidEl.playbackRate = videoSpeed;
+        vidEl.loop = !isSlideshow; 
+        vidEl.onended = () => { if(isSlideshow) nextMedia(); };
+
+        // Skalierungsklassen anwenden
+        vidEl.classList.remove('fit-cover', 'fit-fill');
+        if(currentZoomMode === 1) vidEl.classList.add('fit-fill');
+        if(currentZoomMode === 2) vidEl.classList.add('fit-cover');
+        updateZoomButtonUI();
+
+        // Wenn Vollbild-Modus aktiv, Steuerungselemente initial ausblenden
+        if (currentZoomMode > 0) {
+            setImmersiveMode(true);
+        } else {
+            setImmersiveMode(false);
+        }
+        
+        vidEl.play().then(() => {
+            vidEl.playbackRate = videoSpeed;
+            if (musicWasPlaying && musicAudio.paused) {
+                musicAudio.play().catch(() => {});
+            }
+        }).catch(() => {});
+    } else {
+        vidEl.pause();
+        vidEl.style.display = 'none';
+        zoomBtn.style.display = 'none';
+        document.getElementById('landscape-tip').style.display = 'none';
+        setImmersiveMode(false);
+        
+        imgEl.src = src;
+        imgEl.style.display = 'block';
+        
+        if(isSlideshow) slideTimer = setTimeout(nextMedia, document.getElementById('speed-slider').value);
+    }
+    
+    m.classList.add('active');
+    updateUI();
+}
+
+// Prüft ob ein Querformat-Video unvorteilhaft im Hochformat betrachtet wird
+function checkLandscapeOrientationTip(vidEl) {
+    const tip = document.getElementById('landscape-tip');
+    if(vidEl && vidEl.style.display === 'block' && vidEl.videoWidth > vidEl.videoHeight && window.innerWidth < window.innerHeight) {
+        tip.style.display = 'block';
+    } else {
+        tip.style.display = 'none';
+    }
+}
+
+// Zirkuläres Umschalten aller 3 Video-Ansichtsmodi über ein Element
+function cycleVideoZoom(e) {
+    if(e) e.stopPropagation();
+    const vidEl = document.getElementById('modal-video');
+    if(!vidEl) return;
+
+    currentZoomMode = (currentZoomMode + 1) % 3;
+    
+    vidEl.classList.remove('fit-cover', 'fit-fill');
+    if(currentZoomMode === 1) vidEl.classList.add('fit-fill');
+    if(currentZoomMode === 2) vidEl.classList.add('fit-cover');
+    
+    updateZoomButtonUI();
+    checkLandscapeOrientationTip(vidEl);
+
+    if(currentZoomMode > 0) {
+        setImmersiveMode(true);
+    } else {
+        setImmersiveMode(false);
+    }
+}
+
+function updateZoomButtonUI() {
+    const btn = document.getElementById('video-zoom-btn');
+    if(!btn) return;
+    
+    if(currentZoomMode === 0) {
+        btn.style.color = 'white';
+        btn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        btn.style.boxShadow = 'none';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>';
+    } else if(currentZoomMode === 1) {
+        btn.style.color = 'var(--pink)';
+        btn.style.borderColor = 'var(--pink)';
+        btn.style.boxShadow = 'var(--neon-shadow)';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M2 12h20M12 2v20"/></svg>';
+    } else if(currentZoomMode === 2) {
+        btn.style.color = '#00fff0';
+        btn.style.borderColor = '#00fff0';
+        btn.style.boxShadow = '0 0 15px rgba(0, 255, 240, 0.8)';
+        btn.innerHTML = '<span style="font-size: 0.65rem; font-weight: bold; font-family: monospace; letter-spacing: 0.5px;">XY ⊕</span>';
+    }
+}
+
+// Blendet Navigationselemente für ungestörten Vollbild-Genuss temporär aus
+function setImmersiveMode(hide) {
+    const musicUI = document.getElementById('music-player-ui');
+    const burger = document.querySelector('.burger-trigger');
+    const panel = document.getElementById('ui-panel');
+    
+    if(hide) {
+        if(musicUI) musicUI.style.setProperty('display', 'none', 'important');
+        if(burger) burger.style.setProperty('display', 'none', 'important');
+        if(panel) panel.classList.remove('show');
+        isUIHiddenInZoom = true;
+    } else {
+        if(musicUI) musicUI.style.removeProperty('display');
+        if(burger) burger.style.removeProperty('display');
+        isUIHiddenInZoom = false;
+    }
+}
+
+// Event-Listener für Klicks auf das Video zur Erfassung des individuellen Fixpunkts (nur im XY-Modus 2)
+document.getElementById('modal-video').addEventListener('click', function(e) {
+    if(currentZoomMode === 2) {
+        e.stopPropagation(); // Verhindert das toggeln der UI bei Koordinatenauswahl
+        const rect = this.getBoundingClientRect();
+        const clickX = ((e.clientX - rect.left) / rect.width) * 100;
+        const clickY = ((e.clientY - rect.top) / rect.height) * 100;
+        this.style.objectPosition = `${clickX}% ${clickY}%`;
+    }
+});
+
+// Automatisches Anpassen der Anzeigehinweise bei Drehung des Geräts
+window.addEventListener('resize', function() {
+    const vidEl = document.getElementById('modal-video');
+    if(vidEl && vidEl.style.display === 'block') {
+        checkLandscapeOrientationTip(vidEl);
+    }
+});
+
+function nextMedia() {
+    if(!currentList.length) return;
+    if(isShuffle) currentIndex = Math.floor(Math.random() * currentList.length);
+    else currentIndex = (currentIndex + 1) % currentList.length;
+    openModal(currentIndex);
+}
+
+function prevMedia() {
+    currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
+    openModal(currentIndex);
+}
+
+function toggleAction(src, list, e) {
+    e.stopPropagation();
+    if(list === 'favs') {
+        if(favs.includes(src)) favs = favs.filter(s => s !== src);
+        else favs.push(src);
+        localStorage.setItem('eb_favs', JSON.stringify(favs));
+    } else {
+        if(daily.includes(src)) daily = daily.filter(s => s !== src);
+        else daily.push(src);
+        localStorage.setItem('eb_daily', JSON.stringify(daily));
+    }
+    renderGallery();
+}
+
+function toggleUI() { 
+    const vidEl = document.getElementById('modal-video');
+    const isVidActive = (vidEl && vidEl.style.display === 'block');
+    
+    if(isVidActive && currentZoomMode > 0) {
+        setImmersiveMode(!isUIHiddenInZoom);
+    } else {
+        document.getElementById('ui-panel').classList.toggle('show'); 
+    }
+}
+
+function toggleSlideshow() { isSlideshow = !isSlideshow; if(isSlideshow) nextMedia(); else clearTimeout(slideTimer); updateUI(); }
+function toggleShuffle() { isShuffle = !isShuffle; updateUI(); }
+
+function toggleMute() { 
+    isMuted = !isMuted; 
+    localStorage.setItem('eb_mute', isMuted); 
+    const vidEl = document.getElementById('modal-video');
+    if(vidEl) {
+        vidEl.muted = isMuted;
+        vidEl.volume = isMuted ? 0 : 1.0;
+    }
+    if (musicWasPlaying && musicAudio.paused) {
+        musicAudio.play().catch(() => {});
+    }
+    updateUI(); 
+}
+
+function toggleVideoSpeed() { 
+    if(videoSpeed === 1.0) videoSpeed = 1.5;
+    else if(videoSpeed === 1.5) videoSpeed = 2.0;
+    else if(videoSpeed === 2.0) videoSpeed = 0.5; 
+    else videoSpeed = 1.0;
+    
+    const vidEl = document.getElementById('modal-video');
+    if(vidEl) {
+        vidEl.playbackRate = videoSpeed; 
+    }
+    document.getElementById('v-speed-txt').innerText = videoSpeed + 'x'; 
+}
+
+function updateUI() {
+    document.getElementById('play-btn').innerText = isSlideshow ? '⏸' : '▶';
+    document.getElementById('play-btn').classList.toggle('active', isSlideshow);
+    document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
+    document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🔊';
+    document.getElementById('v-speed-txt').innerText = videoSpeed + 'x';
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+    const vidEl = document.getElementById('modal-video');
+    vidEl.pause();
+    vidEl.src = ''; 
+    clearTimeout(slideTimer);
+    isSlideshow = false;
+    currentZoomMode = 0; 
+    document.getElementById('landscape-tip').style.display = 'none';
+    setImmersiveMode(false);
+    updateUI();
+}
+
+initMusic();
+renderGallery();
+</script>
+</body>
+</html>
