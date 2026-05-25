@@ -38,7 +38,7 @@
             transform: none !important;
         }
 
-        /* MANUELLE DOPPEL ROTATIONS STEUERUNG */
+        /* HARD HARDWARE-ROTATION FOR ORIENTATION OVERRIDE */
         .forced-rotation {
             transform: rotate(90deg) !important;
             width: 100vh !important;
@@ -51,7 +51,7 @@
             object-fit: fill !important;
         }
 
-        /* MENÜLEISTE FÜR STEUERUNGSELEMENTE AM OBEREN DISPLAYRAND */
+        /* STEUERUNGS-BAR AM OBEREN DISPLAYRAND */
         .zoom-control-wrapper {
             position: fixed; top: 20px; right: 20px;
             display: none; gap: 10px; z-index: 2700 !important;
@@ -83,7 +83,7 @@
             display: none;
         }
 
-        /* MAXIMALER STACKING CONTEXT FÜR MUTATIONS SICHERE BEDIENUNG */
+        /* MAXIMALER STACKING CONTEXT FÜR MUTATIONS-SICHERE BEDIENUNG */
         .burger-trigger { 
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
             width: 60px; height: 60px; background: var(--pink); border-radius: 50%; 
@@ -379,6 +379,11 @@ let currentZoomMode = 0;
 let isUIHiddenInZoom = false;
 let isForcedLandscapeActive = false;
 let isPivotActive = true; 
+
+// Deterministiche Skalierungs-Variablen
+let currentScale = 1;
+let currentTx = 0;
+let currentTy = 0;
 let lastClickX = null;
 let lastClickY = null;
 let videoUITimer = null;
@@ -695,6 +700,7 @@ function openModal(idx) {
     isPivotActive = true;
     lastClickX = null;
     lastClickY = null;
+    currentScale = 1;
     
     if(isVid) {
         imgEl.style.display = 'none';
@@ -851,7 +857,7 @@ function handleMediaContainerClick(e) {
     }
 }
 
-// PRISTINE PIXEL-PRÄZISE FIXPUNKT-ZOOM BERECHNUNG (REIN DETERMINISTISCH / NIEMALS AKKUMULATIV)
+// PRISTINE PIXEL-PRÄZISE REIN DETERMINISTISCHE FIXPUNKT-ZOOM BERECHNUNG (KEINE TRANSFORMIERUNGS-AKKUMULATION)
 function calculatePristinePivotScale(clientX, clientY) {
     const vidEl = document.getElementById('modal-video');
     if(!vidEl) return;
@@ -870,36 +876,50 @@ function calculatePristinePivotScale(clientX, clientY) {
     let vX = (viewW - vW) / 2;
     let vY = (viewH - vH) / 2;
 
-    let px = 0.5, py = 0.5;
+    let vx = vidW / 2;
+    let vy = vidH / 2;
 
     if(clientX !== null && clientY !== null) {
-        let cxInput = clientX;
-        let cyInput = clientY;
+        if (currentScale === 1 || currentZoomMode !== 1) {
+            let cxInput = clientX;
+            let cyInput = clientY;
 
-        if (isForcedLandscapeActive) {
-            let tempX = cxInput;
-            cxInput = cyInput;
-            cyInput = winW - tempX;
+            if (isForcedLandscapeActive) {
+                let tempX = cxInput;
+                cxInput = cyInput;
+                cyInput = winW - tempX;
+            }
+
+            vx = (cxInput - vX) / scaleContain;
+            vy = (cyInput - vY) / scaleContain;
+        } else {
+            // Umrechnung des Klicks auf Basis der ursprünglichen Dimensionen des Videos
+            if (isForcedLandscapeActive) {
+                vy = (currentTx - clientX) / currentScale;
+                vx = (clientY - currentTy) / currentScale;
+            } else {
+                vx = (clientX - currentTx) / currentScale;
+                vy = (clientY - currentTy) / currentScale;
+            }
         }
 
-        px = (cxInput - vX) / vW;
-        py = (cyInput - vY) / vH;
-
-        px = Math.max(0.001, Math.min(0.999, px));
-        py = Math.max(0.001, Math.min(0.999, py));
+        // Mathematisch sichere Begrenzung innerhalb der Videogrenzen
+        vx = Math.max(0.001, Math.min(vidW - 0.001, vx));
+        vy = Math.max(0.001, Math.min(vidH - 0.001, vy));
     }
 
-    let vx = px * vidW;
-    let vy = py * vidH;
     let cx = viewW / 2;
     let cy = viewH / 2;
 
+    // RAND-ABSCHLUSS-ZOOM ERMITTLUNG: Verhindert schwarze Balken an allen 4 Kanten vollständig
     let sLeft = cx / vx;
     let sRight = (viewW - cx) / (vidW - vx);
     let sTop = cy / vy;
     let sBottom = (viewH - cy) / (vidH - vy);
 
     let S = Math.max(sLeft, sRight, sTop, sBottom);
+    let baseCover = Math.max(viewW / vidW, viewH / vidH);
+    if(S < baseCover) S = baseCover;
 
     vidEl.style.width = vidW + 'px';
     vidEl.style.height = vidH + 'px';
@@ -907,15 +927,21 @@ function calculatePristinePivotScale(clientX, clientY) {
     vidEl.style.maxHeight = 'none';
     vidEl.style.transformOrigin = '0 0';
 
+    let TX, TY;
     if(isForcedLandscapeActive) {
-        let TX = (winW / 2) + (vy * S);
-        let TY = (winH / 2) - (vx * S);
+        TX = (winW / 2) + (vy * S);
+        TY = (winH / 2) - (vx * S);
         vidEl.style.transform = `translate(${TX}px, ${TY}px) rotate(90deg) scale(${S})`;
     } else {
-        let TX = cx - vx * S;
-        let TY = cy - vy * S;
+        TX = cx - vx * S;
+        TY = cy - vy * S;
         vidEl.style.transform = `translate(${TX}px, ${TY}px) scale(${S})`;
     }
+
+    // Für die exakte Rückrechnung des nächsten Klicks sichern
+    currentScale = S;
+    currentTx = TX;
+    currentTy = TY;
 }
 
 function updateZoomButtonUI() {
@@ -954,6 +980,7 @@ function updateZoomButtonUI() {
 function toggleNavigationPanel(e) {
     if(e) e.stopPropagation();
     document.getElementById('ui-panel').classList.toggle('show');
+    resetVideoUITimer();
 }
 
 function resetVideoUITimer() {
@@ -961,7 +988,7 @@ function resetVideoUITimer() {
     if(currentZoomMode > 0) {
         setImmersiveMode(false); 
         videoUITimer = setTimeout(function() {
-            if(currentZoomMode > 0) {
+            if(currentZoomMode > 0 && !document.getElementById('ui-panel').classList.contains('show')) {
                 setImmersiveMode(true); 
             }
         }, 2000);
@@ -995,6 +1022,14 @@ function setImmersiveMode(hide) {
 window.addEventListener('resize', function() {
     const vidEl = document.getElementById('modal-video');
     if(vidEl && vidEl.style.display === 'block') {
+        const isVideoLandscape = vidEl.videoWidth > vidEl.videoHeight;
+        const isScreenLandscape = window.innerWidth > window.innerHeight;
+        
+        // Wenn die physische Ausrichtung jetzt perfekt zum Video passt, heben wir die künstliche Drehung auf
+        if (isVideoLandscape && isScreenLandscape) {
+            isForcedLandscapeActive = false;
+        }
+
         if(currentZoomMode === 1) calculatePristinePivotScale(isPivotActive ? lastClickX : null, isPivotActive ? lastClickY : null);
         updateZoomButtonUI();
         checkOrientationAndTip(vidEl);
