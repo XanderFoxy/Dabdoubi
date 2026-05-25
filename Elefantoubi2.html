@@ -23,11 +23,11 @@
         .item-actions { position:absolute; top:8px; right:8px; display:flex; flex-direction:column; gap:8px; z-index:10; }
         .action-btn { font-size:1.3rem; filter: drop-shadow(0 0 5px black); cursor: pointer; }
 
-        .modal { display:none; position:fixed; inset:0; background:#000; z-index:1000; flex-direction: column; overflow: hidden !important; }
+        .modal { display:none; position:fixed; inset:0; background:#000; z-index:1000; flex-direction: column; overflow: hidden !important; width: 100vw; height: 100vh; }
         .modal.active { display:flex; }
-        .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden !important; width: 100%; height: 100%; }
+        .media-container { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden !important; width: 100%; height: 100%; pointer-events: auto; }
         
-        #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; transition: transform 0.2s ease-out; }
+        #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; transform: translate3d(0,0,0); }
 
         #modal-img.fit-fill, #modal-video.fit-fill {
             width: 100% !important;
@@ -38,7 +38,6 @@
             transform: none !important;
         }
 
-        /* AKKURATE ROTATIONS-STEUERUNG GEGEN DEN UHRZEIGERSINN */
         .forced-rotation {
             transform: rotate(-90deg) !important;
             width: 100vh !important;
@@ -51,11 +50,11 @@
             object-fit: fill !important;
         }
 
-        /* FIXIERTE COCKPIT-STEUERUNG AM OBEREN DISPLAYRAND */
+        /* FIXED ZOOM STEUERUNGS BUTTON BAR */
         .zoom-control-wrapper {
             position: fixed; top: 20px; right: 20px;
             display: none; gap: 10px; z-index: 2700 !important;
-            transition: opacity 0.25s ease;
+            pointer-events: auto;
         }
 
         .zoom-ui-btn {
@@ -83,13 +82,14 @@
             display: none;
         }
 
-        /* ABSOLUTE OVERLAY-PRIORITÄT FÜR DIE NAVIGATIONS-STEUERUNG */
+        /* HIGH-PRIORITY INTERFACE OVERLAYS */
         .burger-trigger { 
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
             width: 60px; height: 60px; background: var(--pink); border-radius: 50%; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px;
             z-index: 3000 !important; box-shadow: var(--neon-shadow); border: none;
             transition: opacity 0.25s ease, transform 0.2s ease;
+            pointer-events: auto;
         }
         .burger-trigger span { width: 25px; height: 2px; background: white; border-radius: 1px; }
 
@@ -98,6 +98,7 @@
             width: 92%; max-width: 400px; background: var(--ui-bg); border-radius: 25px; 
             border: 1px solid rgba(255,255,255,0.1); padding: 20px; z-index: 2900 !important;
             display: none; flex-direction: column; gap: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.9);
+            pointer-events: auto;
         }
         .player-panel.show { display: flex; animation: slideIn 0.2s ease-out; }
 
@@ -108,6 +109,7 @@
             padding: 10px; display: flex; flex-direction: column; gap: 4px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.6); 
             width: 156px; transition: width 0.2s ease, opacity 0.25s ease; overflow: hidden;
+            pointer-events: auto;
         }
         
         #music-player-ui.macro-view {
@@ -345,6 +347,7 @@ const playlist = [
     { name: "Blue System - Save Me", src: "Musik/Blue-System-03-Save-Me.mp3", type: "hot" },
     { name: "Blue System - My Bed Is Too Big", src: "Musik/Blue-System-06-My-Bed-Is-Too-Big.mp3", type: "hot" },
     { name: "Blue System - Do You Wanna Be My Girlfriend", src: "Musik/Blue-System-02-Do-You-Wanna-Be-My-Girlfriend.mp3", type: "hot" },
+    { name: "Blue System - Love Suite", src: "Musik/Blue_System-Love_Suite.mp3", type: "hot" },
     { name: "IAMX - Your Joy Is My Low", src: "Musik/IAMX%20-%20Your%20Joy%20Is%20My%20Low.mp3", type: "spicy" },
     { name: "Wumpscut - Ich will dich", src: "Musik/Wumpscut%20-%20Ich%20will%20dich.mp3", type: "spicy" },
     { name: "Wumpscut - Ich will dich Intro", src: "Musik/Wumpscut%20-%20Boeses%20Junges%20Fleisch%2014%20Years%20Anniversary%20Edition%203CD%20Set%20CD2%20Appendix%201%202013%20-%2005.%20Ich%20Will%20Dich%20Intro.mp3", type: "spicy" },
@@ -374,13 +377,11 @@ let musicVibeFilter = 'all';
 let filteredPlaylist = [...playlist];
 let musicWasPlaying = false; 
 
-// Zoom-Zustand: 0 = Original Contain, 1 = Proportionaler Fixpunkt Vollbild, 2 = Gestaucht Fill
 let currentZoomMode = 0;
 let isUIHiddenInZoom = false;
 let isForcedLandscapeActive = false;
 let isPivotActive = true; 
 
-// Deterministische Skalierungs-Variablen
 let currentScale = 1;
 let currentTx = 0;
 let currentTy = 0;
@@ -679,7 +680,7 @@ function openModal(idx) {
     const isVid = src.match(/\.(mp4|mov)$/i);
     clearTimeout(slideTimer);
     
-    // ABSOLUTER PRISTINE RESET ALLER SKALIERUNGS- UND ROTATIONSWERTE BEI MEDIENWECHSEL
+    // PRISTINE RESET BEI MEDIENWECHSEL
     isForcedLandscapeActive = false;
     lastClickX = null;
     lastClickY = null;
@@ -847,7 +848,7 @@ function applyZoomViewLogic() {
 }
 
 function handleMediaContainerClick(e) {
-    // KLICK-SCHUTZ: Verhindert die Registrierung eines Pivotpoints auf sämtlichen Navigationselementen
+    // ABRIEGELUNG: Verhindert Klick-Trigger auf allen UI-Elementen
     if (e.target.closest('#zoom-controls') || e.target.closest('.zoom-ui-btn') || e.target.closest('.burger-trigger') || e.target.closest('.player-panel') || e.target.closest('#music-player-ui')) {
         return;
     }
@@ -877,7 +878,7 @@ function handleMediaContainerClick(e) {
     }
 }
 
-// PRISTINE FEHLERFREIE PIXEL-FIXPUNKTZOOM BERECHNUNG MIT STRICKTEM DISPLAYRAND-CLAMPING
+// ARITHMETISCH DETERMINISTISCHE KOORDINATEN BERECHNUNG MIT RAND-CLAMPING (5PX BUFFER)
 function calculatePristinePivotScale(clientX, clientY) {
     const vidEl = document.getElementById('modal-video');
     const imgEl = document.getElementById('modal-img');
@@ -924,6 +925,12 @@ function calculatePristinePivotScale(clientX, clientY) {
             }
         }
 
+        // 5-PIXEL PUFFER (SNAPPING LOGIK AM RAND)
+        if (vx <= 5) vx = 0;
+        if (vx >= vidW - 5) vx = vidW;
+        if (vy <= 5) vy = 0;
+        if (vy >= vidH - 5) vy = vidH;
+
         vx = Math.max(0, Math.min(vidW, vx));
         vy = Math.max(0, Math.min(vidH, vy));
     }
@@ -931,14 +938,14 @@ function calculatePristinePivotScale(clientX, clientY) {
     let cx = viewW / 2;
     let cy = viewH / 2;
 
-    let sLeft = cx / vx;
-    let sRight = (viewW - cx) / (vidW - vx);
-    let sTop = cy / vy;
-    let sBottom = (viewH - cy) / (vidH - vy);
+    let sLeft = vx === 0 ? baseCover : cx / vx;
+    let sRight = vx === vidW ? baseCover : (viewW - cx) / (vidW - vx);
+    let sTop = vy === 0 ? baseCover : cy / vy;
+    let sBottom = vy === vidH ? baseCover : (viewH - cy) / (vidH - vy);
 
     let S = Math.max(sLeft, sRight, sTop, sBottom);
     let baseCover = Math.max(viewW / vidW, viewH / vidH);
-    if(S < baseCover) S = baseCover;
+    if(S < baseCover || isNaN(S) || !isFinite(S)) S = baseCover;
 
     el.style.width = vidW + 'px';
     el.style.height = vidH + 'px';
