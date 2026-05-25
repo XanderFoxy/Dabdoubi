@@ -7,7 +7,7 @@
     <style>
         :root { --pink: #ff2a6d; --bg: #050505; --ui-bg: rgba(15, 15, 15, 0.98); --neon-shadow: 0 0 15px rgba(255, 42, 109, 0.8); }
         * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { width: 100%; height: 100%; background: var(--bg); color: white; font-family: -apple-system, sans-serif; overflow-x: hidden; }
+        html, body { width: 100%; height: 100%; background: var(--bg); color: white; font-family: -apple-system, sans-serif; overflow: hidden; }
         
         header { text-align:center; padding:20px; background:#000; border-bottom: 1px solid #222; position: sticky; top:0; z-index:100; }
         h1 { color:var(--pink); font-size:1.6rem; letter-spacing:5px; text-transform: uppercase; margin-bottom: 15px; }
@@ -23,37 +23,25 @@
         .item-actions { position:absolute; top:8px; right:8px; display:flex; flex-direction:column; gap:8px; z-index:10; }
         .action-btn { font-size:1.3rem; filter: drop-shadow(0 0 5px black); cursor: pointer; }
 
-        /* ABSOLUT BLICKDICHTES MODAL - DECKT ALLES IM HINTERGRUND AB */
-        .modal { display:none; position:fixed; inset:0 !important; background:#000000 !important; z-index:99999 !important; overflow: hidden !important; width: 100vw !important; height: 100vh !important; }
+        /* VOLLKOMMEN BLICKDICHTES DISPLAY-MODAL OHNE LAYOUT-SHIFTS */
+        .modal { display:none; position:fixed; inset:0 !important; background:#000000 !important; z-index:99999 !important; flex-direction: column; overflow: hidden !important; width: 100vw !important; height: 100vh !important; }
         .modal.active { display:flex; }
         
-        /* HARDWARE-BASIERTE DISPLAY-ZENTRIERUNG FÜR SÄMTLICHE GERÄTE-ANSICHTEN */
-        .media-container { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; display: flex !important; align-items: center !important; justify-content: center !important; background: #000000 !important; pointer-events: auto; z-index: 2 !important; }
+        /* MATRIZEN-FREIE VIEWPORT-KLAMMERUNG FÜR ABSOLUTE ZENTRIERUNG */
+        .media-container { position: absolute; inset: 0 !important; display: flex; align-items: center; justify-content: center; overflow: hidden !important; width: 100% !important; height: 100% !important; background: #000000 !important; pointer-events: auto; z-index: 1; }
         
-        #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; transform: translate3d(0,0,0); }
+        #modal-img, #modal-video { width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
 
-        #modal-img.fit-fill, #modal-video.fit-fill {
-            width: 100% !important;
-            height: 100% !important;
-            max-width: none !important;
-            max-height: none !important;
-            object-fit: fill !important;
-            transform: none !important;
-        }
+        /* FORMATSICHERE NATIVER ANSICHTS-MODI */
+        #modal-img.fit-cover, #modal-video.fit-cover { object-fit: cover !important; }
+        #modal-img.fit-fill, #modal-video.fit-fill { object-fit: fill !important; }
 
-        .forced-rotation {
-            transform: rotate(-90deg) !important;
-            width: 100vh !important;
-            height: 100vw !important;
-            max-width: none !important;
-            max-height: none !important;
-            object-fit: contain;
-        }
-        #modal-img.fit-fill.forced-rotation, #modal-video.fit-fill.forced-rotation {
-            object-fit: fill !important;
-        }
+        /* SEITENVERHÄLTNIS-ERZWINGUNG GEGEN DEN UHRZEIGERSINN (-90°) */
+        .forced-rotation { transform: rotate(-90deg) !important; width: 100vh !important; height: 100vw !important; max-width: none !important; max-height: none !important; object-fit: contain !important; }
+        .forced-rotation.fit-cover { object-fit: cover !important; }
+        .forced-rotation.fit-fill { object-fit: fill !important; }
 
-        /* HARDWARE-ISOLIERTER STEUERUNGS-CONTAINER GEGEN UNERWÜNSCHTE VERSCHIEBUNGEN */
+        /* HOCHPRIORITÄRE STEUERUNGSLEISTE */
         .zoom-control-wrapper {
             position: fixed; top: 20px; right: 20px;
             display: none; gap: 10px; z-index: 100005 !important;
@@ -72,25 +60,13 @@
             backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
-        .zoom-ui-btn.translucent {
-            opacity: 0.25 !important;
-        }
-        .zoom-ui-btn.translucent:hover {
-            opacity: 1.0 !important;
-        }
+        .zoom-ui-btn.translucent { opacity: 0.25 !important; }
+        .zoom-ui-btn.translucent:hover { opacity: 1.0 !important; }
 
-        #pivot-indicator-btn {
-            display: none; color: #00fff0; border-color: #00fff0;
-            box-shadow: 0 0 12px rgba(0, 255, 240, 0.4);
-        }
-        #pivot-memory-btn {
-            display: flex; color: white; border-color: rgba(255,255,255,0.2);
-        }
-        #orientation-toggle-btn {
-            display: none;
-        }
+        #pivot-memory-btn { display: flex; color: white; border-color: rgba(255,255,255,0.2); }
+        #orientation-toggle-btn { display: none; }
 
-        /* OVERLAY SYSTEM LEVEL FÜR DIE STEUERUNGSELEMENTE */
+        /* IMMERSIVES OVERLAY SYSTEM */
         .burger-trigger { 
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
             width: 60px; height: 60px; background: var(--pink); border-radius: 50%; 
@@ -110,25 +86,17 @@
         }
         .player-panel.show { display: flex; animation: slideIn 0.2s ease-out; }
 
-        /* MUSIK PLAYER STYLES */
         #music-player-ui {
-            position: fixed; bottom: 20px; left: 20px; z-index: 100006 !important;
+            position: fixed; bottom: 20px; left: 20px; z-index: 100007 !important;
             background: var(--ui-bg); border: 1px solid #333; border-radius: 15px;
             padding: 10px; display: flex; flex-direction: column; gap: 4px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.6); 
             width: 156px; transition: width 0.2s ease, opacity 0.25s ease; overflow: hidden;
             pointer-events: auto;
         }
-        
-        #music-player-ui.macro-view {
-            width: max-content;
-            min-width: 280px;
-            max-width: 85vw;
-        }
-        
+        #music-player-ui.macro-view { width: max-content; min-width: 280px; max-width: 85vw; }
         .mp-info { font-size: 0.75rem; color: var(--pink); text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; margin: 0 auto; width: 136px; height: 16px; position: relative; }
         #music-player-ui.macro-view .mp-info { width: 100%; overflow: visible; }
-        
         #mp-current-title { display: inline-block; white-space: nowrap; transform: translateX(0); }
         
         @keyframes musicMarquee {
@@ -138,50 +106,31 @@
             70% { transform: translateX(var(--scroll-dist, 0px)); }
             100% { transform: translateX(0); }
         }
-        
         .mp-controls { display: flex; gap: 16px; align-items: center; justify-content: center; padding: 4px 0; }
-        
         .mp-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; padding: 0; position: relative; transition: color 0.2s; }
         .mp-btn svg { width: 100%; height: 100%; fill: currentColor; }
-        
         .mp-btn#mp-shuffle.active { color: var(--pink); filter: drop-shadow(0 0 4px var(--pink)); }
         .mp-btn#mp-master-fav.active { color: #ff3333; filter: drop-shadow(0 0 4px #ff3333); }
         .mp-btn#mp-repeat.active { color: var(--pink); filter: drop-shadow(0 0 4px var(--pink)); }
         .mp-btn.active-nav { color: var(--pink); }
-
         .mp-macro-controls { display: none; justify-content: space-between; align-items: center; padding: 6px 8px 16px 8px; border-top: 1px solid #222; margin-top: 4px; gap: 20px; }
         #music-player-ui.macro-view .mp-macro-controls { display: flex; }
 
         .apple-switch-box { display: flex; flex-direction: column; align-items: center; position: relative; }
-        .apple-switch-track {
-            position: relative; width: 52px; height: 24px; background: #333; 
-            border-radius: 12px; cursor: pointer; transition: background 0.25s ease;
-        }
-        .apple-switch-knob {
-            position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; 
-            background: white; border-radius: 50%; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.4); pointer-events: none;
-        }
-        
+        .apple-switch-track { position: relative; width: 52px; height: 24px; background: #333; border-radius: 12px; cursor: pointer; transition: background 0.25s ease; }
+        .apple-switch-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 1px 3px rgba(0,0,0,0.4); pointer-events: none; }
         .apple-switch-track.pos-0 { background: #ff4500; } 
         .apple-switch-track.pos-1 { background: #c40000; } 
         .apple-switch-track.pos-2 { background: var(--pink); } 
-        
         .apple-switch-track.pos-0 .apple-switch-knob { transform: translateX(0px); }
         .apple-switch-track.pos-1 .apple-switch-knob { transform: translateX(14px); }
         .apple-switch-track.pos-2 .apple-switch-knob { transform: translateX(28px); }
-        
         .vibe-text-label { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
 
-        #mp-playlist { 
-            display: none; max-height: 160px; overflow-y: auto; 
-            border-top: 1px solid #222; padding-top: 6px; margin-top: 4px;
-        }
+        #mp-playlist { display: none; max-height: 160px; overflow-y: auto; border-top: 1px solid #222; padding-top: 6px; margin-top: 4px; }
         #mp-playlist.show { display: block; }
-        
         .mp-track-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 4px; border-radius: 6px; }
         .mp-track-row:hover { background: rgba(255,42,109,0.05); }
-        
         .mp-track { font-size: 0.75rem; color: #bbb; cursor: pointer; white-space: nowrap; padding-right: 8px; }
         #music-player-ui.macro-view .mp-track { overflow: visible; text-overflow: clip; }
         .mp-track.active { color: var(--pink); font-weight: bold; }
@@ -271,9 +220,6 @@
         </button>
         <button class="zoom-ui-btn" id="pivot-memory-btn" onclick="togglePivotMemory(event)">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-        </button>
-        <button class="zoom-ui-btn" id="pivot-indicator-btn" onclick="togglePivotFeature(event)">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v20M2 12h20"/></svg>
         </button>
         <button class="zoom-ui-btn" id="video-zoom-btn" onclick="cycleVideoZoom(event)"></button>
     </div>
@@ -394,12 +340,6 @@ let isUIHiddenInZoom = false;
 let isForcedLandscapeActive = false;
 let isPivotActive = true; 
 let isPivotMemoryActive = localStorage.getItem('eb_pivot_memory_active') === 'true';
-
-let currentScale = 1;
-let currentTx = 0;
-let currentTy = 0;
-let lastClickX = null;
-let lastClickY = null;
 let videoUITimer = null;
 
 const musicAudio = new Audio();
@@ -694,40 +634,23 @@ function openModal(idx) {
     clearTimeout(slideTimer);
     
     isForcedLandscapeActive = false;
-    currentScale = 1;
-    currentTx = 0;
-    currentTy = 0;
     
     if (orientBtn) orientBtn.style.display = 'none';
     
+    // SOFORTIGE ECHTZEIT-ABFRAGE DES PERSISTENTEN LOCAL STORAGES BEIM LADEN
     if (isPivotMemoryActive && pivotMemory[src]) {
         currentZoomMode = pivotMemory[src].mode ?? 0;
         videoSpeed = pivotMemory[src].speed ?? 1.0;
-        lastClickX = pivotMemory[src].cx ?? null;
-        lastClickY = pivotMemory[src].cy ?? null;
     } else {
-        lastClickX = null;
-        lastClickY = null;
         videoSpeed = 1.0;
     }
     
     document.getElementById('v-speed-txt').innerText = videoSpeed + 'x';
     
-    imgEl.classList.remove('fit-fill', 'forced-rotation');
+    imgEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
     imgEl.style.display = 'none';
-    imgEl.style.transform = '';
-    imgEl.style.width = '';
-    imgEl.style.height = '';
-    imgEl.style.maxWidth = '';
-    imgEl.style.maxHeight = '';
-    
-    vidEl.classList.remove('fit-fill', 'forced-rotation');
+    vidEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
     vidEl.style.display = 'none';
-    vidEl.style.transform = '';
-    vidEl.style.width = '';
-    vidEl.style.height = '';
-    vidEl.style.maxWidth = '';
-    vidEl.style.maxHeight = '';
     
     ctrlWrapper.style.display = 'flex'; 
     
@@ -833,18 +756,6 @@ function cycleVideoZoom(e) {
 
 function togglePivotFeature(e) {
     if(e) e.stopPropagation();
-    
-    if (currentZoomMode === 1) {
-        const src = currentList[currentIndex];
-        if (isPivotMemoryActive && pivotMemory[src]) {
-            delete pivotMemory[src].cx;
-            delete pivotMemory[src].cy;
-            localStorage.setItem('eb_pivot_memory_data_v4', JSON.stringify(pivotMemory));
-        }
-        lastClickX = null;
-        lastClickY = null;
-    }
-    
     isPivotActive = !isPivotActive;
     applyZoomViewLogic();
     resetVideoUITimer();
@@ -866,26 +777,21 @@ function applyZoomViewLogic() {
     const el = vidEl.style.display === 'block' ? vidEl : imgEl;
     const pivotBtn = document.getElementById('pivot-indicator-btn');
     
-    vidEl.classList.remove('fit-fill', 'forced-rotation');
-    imgEl.classList.remove('fit-fill', 'forced-rotation');
+    vidEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
+    imgEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
     
     pivotBtn.style.display = 'none';
     
     if(currentZoomMode === 0) {
-        el.style.transform = '';
-        el.style.width = '';
-        el.style.height = '';
         if(isForcedLandscapeActive) el.classList.add('forced-rotation');
         setImmersiveMode(false);
     } else if(currentZoomMode === 1) {
         pivotBtn.style.display = 'flex';
-        calculatePristinePivotScale(isPivotActive ? lastClickX : null, isPivotActive ? lastClickY : null);
+        el.classList.add('fit-cover'); // Modus 1: Fehlerfreies proportionales randfüllendes Cover-Fullscreen
+        if(isForcedLandscapeActive) el.classList.add('forced-rotation');
         setImmersiveMode(true);
     } else if(currentZoomMode === 2) {
-        el.style.transform = '';
-        el.style.width = '';
-        el.style.height = '';
-        el.classList.add('fit-fill');
+        el.classList.add('fit-fill'); // Modus 2: Gestauchter Fullscreen auf alle 4 Kanten
         if(isForcedLandscapeActive) el.classList.add('forced-rotation');
         setImmersiveMode(true);
     }
@@ -895,7 +801,7 @@ function applyZoomViewLogic() {
 }
 
 function handleMediaContainerClick(e) {
-    // ABSOLUTER KLICK SCHUTZ: Ignoriert Trigger auf allen Steuerungselementen komplett
+    // KLICK-SCHUTZ: Vollkommene Blockade auf sämtlichen Bedienelementen, um Verschiebungen auszuschließen
     if (e.target.closest('#zoom-controls') || e.target.closest('.zoom-ui-btn') || e.target.closest('.burger-trigger') || e.target.closest('.player-panel') || e.target.closest('#music-player-ui')) {
         return;
     }
@@ -910,119 +816,12 @@ function handleMediaContainerClick(e) {
             setImmersiveMode(false);
             resetVideoUITimer();
         } else {
-            if (currentZoomMode === 1 && isPivotActive) {
-                lastClickX = e.clientX;
-                lastClickY = e.clientY;
-                calculatePristinePivotScale(lastClickX, lastClickY);
-                resetVideoUITimer();
-            } else {
-                setImmersiveMode(true);
-                clearTimeout(videoUITimer);
-            }
+            setImmersiveMode(true);
+            clearTimeout(videoUITimer);
         }
     } else {
         document.getElementById('ui-panel').classList.toggle('show'); 
     }
-}
-
-// PRISTINE DETERMINISTISCHE RECHNER-LOGIK (CLAMPING MIT 5-PIXEL PUFFER / KEINE RANDÜBERLÄUFE ODER VERSÄTZE)
-function calculatePristinePivotScale(clientX, clientY) {
-    const container = document.getElementById('modal-media');
-    const vidEl = document.getElementById('modal-video');
-    const imgEl = document.getElementById('modal-img');
-    const el = vidEl.style.display === 'block' ? vidEl : imgEl;
-    if(!el || !container) return;
-
-    const src = currentList[currentIndex];
-    let vidW = el.videoWidth || el.naturalWidth || 640;
-    let vidH = el.videoHeight || el.naturalHeight || 360;
-    
-    let winW = container.clientWidth;
-    let winH = container.clientHeight;
-
-    let viewW = isForcedLandscapeActive ? winH : winW;
-    let viewH = isForcedLandscapeActive ? winW : winH;
-
-    let scaleContain = Math.min(viewW / vidW, viewH / vidH);
-    let vW = vidW * scaleContain;
-    let vH = vidH * scaleContain;
-    let vX = (viewW - vW) / 2;
-    let vY = (viewH - vH) / 2;
-
-    let vx = vidW / 2;
-    let vy = vidH / 2;
-
-    if(clientX !== null && clientY !== null) {
-        let cxInput = clientX;
-        let cyInput = clientY;
-
-        if (isForcedLandscapeActive) {
-            cxInput = clientY;
-            cyInput = winW - clientX;
-        }
-
-        vx = (cxInput - vX) / scaleContain;
-        vy = (cyInput - vY) / scaleContain;
-    } else {
-        if (isPivotMemoryActive && pivotMemory[src] && pivotMemory[src].cx !== null) {
-            vx = pivotMemory[src].cx * vidW;
-            vy = pivotMemory[src].cy * vidH;
-        }
-    }
-
-    // 5-PIXEL RAND-SNAPPING LOGIK
-    if (vx <= 5) vx = 0;
-    if (vx >= vidW - 5) vx = vidW;
-    if (vy <= 5) vy = 0;
-    if (vy >= vidH - 5) vy = vidH;
-
-    if (isPivotMemoryActive) {
-        if (!pivotMemory[src]) pivotMemory[src] = {};
-        pivotMemory[src].cx = vx / vidW;
-        pivotMemory[src].cy = vy / vidH;
-        pivotMemory[src].mode = currentZoomMode;
-        pivotMemory[src].speed = videoSpeed;
-        localStorage.setItem('eb_pivot_memory_data_v4', JSON.stringify(pivotMemory));
-    }
-
-    let cx = viewW / 2;
-    let cy = viewH / 2;
-    let baseScale = Math.max(viewW / vidW, viewH / vidH);
-
-    let sLeft = vx === 0 ? baseScale : cx / vx;
-    let sRight = vx === vidW ? baseScale : (viewW - cx) / (vidW - vx);
-    let sTop = vy === 0 ? baseScale : cy / vy;
-    let sBottom = vy === vidH ? baseScale : (viewH - cy) / (vidH - vy);
-
-    let S = Math.max(sLeft, sRight, sTop, sBottom, baseScale);
-    if(S < baseScale || isNaN(S) || !isFinite(S)) S = baseScale;
-
-    el.style.width = vidW + 'px';
-    el.style.height = vidH + 'px';
-    el.style.maxWidth = 'none';
-    el.style.maxHeight = 'none';
-    el.style.transformOrigin = '0 0';
-
-    let TX = cx - vx * S;
-    let TY = cy - vy * S;
-
-    // Kanten-Clamping: Verhindert mathematisch jegliche Ränder und Rahmen
-    TX = Math.max(viewW - vidW * S, Math.min(0, TX));
-    TY = Math.max(viewH - vidH * S, Math.min(0, TY));
-
-    if(isForcedLandscapeActive) {
-        let rTX = (winW / 2) - (vy * S);
-        let rTY = (winH / 2) + (vx * S);
-        rTX = Math.max(0, Math.min(winW, rTX));
-        rTY = Math.max(0, Math.min(winH, rTY));
-        el.style.transform = `translate(${rTX}px, ${rTY}px) rotate(-90deg) scale(${S})`;
-    } else {
-        el.style.transform = `translate(${TX}px, ${TY}px) scale(${S})`;
-    }
-
-    currentScale = S;
-    currentTx = TX;
-    currentTy = TY;
 }
 
 function syncCurrentSettingsToMemory() {
@@ -1031,7 +830,7 @@ function syncCurrentSettingsToMemory() {
         if (!pivotMemory[src]) pivotMemory[src] = {};
         pivotMemory[src].mode = currentZoomMode;
         pivotMemory[src].speed = videoSpeed;
-        localStorage.setItem('eb_pivot_memory_data_v4', JSON.stringify(pivotMemory));
+        localStorage.setItem('eb_pivot_memory_data_v5', JSON.stringify(pivotMemory));
     }
 }
 
