@@ -50,7 +50,7 @@
             object-fit: fill !important;
         }
 
-        /* FIXED ZOOM STEUERUNGS BUTTON BAR */
+        /* STEUERUNGS BUTTON BAR AM OBEREN RENDERING LIMIT */
         .zoom-control-wrapper {
             position: fixed; top: 20px; right: 20px;
             display: none; gap: 10px; z-index: 2700 !important;
@@ -78,11 +78,14 @@
             display: none; color: #00fff0; border-color: #00fff0;
             box-shadow: 0 0 12px rgba(0, 255, 240, 0.4);
         }
+        #pivot-memory-btn {
+            display: none; color: #00ff66; border-color: #00ff66;
+        }
         #orientation-toggle-btn {
             display: none;
         }
 
-        /* HIGH-PRIORITY INTERFACE OVERLAYS */
+        /* OVERLAY HIGHEST LEVEL FÜR DAS BURGER-MENÜ */
         .burger-trigger { 
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
             width: 60px; height: 60px; background: var(--pink); border-radius: 50%; 
@@ -261,6 +264,9 @@
         <button class="zoom-ui-btn" id="orientation-toggle-btn" onclick="forceLandscapeToggle(event)">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l.73-2.19"/></svg>
         </button>
+        <button class="zoom-ui-btn" id="pivot-memory-btn" onclick="togglePivotMemory(event)">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </button>
         <button class="zoom-ui-btn" id="pivot-indicator-btn" onclick="togglePivotFeature(event)">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v20M2 12h20"/></svg>
         </button>
@@ -358,6 +364,7 @@ const playlist = [
 let favs = JSON.parse(localStorage.getItem('eb_favs')) || [];
 let daily = JSON.parse(localStorage.getItem('eb_daily')) || [];
 let musicFavs = JSON.parse(localStorage.getItem('eb_music_favs')) || [];
+let pivotMemory = JSON.parse(localStorage.getItem('eb_pivot_memory_data')) || {};
 
 let mainFilter = 'all'; 
 let subFilter = 'none'; 
@@ -381,6 +388,7 @@ let currentZoomMode = 0;
 let isUIHiddenInZoom = false;
 let isForcedLandscapeActive = false;
 let isPivotActive = true; 
+let isPivotMemoryActive = localStorage.getItem('eb_pivot_memory_active') === 'true';
 
 let currentScale = 1;
 let currentTx = 0;
@@ -680,20 +688,33 @@ function openModal(idx) {
     const isVid = src.match(/\.(mp4|mov)$/i);
     clearTimeout(slideTimer);
     
-    // PRISTINE RESET BEI MEDIENWECHSEL
     isForcedLandscapeActive = false;
-    lastClickX = null;
-    lastClickY = null;
     currentScale = 1;
     currentTx = 0;
     currentTy = 0;
     
+    if (!isPivotMemoryActive) {
+        lastClickX = null;
+        lastClickY = null;
+    }
+    
     if (orientBtn) orientBtn.style.display = 'none';
     
     imgEl.classList.remove('fit-fill', 'forced-rotation');
-    imgEl.style.cssText = 'display: none; transform: none; width: ""; height: ""; max-width: ""; max-height: "";';
+    imgEl.style.display = 'none';
+    imgEl.style.transform = '';
+    imgEl.style.width = '';
+    imgEl.style.height = '';
+    imgEl.style.maxWidth = '';
+    imgEl.style.maxHeight = '';
+    
     vidEl.classList.remove('fit-fill', 'forced-rotation');
-    vidEl.style.cssText = 'display: none; transform: none; width: ""; height: ""; max-width: ""; max-height: "";';
+    vidEl.style.display = 'none';
+    vidEl.style.transform = '';
+    vidEl.style.width = '';
+    vidEl.style.height = '';
+    vidEl.style.maxWidth = '';
+    vidEl.style.maxHeight = '';
     
     ctrlWrapper.style.display = 'flex'; 
     
@@ -806,38 +827,42 @@ function togglePivotFeature(e) {
     resetVideoUITimer();
 }
 
+function togglePivotMemory(e) {
+    if(e) e.stopPropagation();
+    isPivotMemoryActive = !isPivotMemoryActive;
+    localStorage.setItem('eb_pivot_memory_active', isPivotMemoryActive);
+    applyZoomViewLogic();
+    resetVideoUITimer();
+}
+
 function applyZoomViewLogic() {
     const vidEl = document.getElementById('modal-video');
     const imgEl = document.getElementById('modal-img');
     const el = vidEl.style.display === 'block' ? vidEl : imgEl;
     const pivotBtn = document.getElementById('pivot-indicator-btn');
+    const memoryBtn = document.getElementById('pivot-memory-btn');
     
     vidEl.classList.remove('fit-fill', 'forced-rotation');
-    vidEl.style.cssText = vidEl.style.display === 'block' ? 'display: block;' : 'display: none;';
     imgEl.classList.remove('fit-fill', 'forced-rotation');
-    imgEl.style.cssText = imgEl.style.display === 'block' ? 'display: block;' : 'display: none;';
     
     pivotBtn.style.display = 'none';
+    memoryBtn.style.display = 'none';
     
     if(currentZoomMode === 0) {
+        el.style.transform = '';
+        el.style.width = '';
+        el.style.height = '';
         if(isForcedLandscapeActive) el.classList.add('forced-rotation');
         setImmersiveMode(false);
     } else if(currentZoomMode === 1) {
         pivotBtn.style.display = 'flex';
-        if(isPivotActive) {
-            pivotBtn.classList.remove('translucent');
-            pivotBtn.style.color = '#00fff0';
-            pivotBtn.style.borderColor = '#00fff0';
-            pivotBtn.style.boxShadow = '0 0 12px rgba(0, 255, 240, 0.4)';
-        } else {
-            pivotBtn.classList.add('translucent');
-            pivotBtn.style.color = 'white';
-            pivotBtn.style.borderColor = 'rgba(255,255,255,0.2)';
-            pivotBtn.style.boxShadow = 'none';
-        }
+        memoryBtn.style.display = 'flex';
         calculatePristinePivotScale(isPivotActive ? lastClickX : null, isPivotActive ? lastClickY : null);
         setImmersiveMode(true);
     } else if(currentZoomMode === 2) {
+        el.style.transform = '';
+        el.style.width = '';
+        el.style.height = '';
         el.classList.add('fit-fill');
         if(isForcedLandscapeActive) el.classList.add('forced-rotation');
         setImmersiveMode(true);
@@ -848,7 +873,6 @@ function applyZoomViewLogic() {
 }
 
 function handleMediaContainerClick(e) {
-    // ABRIEGELUNG: Verhindert Klick-Trigger auf allen UI-Elementen
     if (e.target.closest('#zoom-controls') || e.target.closest('.zoom-ui-btn') || e.target.closest('.burger-trigger') || e.target.closest('.player-panel') || e.target.closest('#music-player-ui')) {
         return;
     }
@@ -878,17 +902,19 @@ function handleMediaContainerClick(e) {
     }
 }
 
-// ARITHMETISCH DETERMINISTISCHE KOORDINATEN BERECHNUNG MIT RAND-CLAMPING (5PX BUFFER)
 function calculatePristinePivotScale(clientX, clientY) {
+    const container = document.getElementById('modal-media');
     const vidEl = document.getElementById('modal-video');
     const imgEl = document.getElementById('modal-img');
     const el = vidEl.style.display === 'block' ? vidEl : imgEl;
-    if(!el) return;
+    if(!el || !container) return;
 
+    const src = currentList[currentIndex];
     let vidW = el.videoWidth || el.naturalWidth || 640;
     let vidH = el.videoHeight || el.naturalHeight || 360;
-    let winW = window.innerWidth;
-    let winH = window.innerHeight;
+    
+    let winW = container.clientWidth;
+    let winH = container.clientHeight;
 
     let viewW = isForcedLandscapeActive ? winH : winW;
     let viewH = isForcedLandscapeActive ? winW : winH;
@@ -899,8 +925,7 @@ function calculatePristinePivotScale(clientX, clientY) {
     let vX = (viewW - vW) / 2;
     let vY = (viewH - vH) / 2;
 
-    let vx = vidW / 2;
-    let vy = vidH / 2;
+    let px = 0.5, py = 0.5;
 
     if(clientX !== null && clientY !== null) {
         let cxInput = clientX;
@@ -913,30 +938,40 @@ function calculatePristinePivotScale(clientX, clientY) {
         }
 
         if (currentScale === 1) {
-            vx = (cxInput - vX) / scaleContain;
-            vy = (cyInput - vY) / scaleContain;
+            px = (cxInput - vX) / vW;
+            py = (cyInput - vY) / vH;
         } else {
-            if (isForcedLandscapeActive) {
-                vy = (clientX - currentTx) / currentScale;
-                vx = (currentTy - clientY) / currentScale;
-            } else {
-                vx = (clientX - currentTx) / currentScale;
-                vy = (clientY - currentTy) / currentScale;
-            }
+            let vxCalc = (cxInput - currentTx) / currentScale;
+            let vyCalc = (cyInput - currentTy) / currentScale;
+            px = vxCalc / vidW;
+            py = vyCalc / vidH;
         }
+    } else {
+        if (isPivotMemoryActive && pivotMemory[src]) {
+            px = pivotMemory[src].px;
+            py = pivotMemory[src].py;
+        }
+    }
 
-        // 5-PIXEL PUFFER (SNAPPING LOGIK AM RAND)
-        if (vx <= 5) vx = 0;
-        if (vx >= vidW - 5) vx = vidW;
-        if (vy <= 5) vy = 0;
-        if (vy >= vidH - 5) vy = vidH;
+    let vx = px * vidW;
+    let vy = py * vidH;
+    
+    if (vx <= 5) vx = 0;
+    if (vx >= vidW - 5) vx = vidW;
+    if (vy <= 5) vy = 0;
+    if (vy >= vidH - 5) vy = vidH;
 
-        vx = Math.max(0, Math.min(vidW, vx));
-        vy = Math.max(0, Math.min(vidH, vy));
+    px = vx / vidW;
+    py = vy / vidH;
+
+    if (clientX !== null && clientY !== null && isPivotMemoryActive) {
+        pivotMemory[src] = { px: px, py: py };
+        localStorage.setItem('eb_pivot_memory_data', JSON.stringify(pivotMemory));
     }
 
     let cx = viewW / 2;
     let cy = viewH / 2;
+    let baseCover = Math.max(viewW / vidW, viewH / vidH);
 
     let sLeft = vx === 0 ? baseCover : cx / vx;
     let sRight = vx === vidW ? baseCover : (viewW - cx) / (vidW - vx);
@@ -944,7 +979,6 @@ function calculatePristinePivotScale(clientX, clientY) {
     let sBottom = vy === vidH ? baseCover : (viewH - cy) / (vidH - vy);
 
     let S = Math.max(sLeft, sRight, sTop, sBottom);
-    let baseCover = Math.max(viewW / vidW, viewH / vidH);
     if(S < baseCover || isNaN(S) || !isFinite(S)) S = baseCover;
 
     el.style.width = vidW + 'px';
@@ -953,14 +987,19 @@ function calculatePristinePivotScale(clientX, clientY) {
     el.style.maxHeight = 'none';
     el.style.transformOrigin = '0 0';
 
-    let TX, TY;
+    let TX = cx - vx * S;
+    let TY = cy - vy * S;
+
+    TX = Math.max(viewW - vidW * S, Math.min(0, TX));
+    TY = Math.max(viewH - vidH * S, Math.min(0, TY));
+
     if(isForcedLandscapeActive) {
-        TX = (winW / 2) - (vy * S);
-        TY = (winH / 2) + (vx * S);
-        el.style.transform = `translate(${TX}px, ${TY}px) rotate(-90deg) scale(${S})`;
+        let rTX = (winW / 2) - (vy * S);
+        let rTY = (winH / 2) + (vx * S);
+        rTX = Math.max(0, Math.min(winW, rTX));
+        rTY = Math.max(0, Math.min(winH, rTY));
+        el.style.transform = `translate(${rTX}px, ${rTY}px) rotate(-90deg) scale(${S})`;
     } else {
-        TX = cx - vx * S;
-        TY = cy - vy * S;
         el.style.transform = `translate(${TX}px, ${TY}px) scale(${S})`;
     }
 
@@ -971,12 +1010,49 @@ function calculatePristinePivotScale(clientX, clientY) {
 
 function updateZoomButtonUI() {
     const btn = document.getElementById('video-zoom-btn');
+    const pivotBtn = document.getElementById('pivot-indicator-btn');
+    const memoryBtn = document.getElementById('pivot-memory-btn');
+    const orientBtn = document.getElementById('orientation-toggle-btn');
     if(!btn) return;
     
     btn.className = "zoom-ui-btn" + (currentZoomMode > 0 ? " translucent" : "");
-    document.getElementById('pivot-indicator-btn').className = "zoom-ui-btn" + (isPivotActive ? "" : " translucent");
-    document.getElementById('orientation-toggle-btn').className = "zoom-ui-btn" + (isForcedLandscapeActive ? "" : " translucent");
     document.getElementById('zoom-controls').className = "zoom-control-wrapper" + (isUIHiddenInZoom ? " translucent" : "");
+
+    if(isPivotActive) {
+        pivotBtn.style.color = '#00fff0';
+        pivotBtn.style.borderColor = '#00fff0';
+        pivotBtn.style.boxShadow = '0 0 12px rgba(0, 255, 240, 0.4)';
+        pivotBtn.classList.remove('translucent');
+    } else {
+        pivotBtn.style.color = 'white';
+        pivotBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+        pivotBtn.style.boxShadow = 'none';
+        pivotBtn.classList.add('translucent');
+    }
+
+    if(isPivotMemoryActive) {
+        memoryBtn.style.color = '#00ff66';
+        memoryBtn.style.borderColor = '#00ff66';
+        memoryBtn.style.boxShadow = '0 0 12px rgba(0, 255, 102, 0.4)';
+        memoryBtn.classList.remove('translucent');
+    } else {
+        memoryBtn.style.color = 'white';
+        memoryBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+        memoryBtn.style.boxShadow = 'none';
+        memoryBtn.classList.add('translucent');
+    }
+
+    if(isForcedLandscapeActive) {
+        orientBtn.style.color = '#ff2a6d';
+        orientBtn.style.borderColor = '#ff2a6d';
+        orientBtn.style.boxShadow = 'var(--neon-shadow)';
+        orientBtn.classList.remove('translucent');
+    } else {
+        orientBtn.style.color = 'white';
+        orientBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+        orientBtn.style.boxShadow = 'none';
+        orientBtn.classList.add('translucent');
+    }
 
     if(currentZoomMode === 0) {
         btn.style.color = 'white';
@@ -1016,7 +1092,7 @@ function resetVideoUITimer() {
             if(currentZoomMode > 0 && !document.getElementById('ui-panel').classList.contains('show')) {
                 setImmersiveMode(true); 
             }
-        }, 2000);
+        }, 2500);
     } else {
         setImmersiveMode(false);
     }
@@ -1029,6 +1105,7 @@ function setImmersiveMode(hide) {
     const controls = document.getElementById('zoom-controls');
     const orientBtn = document.getElementById('orientation-toggle-btn');
     const pivotBtn = document.getElementById('pivot-indicator-btn');
+    const memoryBtn = document.getElementById('pivot-memory-btn');
     
     if(hide) {
         if(musicUI) musicUI.style.setProperty('display', 'none', 'important');
@@ -1037,6 +1114,7 @@ function setImmersiveMode(hide) {
         if(panel) panel.classList.remove('show');
         if(controls) controls.classList.add('translucent');
         if(pivotBtn) pivotBtn.classList.add('translucent');
+        if(memoryBtn) memoryBtn.classList.add('translucent');
         isUIHiddenInZoom = true;
     } else {
         if(musicUI) musicUI.style.removeProperty('display');
@@ -1044,6 +1122,7 @@ function setImmersiveMode(hide) {
         if(burger) burger.style.removeProperty('pointer-events');
         if(controls) controls.classList.remove('translucent');
         if(pivotBtn && isPivotActive) pivotBtn.classList.remove('translucent');
+        if(memoryBtn && isPivotMemoryActive) memoryBtn.classList.remove('translucent');
         isUIHiddenInZoom = false;
     }
     
@@ -1061,14 +1140,9 @@ window.addEventListener('resize', function() {
     if(el && (vidEl.style.display === 'block' || imgEl.style.display === 'block')) {
         let medW = el.videoWidth || el.naturalWidth || 640;
         let medH = el.videoHeight || el.naturalHeight || 360;
-        const isMediaLandscape = medW > medH;
-        const isScreenLandscape = window.innerWidth > window.innerHeight;
-        
-        if (isMediaLandscape === isScreenLandscape) {
+        if ((medW > medH) === (window.innerWidth > window.innerHeight)) {
             isForcedLandscapeActive = false;
         }
-
-        if(currentZoomMode === 1) calculatePristinePivotScale(isPivotActive ? lastClickX : null, isPivotActive ? lastClickY : null);
         applyZoomViewLogic();
     }
 });
