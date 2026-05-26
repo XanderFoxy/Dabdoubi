@@ -722,10 +722,12 @@ function openModal(idx) {
             vidEl.playbackRate = videoSpeed;
             checkOrientationAndTip();
             applyZoomViewLogic();
+            if (isUiFaded) hideUISilently();
         };
         if (vidEl.readyState >= 1) {
             checkOrientationAndTip();
             applyZoomViewLogic();
+            if (isUiFaded) hideUISilently();
         }
         
         vidEl.loop = !isSlideshow; 
@@ -747,17 +749,24 @@ function openModal(idx) {
         imgEl.onload = () => {
             checkOrientationAndTip();
             applyZoomViewLogic();
+            if (isUiFaded) hideUISilently();
         };
         if(imgEl.complete) {
             checkOrientationAndTip();
             applyZoomViewLogic();
+            if (isUiFaded) hideUISilently();
         }
         
         if(isSlideshow) slideTimer = setTimeout(nextMedia, document.getElementById('speed-slider').value);
     }
     
     m.classList.add('active');
-    wakeUpUI();
+    if (isUiFaded) {
+        hideUISilently();
+        resetInactivityTracker();
+    } else {
+        wakeUpUI();
+    }
 }
 
 function handleMediaClick(e) {
@@ -891,25 +900,27 @@ function wakeUpUI() {
     resetInactivityTracker();
 }
 
+function hideUISilently() {
+    const zoomBtn = document.getElementById('video-zoom-btn');
+    const tipBtn = document.getElementById('rotation-tip-btn');
+    const burgerBtn = document.querySelector('.burger-trigger');
+    const uiPanel = document.getElementById('ui-panel');
+    const musicUi = document.getElementById('music-player-ui');
+    
+    if(zoomBtn) { zoomBtn.style.opacity = '0'; zoomBtn.style.pointerEvents = 'none'; }
+    if(tipBtn) { tipBtn.style.opacity = '0'; tipBtn.style.pointerEvents = 'none'; }
+    if(burgerBtn) { burgerBtn.style.opacity = '0'; burgerBtn.style.pointerEvents = 'none'; }
+    if(uiPanel) { uiPanel.style.opacity = '0'; uiPanel.style.pointerEvents = 'none'; }
+    if(musicUi) { musicUi.style.opacity = '0'; musicUi.style.pointerEvents = 'none'; }
+    isUiFaded = true;
+}
+
 function resetInactivityTracker() {
     if (!document.getElementById('modal').classList.contains('active')) return;
     clearTimeout(uiTimeoutTimer);
     uiTimeoutTimer = setTimeout(() => {
         if (document.activeElement && document.activeElement.id === 'speed-slider') return;
-        
-        const zoomBtn = document.getElementById('video-zoom-btn');
-        const tipBtn = document.getElementById('rotation-tip-btn');
-        const burgerBtn = document.querySelector('.burger-trigger');
-        const uiPanel = document.getElementById('ui-panel');
-        const musicUi = document.getElementById('music-player-ui');
-        
-        if(zoomBtn) { zoomBtn.style.opacity = '0'; zoomBtn.style.pointerEvents = 'none'; }
-        if(tipBtn) { tipBtn.style.opacity = '0'; tipBtn.style.pointerEvents = 'none'; }
-        if(burgerBtn) { burgerBtn.style.opacity = '0'; burgerBtn.style.pointerEvents = 'none'; }
-        if(uiPanel) { uiPanel.style.opacity = '0'; uiPanel.style.pointerEvents = 'none'; }
-        if(musicUi) { musicUi.style.opacity = '0'; musicUi.style.pointerEvents = 'none'; }
-        
-        isUiFaded = true;
+        hideUISilently();
     }, 2000);
 }
 
