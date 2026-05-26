@@ -45,17 +45,11 @@
             object-fit: fill !important;
         }
 
-        /* ERZWUNGENE ROTATIONS-KLASSE FÜR DAS ERZIELEN EINER MAXIMALEN DISPLAY-AUSREIZUNG */
-        .forced-rotation {
-            transform: rotate(-90deg) !important;
-            width: 100vh !important;
-            height: 100vw !important;
-            max-width: none !important;
-            max-height: none !important;
-            object-fit: contain !important;
+        /* TIMEOUT TRANSITION FÜR DIE INTERAKTIVEN BUTTONS UND LEISTEN */
+        #video-zoom-btn, #rotation-tip-btn, .player-panel {
+            transition: opacity 0.3s ease, transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            opacity: 1;
         }
-        .forced-rotation.fit-cover { object-fit: cover !important; }
-        .forced-rotation.fit-fill { object-fit: fill !important; }
 
         /* FIXIERTER ZOOM STEUERUNGS BUTTON */
         #video-zoom-btn {
@@ -73,10 +67,9 @@
             z-index: 1250;
             cursor: pointer;
             color: white;
-            transition: 0.2s;
         }
 
-        /* ISOLIERTER OPTISCH ANPASSBARER DREH-TIPP-BUTTON (KREISEL) */
+        /* REINER PASSIVER ROTATIONS-TIPP-KREISEL BUTTON */
         #rotation-tip-btn {
             position: fixed;
             top: 20px;
@@ -93,7 +86,7 @@
             cursor: pointer;
             color: #00fff0;
             box-shadow: 0 0 10px rgba(0, 255, 240, 0.3);
-            transition: 0.2s;
+            pointer-events: none; /* Dient rein als visueller Hinweis */
         }
 
         .burger-trigger { 
@@ -266,7 +259,7 @@
         <video id="modal-video" playsinline></video>
     </div>
     
-    <button id="rotation-tip-btn" onclick="toggleForcedRotation(event)">
+    <button id="rotation-tip-btn">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l.73-2.19"/><text x="12" y="15.5" font-size="11" font-family="-apple-system, sans-serif" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">!</text></svg>
     </button>
     <button id="video-zoom-btn" onclick="cycleVideoZoom(event)"></button>
@@ -371,6 +364,7 @@ let isSlideshow = false;
 let isShuffle = false;
 let videoSpeed = 1.0;
 let slideTimer = null;
+let uiTimeoutTimer = null;
 
 let currentSongIdx = 0;
 let musicShuffle = false;
@@ -381,7 +375,6 @@ let filteredPlaylist = [...playlist];
 let musicWasPlaying = false; 
 
 let currentZoomMode = 0;
-let isForcedRotationActive = false;
 
 const musicAudio = new Audio();
 musicAudio.volume = 0.5;
@@ -649,7 +642,7 @@ function renderGallery() {
         div.className = 'item';
         
         div.innerHTML = `
-            ${isVid ? `<video src="${src}#t=0.1" muted playsinline preload="metadata"></video>` : `<img src="${src}">`}
+            ${isVid ? `<video src="${src}#t=0.1" muted playsinline preload="none"></video>` : `<img src="${src}">`}
             <div class="item-actions">
                 <span class="action-btn" onclick="toggleAction('${src}', 'favs', event)">${favs.includes(src)?'❤️':'♡'}</span>
                 <span class="action-btn" onclick="toggleAction('${src}', 'daily', event)">${daily.includes(src)?'🔖':'➕'}</span>
@@ -691,12 +684,10 @@ function openModal(idx) {
     const isVid = src.match(/\.(mp4|mov)$/i);
     clearTimeout(slideTimer);
     
-    isForcedRotationActive = false;
     zoomBtn.style.display = 'flex'; 
-    
-    imgEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
+    imgEl.classList.remove('fit-cover', 'fit-fill');
     imgEl.style.display = 'none';
-    vidEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
+    vidEl.classList.remove('fit-cover', 'fit-fill');
     vidEl.style.display = 'none';
     
     if(isVid) {
@@ -748,6 +739,7 @@ function openModal(idx) {
     }
     
     m.classList.add('active');
+    startInactivityTracker();
     updateUI();
 }
 
@@ -774,27 +766,12 @@ function checkOrientationAndTip() {
     const isMediaLandscape = medW > medH;
     const isScreenLandscape = window.innerWidth > window.innerHeight;
     
-    // Tipp wird eingeblendet, wenn das Format des Mediums nicht zur Geräteausrichtung passt
+    // Tipp-Kreisel erscheint NUR bei einem Format-Mismatch
     if (isMediaLandscape !== isScreenLandscape) {
         tipBtn.style.display = 'flex';
-        if (isForcedRotationActive) {
-            tipBtn.style.color = '#ff2a6d';
-            tipBtn.style.borderColor = '#ff2a6d';
-            tipBtn.style.boxShadow = 'var(--neon-shadow)';
-        } else {
-            tipBtn.style.color = '#00fff0';
-            tipBtn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-            tipBtn.style.boxShadow = '0 0 10px rgba(0, 255, 240, 0.3)';
-        }
     } else {
         tipBtn.style.display = 'none';
     }
-}
-
-function toggleForcedRotation(e) {
-    if(e) e.stopPropagation();
-    isForcedRotationActive = !isForcedRotationActive;
-    applyZoomViewLogic();
 }
 
 function cycleVideoZoom(e) {
@@ -809,20 +786,14 @@ function applyZoomViewLogic() {
     const el = vidEl.style.display === 'block' ? vidEl : imgEl;
     if (!el) return;
     
-    vidEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
-    imgEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
+    vidEl.classList.remove('fit-cover', 'fit-fill');
+    imgEl.classList.remove('fit-cover', 'fit-fill');
     
     if (currentZoomMode === 1) el.classList.add('fit-cover');
     if (currentZoomMode === 2) el.classList.add('fit-fill');
-    if (isForcedRotationActive) el.classList.add('forced-rotation');
     
-    syncCurrentSettingsToMemory();
     updateZoomButtonUI();
     checkOrientationAndTip();
-}
-
-function syncCurrentSettingsToMemory() {
-    // Ermöglicht optionales Speichern, falls in Zukunft benötigt
 }
 
 function updateZoomButtonUI() {
@@ -844,7 +815,7 @@ function updateZoomButtonUI() {
         btn.style.borderColor = '#00fff0';
         btn.style.boxShadow = '0 0 15px rgba(0, 255, 240, 0.8)';
         
-        // RECHTECK-SYMBOL: Passt sich dynamisch an das aktuelle Seitenverhältnis des Bildschirms an
+        // RECHTECK-SYMBOL: Passt sich dynamisch an die aktuelle Haltung des Bildschirms an
         const isPortrait = window.innerWidth < window.innerHeight;
         if(isPortrait) {
             btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="7" y="2" width="10" height="20" rx="1.5"/></svg>';
@@ -854,15 +825,45 @@ function updateZoomButtonUI() {
     }
 }
 
-window.addEventListener('resize', function() {
-    const vidEl = document.getElementById('modal-video');
-    const imgEl = document.getElementById('modal-img');
-    const el = vidEl.style.display === 'block' ? vidEl : imgEl;
+/* INTERAKTIVES AUTO-HIDE-SYSTEM (BLENDED RESSOURCEN NACH 2 SEKUNDEN INAKTIVITÄT AUS) */
+function startInactivityTracker() {
+    const modal = document.getElementById('modal');
     
-    if(el && (vidEl.style.display === 'block' || imgEl.style.display === 'block')) {
-        checkOrientationAndTip();
-        updateZoomButtonUI();
-    }
+    // UI sofort sichtbar machen bei Interaktion
+    const triggerReset = () => {
+        const zoomBtn = document.getElementById('video-zoom-btn');
+        const tipBtn = document.getElementById('rotation-tip-btn');
+        const uiPanel = document.getElementById('ui-panel');
+        const vidEl = document.getElementById('modal-video');
+        
+        if(zoomBtn && vidEl.style.display === 'block') zoomBtn.style.opacity = '1';
+        if(tipBtn && tipBtn.style.display === 'flex') tipBtn.style.opacity = '1';
+        if(uiPanel) uiPanel.style.opacity = '1';
+        
+        clearTimeout(uiTimeoutTimer);
+        uiTimeoutTimer = setTimeout(() => {
+            // Slider-Interaktion schützt vor Ausblendung
+            if (document.activeElement && document.activeElement.id === 'speed-slider') return;
+            
+            if(zoomBtn) zoomBtn.style.opacity = '0';
+            if(tipBtn) tipBtn.style.opacity = '0';
+            if(uiPanel && !uiPanel.classList.contains('show')) {
+                uiPanel.style.opacity = '0';
+            }
+        }, 2000);
+    };
+
+    modal.addEventListener('mousemove', triggerReset);
+    modal.addEventListener('touchstart', triggerReset);
+    modal.addEventListener('mousedown', triggerReset);
+    modal.addEventListener('click', triggerReset);
+    
+    triggerReset();
+}
+
+window.addEventListener('resize', function() {
+    checkOrientationAndTip();
+    applyZoomViewLogic();
 });
 
 function nextMedia() {
@@ -931,6 +932,7 @@ function updateUI() {
 }
 
 function closeModal() {
+    clearTimeout(uiTimeoutTimer);
     document.getElementById('modal').classList.remove('active');
     const vidEl = document.getElementById('modal-video');
     vidEl.pause();
@@ -938,7 +940,6 @@ function closeModal() {
     clearTimeout(slideTimer);
     isSlideshow = false;
     currentZoomMode = 0; 
-    isForcedRotationActive = false;
     updateUI();
 }
 
