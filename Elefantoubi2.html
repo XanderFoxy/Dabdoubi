@@ -7,7 +7,7 @@
     <style>
         :root { --pink: #ff2a6d; --bg: #050505; --ui-bg: rgba(15, 15, 15, 0.98); --neon-shadow: 0 0 15px rgba(255, 42, 109, 0.8); }
         * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { width: 100%; height: 100%; background: var(--bg); color: white; font-family: -apple-system, sans-serif; overflow: hidden; }
+        body { background:var(--bg); color:white; font-family: -apple-system, sans-serif; overflow-x: hidden; }
         
         header { text-align:center; padding:20px; background:#000; border-bottom: 1px solid #222; position: sticky; top:0; z-index:100; }
         h1 { color:var(--pink); font-size:1.6rem; letter-spacing:5px; text-transform: uppercase; margin-bottom: 15px; }
@@ -23,80 +23,86 @@
         .item-actions { position:absolute; top:8px; right:8px; display:flex; flex-direction:column; gap:8px; z-index:10; }
         .action-btn { font-size:1.3rem; filter: drop-shadow(0 0 5px black); cursor: pointer; }
 
-        /* VOLLKOMMEN BLICKDICHTES DISPLAY-MODAL OHNE LAYOUT-SHIFTS */
-        .modal { display:none; position:fixed; inset:0 !important; background:#000000 !important; z-index:99999 !important; flex-direction: column; overflow: hidden !important; width: 100vw !important; height: 100vh !important; }
+        .modal { display:none; position:fixed; inset:0; background:#000; z-index:1000; flex-direction: column; }
         .modal.active { display:flex; }
+        .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
         
-        /* MATRIZEN-FREIE VIEWPORT-KLAMMERUNG FÜR ABSOLUTE ZENTRIERUNG */
-        .media-container { position: absolute; inset: 0 !important; display: flex; align-items: center; justify-content: center; overflow: hidden !important; width: 100% !important; height: 100% !important; background: #000000 !important; pointer-events: auto; z-index: 1; }
-        
-        #modal-img, #modal-video { width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
+        #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
 
-        /* FORMATSICHERE NATIVER ANSICHTS-MODI */
-        #modal-img.fit-cover, #modal-video.fit-cover { object-fit: cover !important; }
-        #modal-img.fit-fill, #modal-video.fit-fill { object-fit: fill !important; }
-
-        /* SEITENVERHÄLTNIS-ERZWINGUNG GEGEN DEN UHRZEIGERSINN (-90°) */
-        .forced-rotation { transform: rotate(-90deg) !important; width: 100vh !important; height: 100vw !important; max-width: none !important; max-height: none !important; object-fit: contain !important; }
-        .forced-rotation.fit-cover { object-fit: cover !important; }
-        .forced-rotation.fit-fill { object-fit: fill !important; }
-
-        /* HOCHPRIORITÄRE STEUERUNGSLEISTE */
-        .zoom-control-wrapper {
-            position: fixed; top: 20px; right: 20px;
-            display: none; gap: 10px; z-index: 100005 !important;
-            pointer-events: auto; width: auto; height: auto;
-            flex-direction: row; align-items: center; justify-content: flex-end;
-            transition: opacity 0.25s ease;
+        /* VIDEO FULLSCREEN CONTROLS & DYNAMIC MODES */
+        #modal-video.fit-cover {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
+            max-height: none !important;
+            object-fit: cover !important;
+        }
+        #modal-video.fit-fill {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
+            max-height: none !important;
+            object-fit: fill !important;
         }
 
-        .zoom-ui-btn {
-            width: 44px; height: 44px;
+        #video-zoom-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
             background: rgba(15, 15, 15, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: white; transition: all 0.2s ease;
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            border-radius: 10px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1150;
+            cursor: pointer;
+            color: white;
+            transition: 0.2s;
         }
-        .zoom-ui-btn.translucent { opacity: 0.25 !important; }
-        .zoom-ui-btn.translucent:hover { opacity: 1.0 !important; }
 
-        #pivot-memory-btn { display: flex; color: white; border-color: rgba(255,255,255,0.2); }
-        #orientation-toggle-btn { display: none; }
+        #video-zoom-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
 
-        /* IMMERSIVES OVERLAY SYSTEM */
         .burger-trigger { 
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
             width: 60px; height: 60px; background: var(--pink); border-radius: 50%; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px;
-            z-index: 100010 !important; box-shadow: var(--neon-shadow); border: none;
-            transition: opacity 0.25s ease, transform 0.2s ease;
-            pointer-events: auto;
+            z-index: 1100; box-shadow: var(--neon-shadow); border: none;
         }
         .burger-trigger span { width: 25px; height: 2px; background: white; border-radius: 1px; }
 
         .player-panel { 
             position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); 
             width: 92%; max-width: 400px; background: var(--ui-bg); border-radius: 25px; 
-            border: 1px solid rgba(255,255,255,0.1); padding: 20px; z-index: 100008 !important;
+            border: 1px solid rgba(255,255,255,0.1); padding: 20px; z-index: 1050;
             display: none; flex-direction: column; gap: 20px; box-shadow: 0 0 40px rgba(0,0,0,0.9);
-            pointer-events: auto;
         }
         .player-panel.show { display: flex; animation: slideIn 0.2s ease-out; }
 
+        /* MUSIK PLAYER STYLES */
         #music-player-ui {
-            position: fixed; bottom: 20px; left: 20px; z-index: 100007 !important;
+            position: fixed; bottom: 20px; left: 20px; z-index: 1200;
             background: var(--ui-bg); border: 1px solid #333; border-radius: 15px;
             padding: 10px; display: flex; flex-direction: column; gap: 4px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.6); 
-            width: 156px; transition: width 0.2s ease, opacity 0.25s ease; overflow: hidden;
-            pointer-events: auto;
+            width: 156px; transition: width 0.2s ease; overflow: hidden;
         }
-        #music-player-ui.macro-view { width: max-content; min-width: 280px; max-width: 85vw; }
+        
+        #music-player-ui.macro-view {
+            width: max-content;
+            min-width: 280px;
+            max-width: 85vw;
+        }
+        
         .mp-info { font-size: 0.75rem; color: var(--pink); text-align: center; font-weight: bold; white-space: nowrap; overflow: hidden; margin: 0 auto; width: 136px; height: 16px; position: relative; }
         #music-player-ui.macro-view .mp-info { width: 100%; overflow: visible; }
+        
         #mp-current-title { display: inline-block; white-space: nowrap; transform: translateX(0); }
         
         @keyframes musicMarquee {
@@ -106,31 +112,50 @@
             70% { transform: translateX(var(--scroll-dist, 0px)); }
             100% { transform: translateX(0); }
         }
+        
         .mp-controls { display: flex; gap: 16px; align-items: center; justify-content: center; padding: 4px 0; }
+        
         .mp-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; padding: 0; position: relative; transition: color 0.2s; }
         .mp-btn svg { width: 100%; height: 100%; fill: currentColor; }
+        
         .mp-btn#mp-shuffle.active { color: var(--pink); filter: drop-shadow(0 0 4px var(--pink)); }
         .mp-btn#mp-master-fav.active { color: #ff3333; filter: drop-shadow(0 0 4px #ff3333); }
         .mp-btn#mp-repeat.active { color: var(--pink); filter: drop-shadow(0 0 4px var(--pink)); }
         .mp-btn.active-nav { color: var(--pink); }
+
         .mp-macro-controls { display: none; justify-content: space-between; align-items: center; padding: 6px 8px 16px 8px; border-top: 1px solid #222; margin-top: 4px; gap: 20px; }
         #music-player-ui.macro-view .mp-macro-controls { display: flex; }
 
         .apple-switch-box { display: flex; flex-direction: column; align-items: center; position: relative; }
-        .apple-switch-track { position: relative; width: 52px; height: 24px; background: #333; border-radius: 12px; cursor: pointer; transition: background 0.25s ease; }
-        .apple-switch-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 1px 3px rgba(0,0,0,0.4); pointer-events: none; }
+        .apple-switch-track {
+            position: relative; width: 52px; height: 24px; background: #333; 
+            border-radius: 12px; cursor: pointer; transition: background 0.25s ease;
+        }
+        .apple-switch-knob {
+            position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; 
+            background: white; border-radius: 50%; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4); pointer-events: none;
+        }
+        
         .apple-switch-track.pos-0 { background: #ff4500; } 
         .apple-switch-track.pos-1 { background: #c40000; } 
         .apple-switch-track.pos-2 { background: var(--pink); } 
+        
         .apple-switch-track.pos-0 .apple-switch-knob { transform: translateX(0px); }
         .apple-switch-track.pos-1 .apple-switch-knob { transform: translateX(14px); }
         .apple-switch-track.pos-2 .apple-switch-knob { transform: translateX(28px); }
+        
         .vibe-text-label { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
 
-        #mp-playlist { display: none; max-height: 160px; overflow-y: auto; border-top: 1px solid #222; padding-top: 6px; margin-top: 4px; }
+        #mp-playlist { 
+            display: none; max-height: 160px; overflow-y: auto; 
+            border-top: 1px solid #222; padding-top: 6px; margin-top: 4px;
+        }
         #mp-playlist.show { display: block; }
+        
         .mp-track-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 4px; border-radius: 6px; }
         .mp-track-row:hover { background: rgba(255,42,109,0.05); }
+        
         .mp-track { font-size: 0.75rem; color: #bbb; cursor: pointer; white-space: nowrap; padding-right: 8px; }
         #music-player-ui.macro-view .mp-track { overflow: visible; text-overflow: clip; }
         .mp-track.active { color: var(--pink); font-weight: bold; }
@@ -209,35 +234,29 @@
 </div>
 
 <div class="modal" id="modal">
-    <div class="media-container" id="modal-media" onclick="handleMediaContainerClick(event)">
+    <div class="media-container" id="modal-media" onclick="toggleUI()">
         <img id="modal-img">
         <video id="modal-video" playsinline></video>
     </div>
     
-    <div class="zoom-control-wrapper" id="zoom-controls" onclick="event.stopPropagation()">
-        <button class="zoom-ui-btn" id="orientation-toggle-btn" onclick="forceLandscapeToggle(event)">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l.73-2.19"/></svg>
-        </button>
-        <button class="zoom-ui-btn" id="pivot-memory-btn" onclick="togglePivotMemory(event)">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-        </button>
-        <button class="zoom-ui-btn" id="video-zoom-btn" onclick="cycleVideoZoom(event)"></button>
-    </div>
+    <button id="video-zoom-btn" onclick="cycleVideoZoom(event)">
+        <svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm14 0h-6v2h4v4h2V4zM4 20h6v-2H6v-4H4v6zm14 0h-6v-2h4v-4h2v6z"/></svg>
+    </button>
 
-    <button class="burger-trigger" onclick="toggleNavigationPanel(event)"><span></span><span></span><span></span></button>
-    <div class="player-panel" id="ui-panel" onclick="event.stopPropagation()">
+    <button class="burger-trigger" onclick="toggleUI()"><span></span><span></span><span></span></button>
+    <div class="player-panel" id="ui-panel">
         <div class="slider-row">
             <label id="speed-label">Intervall: 5.0s</label>
             <input type="range" id="speed-slider" min="500" max="12000" value="5000" step="100" oninput="document.getElementById('speed-label').innerText='Intervall: '+(this.value/1000).toFixed(1)+'s'">
         </div>
         <div class="btn-row">
-            <button class="nav-btn" onclick="prevMedia(event)">❮</button>
-            <button class="nav-btn" onclick="toggleShuffle(event)" id="shuffle-btn">🎲</button>
-            <button class="nav-btn" onclick="toggleSlideshow(event)" id="play-btn">▶</button>
-            <button class="nav-btn" onclick="toggleVideoSpeed(event)"><span class="v-badge" id="v-speed-txt">1x</span></button>
-            <button class="nav-btn" onclick="toggleMute(event)" id="mute-btn">🔊</button>
-            <button class="nav-btn" onclick="closeModal(event)">✕</button>
-            <button class="nav-btn" onclick="nextMedia(event)">❯</button>
+            <button class="nav-btn" onclick="prevMedia()">❮</button>
+            <button class="nav-btn" onclick="toggleShuffle()" id="shuffle-btn">🎲</button>
+            <button class="nav-btn" onclick="toggleSlideshow()" id="play-btn">▶</button>
+            <button class="nav-btn" onclick="toggleVideoSpeed()"><span class="v-badge" id="v-speed-txt">1x</span></button>
+            <button class="nav-btn" onclick="toggleMute()" id="mute-btn">🔊</button>
+            <button class="nav-btn" onclick="closeModal()">✕</button>
+            <button class="nav-btn" onclick="nextMedia()">❯</button>
         </div>
     </div>
 </div>
@@ -259,7 +278,6 @@ const media = [
     "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-23-28.jpeg",
     "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-34-49.jpeg",
     "Bilder/AsmaaUndAlexSex/Facetune_30-04-2026-02-46-34.jpeg",
-    // VIDEOS
     "Videos/AsmaaUndAlexSex/fe0ae259a6f8e304433b267a7f3ae8c1.mp4",
     "Videos/AsmaaUndAlexSex/eac76931cc54bae1774dd031345aab4e.mov",
     "Videos/AsmaaUndAlexSex/e1237b68bfc375b12301bb7c4cde94ec.mov",
@@ -304,7 +322,6 @@ const playlist = [
     { name: "Blue System - Save Me", src: "Musik/Blue-System-03-Save-Me.mp3", type: "hot" },
     { name: "Blue System - My Bed Is Too Big", src: "Musik/Blue-System-06-My-Bed-Is-Too-Big.mp3", type: "hot" },
     { name: "Blue System - Do You Wanna Be My Girlfriend", src: "Musik/Blue-System-02-Do-You-Wanna-Be-My-Girlfriend.mp3", type: "hot" },
-    { name: "Blue System - Love Suite", src: "Musik/Blue_System-Love_Suite.mp3", type: "hot" },
     { name: "IAMX - Your Joy Is My Low", src: "Musik/IAMX%20-%20Your%20Joy%20Is%20My%20Low.mp3", type: "spicy" },
     { name: "Wumpscut - Ich will dich", src: "Musik/Wumpscut%20-%20Ich%20will%20dich.mp3", type: "spicy" },
     { name: "Wumpscut - Ich will dich Intro", src: "Musik/Wumpscut%20-%20Boeses%20Junges%20Fleisch%2014%20Years%20Anniversary%20Edition%203CD%20Set%20CD2%20Appendix%201%202013%20-%2005.%20Ich%20Will%20Dich%20Intro.mp3", type: "spicy" },
@@ -315,7 +332,6 @@ const playlist = [
 let favs = JSON.parse(localStorage.getItem('eb_favs')) || [];
 let daily = JSON.parse(localStorage.getItem('eb_daily')) || [];
 let musicFavs = JSON.parse(localStorage.getItem('eb_music_favs')) || [];
-let pivotMemory = JSON.parse(localStorage.getItem('eb_pivot_memory_data_v5')) || {};
 
 let mainFilter = 'all'; 
 let subFilter = 'none'; 
@@ -335,12 +351,8 @@ let musicVibeFilter = 'all';
 let filteredPlaylist = [...playlist];
 let musicWasPlaying = false; 
 
-let currentZoomMode = 0;
+let currentZoomMode = 0; // 0 = contain (Standard), 1 = cover (Zentrum füllend), 2 = fill (gestaucht füllend)
 let isUIHiddenInZoom = false;
-let isForcedLandscapeActive = false;
-let isPivotActive = true; 
-let isPivotMemoryActive = localStorage.getItem('eb_pivot_memory_active') === 'true';
-let videoUITimer = null;
 
 const musicAudio = new Audio();
 musicAudio.volume = 0.5;
@@ -572,6 +584,24 @@ function updateMusicUI() {
     });
 }
 
+musicAudio.onended = () => {
+    if(musicRepeat === 2) {
+        musicAudio.currentTime = 0;
+        musicAudio.play().catch(() => {});
+    } else if(musicRepeat === 1 || musicShuffle) {
+        nextSong();
+    } else {
+        const currentFilteredIdx = filteredPlaylist.findIndex(s => s.src === playlist[currentSongIdx]?.src);
+        if(currentFilteredIdx < filteredPlaylist.length - 1) {
+            nextSong();
+        } else {
+            musicWasPlaying = false;
+            musicAudio.pause();
+            updateMusicUI();
+        }
+    }
+};
+
 function renderGallery() {
     const g = document.getElementById('gallery');
     g.innerHTML = '';
@@ -590,7 +620,7 @@ function renderGallery() {
         div.className = 'item';
         
         div.innerHTML = `
-            ${isVid ? `<video src="${src}#t=0.1" muted playsinline preload="metadata"></video>` : `<img src="${src}">`}
+            ${isVid ? `<video src="${src}#t=0.1" muted playsinline preload="none"></video>` : `<img src="${src}">`}
             <div class="item-actions">
                 <span class="action-btn" onclick="toggleAction('${src}', 'favs', event)">${favs.includes(src)?'❤️':'♡'}</span>
                 <span class="action-btn" onclick="toggleAction('${src}', 'daily', event)">${daily.includes(src)?'🔖':'➕'}</span>
@@ -627,35 +657,16 @@ function openModal(idx) {
     const m = document.getElementById('modal');
     const imgEl = document.getElementById('modal-img');
     const vidEl = document.getElementById('modal-video');
-    const ctrlWrapper = document.getElementById('zoom-controls');
-    const orientBtn = document.getElementById('orientation-toggle-btn');
+    const zoomBtn = document.getElementById('video-zoom-btn');
     const src = currentList[currentIndex];
     const isVid = src.match(/\.(mp4|mov)$/i);
     clearTimeout(slideTimer);
     
-    isForcedLandscapeActive = false;
-    
-    if (orientBtn) orientBtn.style.display = 'none';
-    
-    // SOFORTIGE ECHTZEIT-ABFRAGE DES PERSISTENTEN LOCAL STORAGES BEIM LADEN
-    if (isPivotMemoryActive && pivotMemory[src]) {
-        currentZoomMode = pivotMemory[src].mode ?? 0;
-        videoSpeed = pivotMemory[src].speed ?? 1.0;
-    } else {
-        videoSpeed = 1.0;
-    }
-    
-    document.getElementById('v-speed-txt').innerText = videoSpeed + 'x';
-    
-    imgEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
-    imgEl.style.display = 'none';
-    vidEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
-    vidEl.style.display = 'none';
-    
-    ctrlWrapper.style.display = 'flex'; 
-    
     if(isVid) {
+        imgEl.style.display = 'none';
         vidEl.style.display = 'block';
+        zoomBtn.style.display = 'flex';
+        
         vidEl.muted = isMuted;
         vidEl.volume = isMuted ? 0 : 1.0;
         
@@ -666,261 +677,86 @@ function openModal(idx) {
         
         vidEl.onloadedmetadata = () => {
             vidEl.playbackRate = videoSpeed;
-            checkOrientationAndTip();
-            applyZoomViewLogic(); 
         };
-        if (vidEl.readyState >= 1) {
-            checkOrientationAndTip();
-            applyZoomViewLogic();
-        }
+        vidEl.playbackRate = videoSpeed;
+        
         vidEl.loop = !isSlideshow; 
-        vidEl.onended = () => { if(isSlideshow) nextMedia(); };
-        vidEl.play().catch(() => {});
+        vidEl.onended = () => { 
+            if(isSlideshow) nextMedia();
+        };
+
+        // Zoom-Modus auf Video anwenden
+        vidEl.classList.remove('fit-cover', 'fit-fill');
+        if(currentZoomMode === 1) vidEl.classList.add('fit-cover');
+        if(currentZoomMode === 2) vidEl.classList.add('fit-fill');
+        updateZoomButtonUI();
+
+        if(currentZoomMode > 0) {
+            setImmersiveMode(true);
+        } else {
+            setImmersiveMode(false);
+        }
+        
+        vidEl.play().then(() => {
+            vidEl.playbackRate = videoSpeed;
+            if (musicWasPlaying && musicAudio.paused) {
+                musicAudio.play().catch(() => {});
+            }
+        }).catch(() => {});
     } else {
         vidEl.pause();
-        imgEl.style.display = 'block';
-        imgEl.src = src;
+        vidEl.style.display = 'none';
+        zoomBtn.style.display = 'none';
+        setImmersiveMode(false);
         
-        imgEl.onload = () => {
-            checkOrientationAndTip();
-            applyZoomViewLogic();
-        };
-        if(imgEl.complete) {
-            checkOrientationAndTip();
-            applyZoomViewLogic();
-        }
+        imgEl.src = src;
+        imgEl.style.display = 'block';
         
         if(isSlideshow) slideTimer = setTimeout(nextMedia, document.getElementById('speed-slider').value);
     }
     
-    resetVideoUITimer();
     m.classList.add('active');
     updateUI();
 }
 
-function checkOrientationAndTip() {
-    const orientBtn = document.getElementById('orientation-toggle-btn');
-    const imgEl = document.getElementById('modal-img');
-    const vidEl = document.getElementById('modal-video');
-    
-    let medW = 0, medH = 0;
-    if (vidEl.style.display === 'block') {
-        medW = vidEl.videoWidth;
-        medH = vidEl.videoHeight;
-    } else if (imgEl.style.display === 'block') {
-        medW = imgEl.naturalWidth;
-        medH = imgEl.naturalHeight;
-    }
-    
-    if (!medW || !medH || medW === medH) {
-        if(orientBtn) orientBtn.style.display = 'none';
-        return;
-    }
-    
-    const isMediaLandscape = medW > medH;
-    const isScreenLandscape = window.innerWidth > window.innerHeight;
-    
-    if (isMediaLandscape !== isScreenLandscape) {
-        if(orientBtn) {
-            orientBtn.style.display = 'flex';
-            if(isForcedLandscapeActive) {
-                orientBtn.style.color = '#ff2a6d';
-                orientBtn.style.borderColor = '#ff2a6d';
-                orientBtn.style.boxShadow = 'var(--neon-shadow)';
-            } else {
-                orientBtn.style.color = 'white';
-                orientBtn.style.borderColor = 'rgba(255,255,255,0.2)';
-                orientBtn.style.boxShadow = 'none';
-            }
-        }
-    } else {
-        if(orientBtn) orientBtn.style.display = 'none';
-    }
-}
-
-function forceLandscapeToggle(e) {
-    if(e) e.stopPropagation();
-    isForcedLandscapeActive = !isForcedLandscapeActive;
-    applyZoomViewLogic();
-    resetVideoUITimer();
-}
-
 function cycleVideoZoom(e) {
     if(e) e.stopPropagation();
+    const vidEl = document.getElementById('modal-video');
+    if(!vidEl) return;
+
     currentZoomMode = (currentZoomMode + 1) % 3;
     
-    syncCurrentSettingsToMemory();
-    applyZoomViewLogic();
-    resetVideoUITimer();
-}
-
-function togglePivotFeature(e) {
-    if(e) e.stopPropagation();
-    isPivotActive = !isPivotActive;
-    applyZoomViewLogic();
-    resetVideoUITimer();
-}
-
-function togglePivotMemory(e) {
-    if(e) e.stopPropagation();
-    isPivotMemoryActive = !isPivotMemoryActive;
-    localStorage.setItem('eb_pivot_memory_active', isPivotMemoryActive);
-    
-    syncCurrentSettingsToMemory();
-    applyZoomViewLogic();
-    resetVideoUITimer();
-}
-
-function applyZoomViewLogic() {
-    const vidEl = document.getElementById('modal-video');
-    const imgEl = document.getElementById('modal-img');
-    const el = vidEl.style.display === 'block' ? vidEl : imgEl;
-    const pivotBtn = document.getElementById('pivot-indicator-btn');
-    
-    vidEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
-    imgEl.classList.remove('fit-cover', 'fit-fill', 'forced-rotation');
-    
-    pivotBtn.style.display = 'none';
-    
-    if(currentZoomMode === 0) {
-        if(isForcedLandscapeActive) el.classList.add('forced-rotation');
-        setImmersiveMode(false);
-    } else if(currentZoomMode === 1) {
-        pivotBtn.style.display = 'flex';
-        el.classList.add('fit-cover'); // Modus 1: Fehlerfreies proportionales randfüllendes Cover-Fullscreen
-        if(isForcedLandscapeActive) el.classList.add('forced-rotation');
-        setImmersiveMode(true);
-    } else if(currentZoomMode === 2) {
-        el.classList.add('fit-fill'); // Modus 2: Gestauchter Fullscreen auf alle 4 Kanten
-        if(isForcedLandscapeActive) el.classList.add('forced-rotation');
-        setImmersiveMode(true);
-    }
+    vidEl.classList.remove('fit-cover', 'fit-fill');
+    if(currentZoomMode === 1) vidEl.classList.add('fit-cover');
+    if(currentZoomMode === 2) vidEl.classList.add('fit-fill');
     
     updateZoomButtonUI();
-    checkOrientationAndTip();
-}
 
-function handleMediaContainerClick(e) {
-    // KLICK-SCHUTZ: Vollkommene Blockade auf sämtlichen Bedienelementen, um Verschiebungen auszuschließen
-    if (e.target.closest('#zoom-controls') || e.target.closest('.zoom-ui-btn') || e.target.closest('.burger-trigger') || e.target.closest('.player-panel') || e.target.closest('#music-player-ui')) {
-        return;
-    }
-
-    const vidEl = document.getElementById('modal-video');
-    const imgEl = document.getElementById('modal-img');
-    const el = vidEl.style.display === 'block' ? vidEl : imgEl;
-    const isMediaActive = (el && el.style.display === 'block');
-    
-    if (isMediaActive && currentZoomMode > 0) {
-        if (isUIHiddenInZoom) {
-            setImmersiveMode(false);
-            resetVideoUITimer();
-        } else {
-            setImmersiveMode(true);
-            clearTimeout(videoUITimer);
-        }
+    if(currentZoomMode > 0) {
+        setImmersiveMode(true);
     } else {
-        document.getElementById('ui-panel').classList.toggle('show'); 
-    }
-}
-
-function syncCurrentSettingsToMemory() {
-    if (isPivotMemoryActive) {
-        const src = currentList[currentIndex];
-        if (!pivotMemory[src]) pivotMemory[src] = {};
-        pivotMemory[src].mode = currentZoomMode;
-        pivotMemory[src].speed = videoSpeed;
-        localStorage.setItem('eb_pivot_memory_data_v5', JSON.stringify(pivotMemory));
+        setImmersiveMode(false);
     }
 }
 
 function updateZoomButtonUI() {
     const btn = document.getElementById('video-zoom-btn');
-    const pivotBtn = document.getElementById('pivot-indicator-btn');
-    const memoryBtn = document.getElementById('pivot-memory-btn');
-    const orientBtn = document.getElementById('orientation-toggle-btn');
     if(!btn) return;
-    
-    btn.className = "zoom-ui-btn" + (currentZoomMode > 0 ? " translucent" : "");
-    document.getElementById('zoom-controls').className = "zoom-control-wrapper" + (isUIHiddenInZoom ? " translucent" : "");
-
-    if(isPivotActive) {
-        pivotBtn.style.color = '#00fff0';
-        pivotBtn.style.borderColor = '#00fff0';
-        pivotBtn.style.boxShadow = '0 0 12px rgba(0, 255, 240, 0.4)';
-        pivotBtn.classList.remove('translucent');
-    } else {
-        pivotBtn.style.color = 'white';
-        pivotBtn.style.borderColor = 'rgba(255,255,255,0.2)';
-        pivotBtn.style.boxShadow = 'none';
-        pivotBtn.classList.add('translucent');
-    }
-
-    if(isPivotMemoryActive) {
-        memoryBtn.style.color = '#00ff66';
-        memoryBtn.style.borderColor = '#00ff66';
-        memoryBtn.style.boxShadow = '0 0 12px rgba(0, 255, 102, 0.4)';
-        memoryBtn.classList.remove('translucent');
-    } else {
-        memoryBtn.style.color = 'white';
-        memoryBtn.style.borderColor = 'rgba(255,255,255,0.2)';
-        memoryBtn.style.boxShadow = 'none';
-        memoryBtn.classList.add('translucent');
-    }
-
-    if(isForcedLandscapeActive) {
-        orientBtn.style.color = '#ff2a6d';
-        orientBtn.style.borderColor = '#ff2a6d';
-        orientBtn.style.boxShadow = 'var(--neon-shadow)';
-        orientBtn.classList.remove('translucent');
-    } else {
-        orientBtn.style.color = 'white';
-        orientBtn.style.borderColor = 'rgba(255,255,255,0.2)';
-        orientBtn.style.boxShadow = 'none';
-        orientBtn.classList.add('translucent');
-    }
-
     if(currentZoomMode === 0) {
         btn.style.color = 'white';
         btn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
         btn.style.boxShadow = 'none';
-        btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>';
+        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm14 0h-6v2h4v4h2V4zM4 20h6v-2H6v-4H4v6zm14 0h-6v-2h4v-4h2v6z"/></svg>';
     } else if(currentZoomMode === 1) {
         btn.style.color = 'var(--pink)';
         btn.style.borderColor = 'var(--pink)';
         btn.style.boxShadow = 'var(--neon-shadow)';
-        btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M2 12h20M12 2v20"/></svg>';
+        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M2 2h8v2H4v6H2V2zm20 0h-8v2h6v6h2V2zM2 22h8v-2H4v-6H2v8zm20 0h-8v-2h6v-6h2v8zM8 8h8v8H8V8z"/></svg>';
     } else if(currentZoomMode === 2) {
         btn.style.color = '#00fff0';
         btn.style.borderColor = '#00fff0';
         btn.style.boxShadow = '0 0 15px rgba(0, 255, 240, 0.8)';
-        
-        const isPortrait = window.innerWidth < window.innerHeight;
-        if(isPortrait) {
-            btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="6" y="3" width="12" height="18" rx="1.5"/></svg>';
-        } else {
-            btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="6" width="18" height="12" rx="1.5"/></svg>';
-        }
-    }
-}
-
-function toggleNavigationPanel(e) {
-    if(e) e.stopPropagation();
-    document.getElementById('ui-panel').classList.toggle('show');
-    resetVideoUITimer();
-}
-
-function resetVideoUITimer() {
-    clearTimeout(videoUITimer);
-    if(currentZoomMode > 0 && !document.getElementById('ui-panel').classList.contains('show')) {
-        setImmersiveMode(false); 
-        videoUITimer = setTimeout(function() {
-            if(currentZoomMode > 0 && !document.getElementById('ui-panel').classList.contains('show')) {
-                setImmersiveMode(true); 
-            }
-        }, 2500);
-    } else {
-        setImmersiveMode(false);
+        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 5h8v2H8v-2z"/></svg>';
     }
 }
 
@@ -928,56 +764,30 @@ function setImmersiveMode(hide) {
     const musicUI = document.getElementById('music-player-ui');
     const burger = document.querySelector('.burger-trigger');
     const panel = document.getElementById('ui-panel');
-    const controls = document.getElementById('zoom-controls');
-    const orientBtn = document.getElementById('orientation-toggle-btn');
-    const pivotBtn = document.getElementById('pivot-indicator-btn');
-    const memoryBtn = document.getElementById('pivot-memory-btn');
+    const zoomBtn = document.getElementById('video-zoom-btn');
     
     if(hide) {
         if(musicUI) musicUI.style.setProperty('display', 'none', 'important');
-        if(burger) burger.style.setProperty('opacity', '0', 'important');
-        if(burger) burger.style.setProperty('pointer-events', 'none', 'important');
+        if(burger) burger.style.setProperty('display', 'none', 'important');
+        if(zoomBtn) zoomBtn.style.setProperty('display', 'none', 'important');
         if(panel) panel.classList.remove('show');
-        if(controls) controls.classList.add('translucent');
-        if(pivotBtn) pivotBtn.classList.add('translucent');
-        if(memoryBtn) memoryBtn.classList.add('translucent');
         isUIHiddenInZoom = true;
     } else {
         if(musicUI) musicUI.style.removeProperty('display');
-        if(burger) burger.style.removeProperty('opacity');
-        if(burger) burger.style.removeProperty('pointer-events');
-        if(controls) controls.classList.remove('translucent');
-        if(pivotBtn) pivotBtn.classList.remove('translucent');
-        if(memoryBtn) memoryBtn.classList.remove('translucent');
+        if(burger) burger.style.removeProperty('display');
+        if(zoomBtn) zoomBtn.style.removeProperty('display');
         isUIHiddenInZoom = false;
-    }
-    
-    if(orientBtn && orientBtn.style.display === 'flex') {
-        orientBtn.classList.remove('translucent');
-        orientBtn.style.setProperty('opacity', '1', 'important');
     }
 }
 
-window.addEventListener('resize', function() {
-    const vidEl = document.getElementById('modal-video');
-    const imgEl = document.getElementById('modal-img');
-    const el = vidEl.style.display === 'block' ? vidEl : imgEl;
-    
-    if(el && (vidEl.style.display === 'block' || imgEl.style.display === 'block')) {
-        applyZoomViewLogic();
-    }
-});
-
-function nextMedia(e) {
-    if(e) e.stopPropagation();
+function nextMedia() {
     if(!currentList.length) return;
     if(isShuffle) currentIndex = Math.floor(Math.random() * currentList.length);
     else currentIndex = (currentIndex + 1) % currentList.length;
     openModal(currentIndex);
 }
 
-function prevMedia(e) {
-    if(e) e.stopPropagation();
+function prevMedia() {
     currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
     openModal(currentIndex);
 }
@@ -996,11 +806,21 @@ function toggleAction(src, list, e) {
     renderGallery();
 }
 
-function toggleSlideshow(e) { if(e) e.stopPropagation(); isSlideshow = !isSlideshow; if(isSlideshow) nextMedia(); else clearTimeout(slideTimer); updateUI(); }
-function toggleShuffle(e) { if(e) e.stopPropagation(); isShuffle = !isShuffle; updateUI(); }
+function toggleUI() { 
+    const vidEl = document.getElementById('modal-video');
+    const isVidActive = (vidEl && vidEl.style.display === 'block');
+    
+    if(isVidActive && currentZoomMode > 0) {
+        setImmersiveMode(!isUIHiddenInZoom);
+    } else {
+        document.getElementById('ui-panel').classList.toggle('show'); 
+    }
+}
 
-function toggleMute(e) { 
-    if(e) e.stopPropagation();
+function toggleSlideshow() { isSlideshow = !isSlideshow; if(isSlideshow) nextMedia(); else clearTimeout(slideTimer); updateUI(); }
+function toggleShuffle() { isShuffle = !isShuffle; updateUI(); }
+
+function toggleMute() { 
     isMuted = !isMuted; 
     localStorage.setItem('eb_mute', isMuted); 
     const vidEl = document.getElementById('modal-video');
@@ -1014,8 +834,7 @@ function toggleMute(e) {
     updateUI(); 
 }
 
-function toggleVideoSpeed(e) { 
-    if(e) e.stopPropagation();
+function toggleVideoSpeed() { 
     if(videoSpeed === 1.0) videoSpeed = 1.5;
     else if(videoSpeed === 1.5) videoSpeed = 2.0;
     else if(videoSpeed === 2.0) videoSpeed = 0.5; 
@@ -1026,7 +845,6 @@ function toggleVideoSpeed(e) {
         vidEl.playbackRate = videoSpeed; 
     }
     document.getElementById('v-speed-txt').innerText = videoSpeed + 'x'; 
-    syncCurrentSettingsToMemory();
 }
 
 function updateUI() {
@@ -1034,19 +852,16 @@ function updateUI() {
     document.getElementById('play-btn').classList.toggle('active', isSlideshow);
     document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
     document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🔊';
+    document.getElementById('v-speed-txt').innerText = videoSpeed + 'x';
 }
 
-function closeModal(e) {
-    if(e) e.stopPropagation();
+function closeModal() {
     document.getElementById('modal').classList.remove('active');
     const vidEl = document.getElementById('modal-video');
     vidEl.pause();
     vidEl.src = ''; 
     clearTimeout(slideTimer);
-    clearTimeout(videoUITimer);
     isSlideshow = false;
-    currentZoomMode = 0; 
-    isForcedLandscapeActive = false;
     setImmersiveMode(false);
     updateUI();
 }
