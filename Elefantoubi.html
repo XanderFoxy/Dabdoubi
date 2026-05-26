@@ -7,7 +7,10 @@
     <style>
         :root { --pink: #ff2a6d; --bg: #050505; --ui-bg: rgba(15, 15, 15, 0.98); --neon-shadow: 0 0 15px rgba(255, 42, 109, 0.8); }
         * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-        body { background:var(--bg); color:white; font-family: -apple-system, sans-serif; overflow-x: hidden; }
+        
+        /* Globale Eliminierung aller erzwungenen Scrollbalken (Safari, Chrome, Android) */
+        *::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+        html, body { background:var(--bg); color:white; font-family: -apple-system, sans-serif; overflow-x: hidden; -ms-overflow-style: none !important; scrollbar-width: none !important; }
         
         header { text-align:center; padding:20px; background:#000; border-bottom: 1px solid #222; position: sticky; top:0; z-index:100; }
         h1 { color:var(--pink); font-size:1.6rem; letter-spacing:5px; text-transform: uppercase; margin-bottom: 15px; }
@@ -23,9 +26,10 @@
         .item-actions { position:absolute; top:8px; right:8px; display:flex; flex-direction:column; gap:8px; z-index:10; }
         .action-btn { font-size:1.3rem; filter: drop-shadow(0 0 5px black); cursor: pointer; }
 
-        .modal { display:none; position:fixed; inset:0; background:#000; z-index:1000; flex-direction: column; overflow: hidden !important; }
+        /* Erzeugung eines echten Dynamic-Viewport-Vollbilds bis hinter die Kamera-Aussparungen */
+        .modal { display:none; position:fixed; top:0 !important; left:0 !important; width:100vw !important; height:100dvh !important; background:#000; z-index:1000; flex-direction: column; overflow: hidden !important; -ms-overflow-style: none !important; scrollbar-width: none !important; }
         .modal.active { display:flex; }
-        .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden !important; width: 100%; height: 100%; }
+        .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden !important; width: 100%; height: 100%; -ms-overflow-style: none !important; scrollbar-width: none !important; }
         
         #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; transition: object-position 0.2s ease-out; }
 
@@ -115,15 +119,6 @@
         .nav-btn { background: none; border: none; color: white; font-size: 1.6rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .nav-btn.active { color: var(--pink); filter: drop-shadow(0 0 8px var(--pink)); }
         .v-badge { font-size: 0.7rem; color: var(--pink); border: 1px solid var(--pink); padding: 2px 5px; border-radius: 4px; font-weight: bold; }
-
-        /* Versteckt die Scrollbalken in Safari/Webkit, behält aber die Wisch-Logik */
-        ::-webkit-scrollbar {
-            display: none !important;
-        }
-        .modal, .media-container {
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
-        }
 
         @keyframes slideIn { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
     </style>
