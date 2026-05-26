@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Elefantoubi - Connected Logic</title>
     <style>
         :root { --pink: #ff2a6d; --bg: #050505; --ui-bg: rgba(15, 15, 15, 0.98); --neon-shadow: 0 0 15px rgba(255, 42, 109, 0.8); }
@@ -115,6 +115,15 @@
         .nav-btn { background: none; border: none; color: white; font-size: 1.6rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .nav-btn.active { color: var(--pink); filter: drop-shadow(0 0 8px var(--pink)); }
         .v-badge { font-size: 0.7rem; color: var(--pink); border: 1px solid var(--pink); padding: 2px 5px; border-radius: 4px; font-weight: bold; }
+
+        /* Versteckt die Scrollbalken in Safari/Webkit, behält aber die Wisch-Logik */
+        ::-webkit-scrollbar {
+            display: none !important;
+        }
+        .modal, .media-container {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
 
         @keyframes slideIn { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
     </style>
