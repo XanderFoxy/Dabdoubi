@@ -286,7 +286,10 @@ function openModal(idx) {
     const m = document.getElementById('modal');
     const imgEl = document.getElementById('modal-img');
     const vidEl = document.getElementById('modal-video');
+    const zoomBtn = document.getElementById('video-zoom-btn');
+    clearTimeout(slideTimer);
     
+    zoomBtn.style.display = 'flex'; 
     imgEl.classList.remove('fit-cover', 'fit-fill');
     imgEl.style.display = 'none';
     vidEl.classList.remove('fit-cover', 'fit-fill');
@@ -295,7 +298,6 @@ function openModal(idx) {
     resetMediaPosition();
     const src = currentList[currentIndex];
     const isVid = src.match(/\.(mp4|mov)$/i);
-    clearTimeout(slideTimer);
     
     if(isVid) {
         vidEl.style.display = 'block';
@@ -311,10 +313,12 @@ function openModal(idx) {
             vidEl.playbackRate = videoSpeed;
             checkOrientationAndTip();
             applyZoomViewLogic();
+            if (isUiFaded) hideUISilently();
         };
         if (vidEl.readyState >= 1) {
             checkOrientationAndTip();
             applyZoomViewLogic();
+            if (isUiFaded) hideUISilently();
         }
         
         vidEl.loop = !isSlideshow; 
@@ -333,17 +337,24 @@ function openModal(idx) {
         imgEl.onload = () => {
             checkOrientationAndTip();
             applyZoomViewLogic();
+            if (isUiFaded) hideUISilently();
         };
         if(imgEl.complete) {
             checkOrientationAndTip();
             applyZoomViewLogic();
+            if (isUiFaded) hideUISilently();
         }
         
         if(isSlideshow) slideTimer = setTimeout(nextMedia, document.getElementById('speed-slider').value);
     }
     
     m.classList.add('active');
-    wakeUpUI();
+    if (isUiFaded) {
+        hideUISilently();
+        resetInactivityTracker();
+    } else {
+        wakeUpUI();
+    }
 }
 
 function handleMediaClick(e) {
@@ -352,7 +363,6 @@ function handleMediaClick(e) {
         return;
     }
     
-    // Horizontaler Pan im Vollbildmodus 1 (fit-cover) über die X-Achse
     if (currentZoomMode === 1) {
         const clickX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
         if (clickX) {
@@ -367,7 +377,7 @@ function handleMediaClick(e) {
     } else {
         toggleUI(e);
     }
-    resetInactivityTimer();
+    resetInactivityTracker();
 }
 
 function checkOrientationAndTip() {
@@ -459,6 +469,8 @@ function resetMediaPosition() {
 
 /* INTERAKTIVES AUTO-HIDE-SYSTEM */
 function wakeUpUI() {
+    if (!document.getElementById('modal').classList.contains('active')) return;
+    
     isUiFaded = false;
     const zoomBtn = document.getElementById('video-zoom-btn');
     const tipBtn = document.getElementById('rotation-tip-btn');
@@ -474,30 +486,33 @@ function wakeUpUI() {
     resetInactivityTracker();
 }
 
+function hideUISilently() {
+    const zoomBtn = document.getElementById('video-zoom-btn');
+    const tipBtn = document.getElementById('rotation-tip-btn');
+    const burgerBtn = document.querySelector('.burger-trigger');
+    const uiPanel = document.getElementById('ui-panel');
+    
+    if(zoomBtn) { zoomBtn.style.opacity = '0'; zoomBtn.style.pointerEvents = 'none'; }
+    if(tipBtn) { tipBtn.style.opacity = '0'; tipBtn.style.pointerEvents = 'none'; }
+    if(burgerBtn) { burgerBtn.style.opacity = '0'; burgerBtn.style.pointerEvents = 'none'; }
+    if(uiPanel) { uiPanel.style.opacity = '0'; uiPanel.style.pointerEvents = 'none'; }
+    isUiFaded = true;
+}
+
 function resetInactivityTracker() {
+    if (!document.getElementById('modal').classList.contains('active')) return;
     clearTimeout(uiTimeoutTimer);
     uiTimeoutTimer = setTimeout(() => {
         if (document.activeElement && document.activeElement.id === 'speed-slider') return;
-        
-        const zoomBtn = document.getElementById('video-zoom-btn');
-        const tipBtn = document.getElementById('rotation-tip-btn');
-        const burgerBtn = document.querySelector('.burger-trigger');
-        const uiPanel = document.getElementById('ui-panel');
-        
-        if(zoomBtn) { zoomBtn.style.opacity = '0'; zoomBtn.style.pointerEvents = 'none'; }
-        if(tipBtn) { tipBtn.style.opacity = '0'; tipBtn.style.pointerEvents = 'none'; }
-        if(burgerBtn) { burgerBtn.style.opacity = '0'; burgerBtn.style.pointerEvents = 'none'; }
-        if(uiPanel) {
-            uiPanel.style.opacity = '0';
-            uiPanel.style.pointerEvents = 'none';
-        }
-        isUiFaded = true;
+        hideUISilently();
     }, 2000);
 }
 
 window.addEventListener('resize', function() {
-    checkOrientationAndTip();
-    applyZoomViewLogic();
+    if(document.getElementById('modal').classList.contains('active')) {
+        checkOrientationAndTip();
+        applyZoomViewLogic();
+    }
 });
 
 function nextMedia(e) {
@@ -552,7 +567,11 @@ function toggleMute(e) {
 
 function toggleVideoSpeed(e) { 
     if(e) e.stopPropagation();
-    videoSpeed = videoSpeed >= 2.0 ? 1.0 : videoSpeed + 0.5;
+    if(videoSpeed === 1.0) videoSpeed = 1.5;
+    else if(videoSpeed === 1.5) videoSpeed = 2.0;
+    else if(videoSpeed === 2.0) videoSpeed = 0.5; 
+    else videoSpeed = 1.0;
+    
     const vidEl = document.getElementById('modal-video');
     if(vidEl) {
         vidEl.playbackRate = videoSpeed; 
@@ -566,6 +585,7 @@ function updateUI() {
     document.getElementById('play-btn').classList.toggle('active', isSlideshow);
     document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
     document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🔊';
+    document.getElementById('v-speed-txt').innerText = videoSpeed + 'x';
 }
 
 function closeModal(e) {
@@ -578,8 +598,19 @@ function closeModal(e) {
     clearTimeout(slideTimer);
     isSlideshow = false;
     currentZoomMode = 0; 
+    
+    const uiPanel = document.getElementById('ui-panel');
+    if(uiPanel) uiPanel.classList.remove('show');
+    isUiFaded = false;
+    
     updateUI();
 }
+
+// Globaler Inaktivitäts-Listener für das Modal
+document.getElementById('modal').addEventListener('mousemove', wakeUpUI);
+document.getElementById('modal').addEventListener('touchstart', wakeUpUI);
+document.getElementById('modal').addEventListener('mousedown', wakeUpUI);
+document.getElementById('modal').addEventListener('click', wakeUpUI);
 
 renderGallery();
 </script>
