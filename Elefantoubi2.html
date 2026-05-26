@@ -27,7 +27,7 @@
         .modal.active { display:flex; }
         .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden !important; width: 100%; height: 100%; }
         
-        #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
+        #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; transition: object-position 0.2s ease-out; }
 
         /* SKALIERUNGS-MODI FÜR INTEGRATION VON BILD- UND VIDEOINHALTEN */
         #modal-video.fit-cover, #modal-img.fit-cover {
@@ -45,9 +45,9 @@
             object-fit: fill !important;
         }
 
-        /* TIMEOUT TRANSITION FÜR DIE INTERAKTIVEN BUTTONS UND LEISTEN */
-        #video-zoom-btn, #rotation-tip-btn, .player-panel {
-            transition: opacity 0.3s ease, transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        /* TRANSITION FÜR DIE AUTOMATISCHE UI-AUSBLENDUNG ALLER BEDIENELEMENTE */
+        #video-zoom-btn, #rotation-tip-btn, .burger-trigger, .player-panel, #music-player-ui {
+            transition: opacity 0.3s ease, transform 0.2s, border-color 0.2s, box-shadow 0.2s, width 0.2s ease;
             opacity: 1;
         }
 
@@ -69,7 +69,7 @@
             color: white;
         }
 
-        /* REINER PASSIVER ROTATIONS-TIPP-KREISEL BUTTON */
+        /* PASSIVER ROTATIONS-TIPP-KREISEL BUTTON */
         #rotation-tip-btn {
             position: fixed;
             top: 20px;
@@ -86,7 +86,7 @@
             cursor: pointer;
             color: #00fff0;
             box-shadow: 0 0 10px rgba(0, 255, 240, 0.3);
-            pointer-events: none; /* Dient rein als visueller Hinweis */
+            pointer-events: none;
         }
 
         .burger-trigger { 
@@ -94,6 +94,7 @@
             width: 60px; height: 60px; background: var(--pink); border-radius: 50%; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px;
             z-index: 1100; box-shadow: var(--neon-shadow); border: none;
+            cursor: pointer;
         }
         .burger-trigger span { width: 25px; height: 2px; background: white; border-radius: 1px; }
 
@@ -111,7 +112,7 @@
             background: var(--ui-bg); border: 1px solid #333; border-radius: 15px;
             padding: 10px; display: flex; flex-direction: column; gap: 4px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.6); 
-            width: 156px; transition: width 0.2s ease; overflow: hidden;
+            width: 156px; overflow: hidden;
         }
         
         #music-player-ui.macro-view {
@@ -210,7 +211,7 @@
 
 <div class="gallery" id="gallery"></div>
 
-<div id="music-player-ui">
+<div id="music-player-ui" onclick="event.stopPropagation()">
     <div class="mp-info"><span id="mp-current-title">Wähle Musik</span></div>
     
     <div class="mp-controls">
@@ -254,7 +255,7 @@
 </div>
 
 <div class="modal" id="modal">
-    <div class="media-container" id="modal-media" onclick="toggleUI()">
+    <div class="media-container" id="modal-media" onclick="handleMediaClick(event)">
         <img id="modal-img">
         <video id="modal-video" playsinline></video>
     </div>
@@ -264,20 +265,20 @@
     </button>
     <button id="video-zoom-btn" onclick="cycleVideoZoom(event)"></button>
 
-    <button class="burger-trigger" onclick="toggleUI()"><span></span><span></span><span></span></button>
-    <div class="player-panel" id="ui-panel">
+    <button class="burger-trigger" onclick="toggleUI(event)"><span></span><span></span><span></span></button>
+    <div class="player-panel" id="ui-panel" onclick="event.stopPropagation()">
         <div class="slider-row">
             <label id="speed-label">Intervall: 5.0s</label>
             <input type="range" id="speed-slider" min="500" max="12000" value="5000" step="100" oninput="document.getElementById('speed-label').innerText='Intervall: '+(this.value/1000).toFixed(1)+'s'">
         </div>
         <div class="btn-row">
-            <button class="nav-btn" onclick="prevMedia()">❮</button>
-            <button class="nav-btn" onclick="toggleShuffle()" id="shuffle-btn">🎲</button>
-            <button class="nav-btn" onclick="toggleSlideshow()" id="play-btn">▶</button>
-            <button class="nav-btn" onclick="toggleVideoSpeed()"><span class="v-badge" id="v-speed-txt">1x</span></button>
-            <button class="nav-btn" onclick="toggleMute()" id="mute-btn">🔊</button>
-            <button class="nav-btn" onclick="closeModal()">✕</button>
-            <button class="nav-btn" onclick="nextMedia()">❯</button>
+            <button class="nav-btn" onclick="prevMedia(event)">❮</button>
+            <button class="nav-btn" onclick="toggleShuffle(event)" id="shuffle-btn">🎲</button>
+            <button class="nav-btn" onclick="toggleSlideshow(event)" id="play-btn">▶</button>
+            <button class="nav-btn" onclick="toggleVideoSpeed(event)"><span class="v-badge" id="v-speed-txt">1x</span></button>
+            <button class="nav-btn" onclick="toggleMute(event)" id="mute-btn">🔊</button>
+            <button class="nav-btn" onclick="closeModal(event)">✕</button>
+            <button class="nav-btn" onclick="nextMedia(event)">❯</button>
         </div>
     </div>
 </div>
@@ -365,14 +366,7 @@ let isShuffle = false;
 let videoSpeed = 1.0;
 let slideTimer = null;
 let uiTimeoutTimer = null;
-
-let currentSongIdx = 0;
-let musicShuffle = false;
-let musicRepeat = 0; 
-let musicFavFilter = false;
-let musicVibeFilter = 'all'; 
-let filteredPlaylist = [...playlist];
-let musicWasPlaying = false; 
+let isUiFaded = false;
 
 let currentZoomMode = 0;
 
@@ -432,6 +426,7 @@ function togglePlaylistView() {
     p.classList.toggle('show');
     btn.classList.toggle('active-nav', p.classList.contains('show'));
     updateMusicUI(); 
+    wakeUpUI();
 }
 
 function toggleSongFavorite(src) {
@@ -660,7 +655,7 @@ function setMainFilter(f) {
 }
 
 function setSubFilter(s) {
-    subFilter = (subFilter === s) ? 'none' : s;
+    subFilter = (subFilter === s) ? 'none' : s; 
     updateTabStyles();
     renderGallery();
 }
@@ -680,8 +675,6 @@ function openModal(idx) {
     const imgEl = document.getElementById('modal-img');
     const vidEl = document.getElementById('modal-video');
     const zoomBtn = document.getElementById('video-zoom-btn');
-    const src = currentList[currentIndex];
-    const isVid = src.match(/\.(mp4|mov)$/i);
     clearTimeout(slideTimer);
     
     zoomBtn.style.display = 'flex'; 
@@ -689,6 +682,10 @@ function openModal(idx) {
     imgEl.style.display = 'none';
     vidEl.classList.remove('fit-cover', 'fit-fill');
     vidEl.style.display = 'none';
+    
+    resetMediaPosition();
+    const src = currentList[currentIndex];
+    const isVid = src.match(/\.(mp4|mov)$/i);
     
     if(isVid) {
         vidEl.style.display = 'block';
@@ -739,8 +736,30 @@ function openModal(idx) {
     }
     
     m.classList.add('active');
-    startInactivityTracker();
-    updateUI();
+    wakeUpUI();
+}
+
+function handleMediaClick(e) {
+    if (isUiFaded) {
+        wakeUpUI();
+        return;
+    }
+    
+    if (currentZoomMode === 1) {
+        const clickX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+        if (clickX) {
+            const clickPercent = (clickX / window.innerWidth) * 100;
+            const vidEl = document.getElementById('modal-video');
+            const imgEl = document.getElementById('modal-img');
+            const activeEl = vidEl.style.display === 'block' ? vidEl : imgEl;
+            if (activeEl) {
+                activeEl.style.objectPosition = `${clickPercent}% 50%`;
+            }
+        }
+    } else {
+        toggleUI(e);
+    }
+    resetInactivityTracker();
 }
 
 function checkOrientationAndTip() {
@@ -766,7 +785,6 @@ function checkOrientationAndTip() {
     const isMediaLandscape = medW > medH;
     const isScreenLandscape = window.innerWidth > window.innerHeight;
     
-    // Tipp-Kreisel erscheint NUR bei einem Format-Mismatch
     if (isMediaLandscape !== isScreenLandscape) {
         tipBtn.style.display = 'flex';
     } else {
@@ -777,7 +795,9 @@ function checkOrientationAndTip() {
 function cycleVideoZoom(e) {
     if(e) e.stopPropagation();
     currentZoomMode = (currentZoomMode + 1) % 3;
+    resetMediaPosition();
     applyZoomViewLogic();
+    wakeUpUI();
 }
 
 function applyZoomViewLogic() {
@@ -815,7 +835,6 @@ function updateZoomButtonUI() {
         btn.style.borderColor = '#00fff0';
         btn.style.boxShadow = '0 0 15px rgba(0, 255, 240, 0.8)';
         
-        // RECHTECK-SYMBOL: Passt sich dynamisch an die aktuelle Haltung des Bildschirms an
         const isPortrait = window.innerWidth < window.innerHeight;
         if(isPortrait) {
             btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="7" y="2" width="10" height="20" rx="1.5"/></svg>';
@@ -825,55 +844,71 @@ function updateZoomButtonUI() {
     }
 }
 
-/* INTERAKTIVES AUTO-HIDE-SYSTEM (BLENDED RESSOURCEN NACH 2 SEKUNDEN INAKTIVITÄT AUS) */
-function startInactivityTracker() {
-    const modal = document.getElementById('modal');
+function resetMediaPosition() {
+    document.getElementById('modal-video').style.objectPosition = '50% 50%';
+    document.getElementById('modal-img').style.objectPosition = '50% 50%';
+}
+
+/* INTERAKTIVES AUTO-HIDE-SYSTEM */
+function wakeUpUI() {
+    if (!document.getElementById('modal').classList.contains('active')) return;
     
-    // UI sofort sichtbar machen bei Interaktion
-    const triggerReset = () => {
+    isUiFaded = false;
+    const zoomBtn = document.getElementById('video-zoom-btn');
+    const tipBtn = document.getElementById('rotation-tip-btn');
+    const burgerBtn = document.querySelector('.burger-trigger');
+    const uiPanel = document.getElementById('ui-panel');
+    const musicUi = document.getElementById('music-player-ui');
+    const vidEl = document.getElementById('modal-video');
+    
+    if(zoomBtn && vidEl.style.display === 'block') { zoomBtn.style.opacity = '1'; zoomBtn.style.pointerEvents = 'auto'; }
+    if(tipBtn && tipBtn.style.display === 'flex') { tipBtn.style.opacity = '1'; tipBtn.style.pointerEvents = 'auto'; }
+    if(burgerBtn) { burgerBtn.style.opacity = '1'; burgerBtn.style.pointerEvents = 'auto'; }
+    if(uiPanel) { uiPanel.style.opacity = '1'; uiPanel.style.pointerEvents = 'auto'; }
+    if(musicUi) { musicUi.style.opacity = '1'; musicUi.style.pointerEvents = 'auto'; }
+    
+    resetInactivityTracker();
+}
+
+function resetInactivityTracker() {
+    if (!document.getElementById('modal').classList.contains('active')) return;
+    clearTimeout(uiTimeoutTimer);
+    uiTimeoutTimer = setTimeout(() => {
+        if (document.activeElement && document.activeElement.id === 'speed-slider') return;
+        
         const zoomBtn = document.getElementById('video-zoom-btn');
         const tipBtn = document.getElementById('rotation-tip-btn');
+        const burgerBtn = document.querySelector('.burger-trigger');
         const uiPanel = document.getElementById('ui-panel');
-        const vidEl = document.getElementById('modal-video');
+        const musicUi = document.getElementById('music-player-ui');
         
-        if(zoomBtn && vidEl.style.display === 'block') zoomBtn.style.opacity = '1';
-        if(tipBtn && tipBtn.style.display === 'flex') tipBtn.style.opacity = '1';
-        if(uiPanel) uiPanel.style.opacity = '1';
+        if(zoomBtn) { zoomBtn.style.opacity = '0'; zoomBtn.style.pointerEvents = 'none'; }
+        if(tipBtn) { tipBtn.style.opacity = '0'; tipBtn.style.pointerEvents = 'none'; }
+        if(burgerBtn) { burgerBtn.style.opacity = '0'; burgerBtn.style.pointerEvents = 'none'; }
+        if(uiPanel) { uiPanel.style.opacity = '0'; uiPanel.style.pointerEvents = 'none'; }
+        if(musicUi) { musicUi.style.opacity = '0'; musicUi.style.pointerEvents = 'none'; }
         
-        clearTimeout(uiTimeoutTimer);
-        uiTimeoutTimer = setTimeout(() => {
-            // Slider-Interaktion schützt vor Ausblendung
-            if (document.activeElement && document.activeElement.id === 'speed-slider') return;
-            
-            if(zoomBtn) zoomBtn.style.opacity = '0';
-            if(tipBtn) tipBtn.style.opacity = '0';
-            if(uiPanel && !uiPanel.classList.contains('show')) {
-                uiPanel.style.opacity = '0';
-            }
-        }, 2000);
-    };
-
-    modal.addEventListener('mousemove', triggerReset);
-    modal.addEventListener('touchstart', triggerReset);
-    modal.addEventListener('mousedown', triggerReset);
-    modal.addEventListener('click', triggerReset);
-    
-    triggerReset();
+        isUiFaded = true;
+    }, 2000);
 }
 
 window.addEventListener('resize', function() {
-    checkOrientationAndTip();
-    applyZoomViewLogic();
+    if(document.getElementById('modal').classList.contains('active')) {
+        checkOrientationAndTip();
+        applyZoomViewLogic();
+    }
 });
 
-function nextMedia() {
+function nextMedia(e) {
+    if(e) e.stopPropagation();
     if(!currentList.length) return;
     if(isShuffle) currentIndex = Math.floor(Math.random() * currentList.length);
     else currentIndex = (currentIndex + 1) % currentList.length;
     openModal(currentIndex);
 }
 
-function prevMedia() {
+function prevMedia(e) {
+    if(e) e.stopPropagation();
     currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
     openModal(currentIndex);
 }
@@ -892,11 +927,17 @@ function toggleAction(src, list, e) {
     renderGallery();
 }
 
-function toggleUI() { document.getElementById('ui-panel').classList.toggle('show'); }
-function toggleSlideshow() { isSlideshow = !isSlideshow; if(isSlideshow) nextMedia(); else clearTimeout(slideTimer); updateUI(); }
-function toggleShuffle() { isShuffle = !isShuffle; updateUI(); }
+function toggleUI(e) { 
+    if(e) e.stopPropagation();
+    document.getElementById('ui-panel').classList.toggle('show'); 
+    wakeUpUI();
+}
 
-function toggleMute() { 
+function toggleSlideshow(e) { if(e) e.stopPropagation(); isSlideshow = !isSlideshow; if(isSlideshow) nextMedia(); else clearTimeout(slideTimer); updateUI(); wakeUpUI(); }
+function toggleShuffle(e) { if(e) e.stopPropagation(); isShuffle = !isShuffle; updateUI(); wakeUpUI(); }
+
+function toggleMute(e) { 
+    if(e) e.stopPropagation();
     isMuted = !isMuted; 
     localStorage.setItem('eb_mute', isMuted); 
     const vidEl = document.getElementById('modal-video');
@@ -908,9 +949,11 @@ function toggleMute() {
         musicAudio.play().catch(() => {});
     }
     updateUI(); 
+    wakeUpUI();
 }
 
-function toggleVideoSpeed() { 
+function toggleVideoSpeed(e) { 
+    if(e) e.stopPropagation();
     if(videoSpeed === 1.0) videoSpeed = 1.5;
     else if(videoSpeed === 1.5) videoSpeed = 2.0;
     else if(videoSpeed === 2.0) videoSpeed = 0.5; 
@@ -921,6 +964,7 @@ function toggleVideoSpeed() {
         vidEl.playbackRate = videoSpeed; 
     }
     document.getElementById('v-speed-txt').innerText = videoSpeed + 'x'; 
+    wakeUpUI();
 }
 
 function updateUI() {
@@ -931,7 +975,8 @@ function updateUI() {
     document.getElementById('v-speed-txt').innerText = videoSpeed + 'x';
 }
 
-function closeModal() {
+function closeModal(e) {
+    if(e) e.stopPropagation();
     clearTimeout(uiTimeoutTimer);
     document.getElementById('modal').classList.remove('active');
     const vidEl = document.getElementById('modal-video');
@@ -940,8 +985,19 @@ function closeModal() {
     clearTimeout(slideTimer);
     isSlideshow = false;
     currentZoomMode = 0; 
+    
+    const musicUi = document.getElementById('music-player-ui');
+    if(musicUi) { musicUi.style.opacity = '1'; musicUi.style.pointerEvents = 'auto'; }
+    isUiFaded = false;
+    
     updateUI();
 }
+
+// Globaler Inaktivitäts-Listener für das Modal
+document.getElementById('modal').addEventListener('mousemove', wakeUpUI);
+document.getElementById('modal').addEventListener('touchstart', wakeUpUI);
+document.getElementById('modal').addEventListener('mousedown', wakeUpUI);
+document.getElementById('modal').addEventListener('click', wakeUpUI);
 
 initMusic();
 renderGallery();
