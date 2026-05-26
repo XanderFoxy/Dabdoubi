@@ -23,13 +23,13 @@
         .item-actions { position:absolute; top:8px; right:8px; display:flex; flex-direction:column; gap:8px; z-index:10; }
         .action-btn { font-size:1.3rem; filter: drop-shadow(0 0 5px black); cursor: pointer; }
 
-        .modal { display:none; position:fixed; inset:0; background:#000; z-index:1000; flex-direction: column; }
+        .modal { display:none; position:fixed; inset:0; background:#000; z-index:1000; flex-direction: column; overflow: hidden !important; }
         .modal.active { display:flex; }
-        .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+        .media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden !important; width: 100%; height: 100%; }
         
         #modal-img, #modal-video { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
 
-        /* VIDEO FULLSCREEN CONTROLS & DYNAMIC MODES */
+        /* SKALIERUNGS-MODI FÜR DEN INTEGRIERTEN VIDEO INHALT */
         #modal-video.fit-cover {
             width: 100% !important;
             height: 100% !important;
@@ -45,28 +45,23 @@
             object-fit: fill !important;
         }
 
+        /* FIXIERTER ZOOM STEUERUNGS BUTTON */
         #video-zoom-btn {
             position: fixed;
             top: 20px;
             right: 20px;
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             background: rgba(15, 15, 15, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 1150;
+            z-index: 1250;
             cursor: pointer;
             color: white;
             transition: 0.2s;
-        }
-
-        #video-zoom-btn svg {
-            width: 22px;
-            height: 22px;
-            fill: currentColor;
         }
 
         .burger-trigger { 
@@ -239,9 +234,7 @@
         <video id="modal-video" playsinline></video>
     </div>
     
-    <button id="video-zoom-btn" onclick="cycleVideoZoom(event)">
-        <svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm14 0h-6v2h4v4h2V4zM4 20h6v-2H6v-4H4v6zm14 0h-6v-2h4v-4h2v6z"/></svg>
-    </button>
+    <button id="video-zoom-btn" onclick="cycleVideoZoom(event)"></button>
 
     <button class="burger-trigger" onclick="toggleUI()"><span></span><span></span><span></span></button>
     <div class="player-panel" id="ui-panel">
@@ -351,8 +344,8 @@ let musicVibeFilter = 'all';
 let filteredPlaylist = [...playlist];
 let musicWasPlaying = false; 
 
-let currentZoomMode = 0; // 0 = contain (Standard), 1 = cover (Zentrum füllend), 2 = fill (gestaucht füllend)
-let isUIHiddenInZoom = false;
+// Zoom-Modus-Status (0 = original contain, 1 = proportionaler cover-zoom, 2 = gestauchter fill-zoom)
+let currentZoomMode = 0;
 
 const musicAudio = new Audio();
 musicAudio.volume = 0.5;
@@ -684,18 +677,12 @@ function openModal(idx) {
         vidEl.onended = () => { 
             if(isSlideshow) nextMedia();
         };
-
-        // Zoom-Modus auf Video anwenden
+        
+        // Klassen zurücksetzen und den aktuellen Zoom-Modus fehlerfrei anwenden
         vidEl.classList.remove('fit-cover', 'fit-fill');
         if(currentZoomMode === 1) vidEl.classList.add('fit-cover');
         if(currentZoomMode === 2) vidEl.classList.add('fit-fill');
         updateZoomButtonUI();
-
-        if(currentZoomMode > 0) {
-            setImmersiveMode(true);
-        } else {
-            setImmersiveMode(false);
-        }
         
         vidEl.play().then(() => {
             vidEl.playbackRate = videoSpeed;
@@ -707,7 +694,6 @@ function openModal(idx) {
         vidEl.pause();
         vidEl.style.display = 'none';
         zoomBtn.style.display = 'none';
-        setImmersiveMode(false);
         
         imgEl.src = src;
         imgEl.style.display = 'block';
@@ -724,6 +710,7 @@ function cycleVideoZoom(e) {
     const vidEl = document.getElementById('modal-video');
     if(!vidEl) return;
 
+    // Modi weiterschalten: 0 -> 1 -> 2 -> 0
     currentZoomMode = (currentZoomMode + 1) % 3;
     
     vidEl.classList.remove('fit-cover', 'fit-fill');
@@ -731,52 +718,30 @@ function cycleVideoZoom(e) {
     if(currentZoomMode === 2) vidEl.classList.add('fit-fill');
     
     updateZoomButtonUI();
-
-    if(currentZoomMode > 0) {
-        setImmersiveMode(true);
-    } else {
-        setImmersiveMode(false);
-    }
 }
 
 function updateZoomButtonUI() {
     const btn = document.getElementById('video-zoom-btn');
     if(!btn) return;
+    
     if(currentZoomMode === 0) {
         btn.style.color = 'white';
         btn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
         btn.style.boxShadow = 'none';
-        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm14 0h-6v2h4v4h2V4zM4 20h6v-2H6v-4H4v6zm14 0h-6v-2h4v-4h2v6z"/></svg>';
+        // Modus 0: Standard-Symbol (Hohles Quadrat für Rahmenbegrenzung)
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>';
     } else if(currentZoomMode === 1) {
         btn.style.color = 'var(--pink)';
         btn.style.borderColor = 'var(--pink)';
         btn.style.boxShadow = 'var(--neon-shadow)';
-        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M2 2h8v2H4v6H2V2zm20 0h-8v2h6v6h2V2zM2 22h8v-2H4v-6H2v8zm20 0h-8v-2h6v-6h2v8zM8 8h8v8H8V8z"/></svg>';
+        // Modus 1: Proportionaler Rand-Füll-Zoom (Zentrierter Ausschnitt bricht links/rechts aus)
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1" fill="currentColor"/></svg>';
     } else if(currentZoomMode === 2) {
         btn.style.color = '#00fff0';
         btn.style.borderColor = '#00fff0';
         btn.style.boxShadow = '0 0 15px rgba(0, 255, 240, 0.8)';
-        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 5h8v2H8v-2z"/></svg>';
-    }
-}
-
-function setImmersiveMode(hide) {
-    const musicUI = document.getElementById('music-player-ui');
-    const burger = document.querySelector('.burger-trigger');
-    const panel = document.getElementById('ui-panel');
-    const zoomBtn = document.getElementById('video-zoom-btn');
-    
-    if(hide) {
-        if(musicUI) musicUI.style.setProperty('display', 'none', 'important');
-        if(burger) burger.style.setProperty('display', 'none', 'important');
-        if(zoomBtn) zoomBtn.style.setProperty('display', 'none', 'important');
-        if(panel) panel.classList.remove('show');
-        isUIHiddenInZoom = true;
-    } else {
-        if(musicUI) musicUI.style.removeProperty('display');
-        if(burger) burger.style.removeProperty('display');
-        if(zoomBtn) zoomBtn.style.removeProperty('display');
-        isUIHiddenInZoom = false;
+        // Modus 2: Gestreckter/Gestauchter Modus (Anpassung an alle Display-Ecken)
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 4h16v2H4V4zm0 14h16v2H4v-2zM4 9h16v2H4V9z"/></svg>';
     }
 }
 
@@ -806,17 +771,7 @@ function toggleAction(src, list, e) {
     renderGallery();
 }
 
-function toggleUI() { 
-    const vidEl = document.getElementById('modal-video');
-    const isVidActive = (vidEl && vidEl.style.display === 'block');
-    
-    if(isVidActive && currentZoomMode > 0) {
-        setImmersiveMode(!isUIHiddenInZoom);
-    } else {
-        document.getElementById('ui-panel').classList.toggle('show'); 
-    }
-}
-
+function toggleUI() { document.getElementById('ui-panel').classList.toggle('show'); }
 function toggleSlideshow() { isSlideshow = !isSlideshow; if(isSlideshow) nextMedia(); else clearTimeout(slideTimer); updateUI(); }
 function toggleShuffle() { isShuffle = !isShuffle; updateUI(); }
 
@@ -862,7 +817,7 @@ function closeModal() {
     vidEl.src = ''; 
     clearTimeout(slideTimer);
     isSlideshow = false;
-    setImmersiveMode(false);
+    currentZoomMode = 0; // Setzt die Ansicht für das nächste Video standardmäßig wieder auf Original zurück
     updateUI();
 }
 
