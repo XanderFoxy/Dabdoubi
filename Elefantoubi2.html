@@ -368,6 +368,16 @@ let slideTimer = null;
 let uiTimeoutTimer = null;
 let isUiFaded = false;
 
+let currentSongIdx = 0;
+let musicShuffle = false;
+let musicRepeat = 0; 
+let musicFavFilter = false;
+let musicVibeFilter = 'all'; 
+let filteredPlaylist = [...playlist];
+let musicWasPlaying = false; 
+let currentVibePos = 2;
+let wasUiPanelOpen = false;
+
 let currentZoomMode = 0;
 
 const musicAudio = new Audio();
@@ -421,10 +431,22 @@ function togglePlaylistView() {
     const ui = document.getElementById('music-player-ui');
     const p = document.getElementById('mp-playlist');
     const btn = document.getElementById('mp-burger-btn');
+    const uiPanel = document.getElementById('ui-panel');
     
     ui.classList.toggle('macro-view');
     p.classList.toggle('show');
     btn.classList.toggle('active-nav', p.classList.contains('show'));
+    
+    if (p.classList.contains('show')) {
+        wasUiPanelOpen = uiPanel.classList.contains('show');
+        uiPanel.classList.remove('show');
+    } else {
+        if (wasUiPanelOpen) {
+            uiPanel.classList.add('show');
+        }
+    }
+    
+    buildFilteredPlaylist();
     updateMusicUI(); 
     wakeUpUI();
 }
@@ -482,7 +504,6 @@ function handleVibeClick(e) {
     updateVibeSwitchState();
 }
 
-let currentVibePos = 2;
 function updateVibeSwitchState() {
     const track = document.getElementById('mp-apple-track');
     const lbl = document.getElementById('mp-vibe-text');
@@ -986,6 +1007,18 @@ function closeModal(e) {
     isSlideshow = false;
     currentZoomMode = 0; 
     
+    const ui = document.getElementById('music-player-ui');
+    const p = document.getElementById('mp-playlist');
+    const btn = document.getElementById('mp-burger-btn');
+    if (p && p.classList.contains('show')) {
+        ui.classList.remove('macro-view');
+        p.classList.remove('show');
+        btn.classList.remove('active-nav');
+    }
+    
+    const uiPanel = document.getElementById('ui-panel');
+    if(uiPanel) uiPanel.classList.remove('show');
+    
     const musicUi = document.getElementById('music-player-ui');
     if(musicUi) { musicUi.style.opacity = '1'; musicUi.style.pointerEvents = 'auto'; }
     isUiFaded = false;
@@ -993,11 +1026,16 @@ function closeModal(e) {
     updateUI();
 }
 
-// Globaler Inaktivitäts-Listener für das Modal
+// Globaler Inaktivitäts-Listener für das Modal und den Player
 document.getElementById('modal').addEventListener('mousemove', wakeUpUI);
 document.getElementById('modal').addEventListener('touchstart', wakeUpUI);
 document.getElementById('modal').addEventListener('mousedown', wakeUpUI);
 document.getElementById('modal').addEventListener('click', wakeUpUI);
+
+document.getElementById('music-player-ui').addEventListener('mousemove', wakeUpUI);
+document.getElementById('music-player-ui').addEventListener('touchstart', wakeUpUI);
+document.getElementById('music-player-ui').addEventListener('mousedown', wakeUpUI);
+document.getElementById('music-player-ui').addEventListener('click', wakeUpUI);
 
 initMusic();
 renderGallery();
