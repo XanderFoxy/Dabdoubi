@@ -218,7 +218,8 @@ const media = [
     "Videos/AsmaaUndAlexSex/3b5165e7afcb075e90671ed717bcc512.mp4",
     "Videos/AsmaaUndAlexSex/55ae02b7991987c6d93ab5fd69cdbc1c.mp4",
     "Videos/AsmaaUndAlexSex/Mein%20Projekt%20(80).mp4",
-    "Videos/AsmaaUndAlexSex/5dab3c126e2c7819f9b55dc1a6e51a58.mp4"
+    "Videos/AsmaaUndAlexSex/5dab3c126e2c7819f9b55dc1a6e51a58.mp4",
+    "Videos/AsmaaUndAlexSex/Ed56b10afe10ceb99000738ba7a37f36.mp4"
 ];
 
 let favs = JSON.parse(localStorage.getItem('eb_favs')) || [];
@@ -415,63 +416,6 @@ function checkOrientationAndTip() {
     }
 }
 
-function cycleVideoZoom(e) {
-    if(e) e.stopPropagation();
-    currentZoomMode = (currentZoomMode + 1) % 3;
-    resetMediaPosition();
-    applyZoomViewLogic();
-    wakeUpUI();
-}
-
-function applyZoomViewLogic() {
-    const vidEl = document.getElementById('modal-video');
-    const imgEl = document.getElementById('modal-img');
-    const el = vidEl.style.display === 'block' ? vidEl : imgEl;
-    if (!el) return;
-    
-    vidEl.classList.remove('fit-cover', 'fit-fill');
-    imgEl.classList.remove('fit-cover', 'fit-fill');
-    
-    if (currentZoomMode === 1) el.classList.add('fit-cover');
-    if (currentZoomMode === 2) el.classList.add('fit-fill');
-    
-    updateZoomButtonUI();
-    checkOrientationAndTip();
-}
-
-function updateZoomButtonUI() {
-    const btn = document.getElementById('video-zoom-btn');
-    if(!btn) return;
-    
-    if(currentZoomMode === 0) {
-        btn.style.color = 'white';
-        btn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-        btn.style.boxShadow = 'none';
-        btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>';
-    } else if(currentZoomMode === 1) {
-        btn.style.color = 'var(--pink)';
-        btn.style.borderColor = 'var(--pink)';
-        btn.style.boxShadow = 'var(--neon-shadow)';
-        btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1" fill="currentColor"/></svg>';
-    } else if(currentZoomMode === 2) {
-        btn.style.color = '#00fff0';
-        btn.style.borderColor = '#00fff0';
-        btn.style.boxShadow = '0 0 15px rgba(0, 255, 240, 0.8)';
-        
-        const isPortrait = window.innerWidth < window.innerHeight;
-        if(isPortrait) {
-            btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="7" y="2" width="10" height="20" rx="1.5"/></svg>';
-        } else {
-            btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="10" rx="1.5"/></svg>';
-        }
-    }
-}
-
-function resetMediaPosition() {
-    document.getElementById('modal-video').style.objectPosition = '50% 50%';
-    document.getElementById('modal-img').style.objectPosition = '50% 50%';
-}
-
 /* INTERAKTIVES AUTO-HIDE-SYSTEM */
 function wakeUpUI() {
     if (!document.getElementById('modal').classList.contains('active')) return;
@@ -570,7 +514,64 @@ function toggleMute(e) {
     wakeUpUI();
 }
 
-// Globaler Inaktivitäts-Listener für das Modal und den Player
+function cycleVideoZoom(e) {
+    if(e) e.stopPropagation();
+    currentZoomMode = (currentZoomMode + 1) % 3;
+    resetMediaPosition();
+    applyZoomViewLogic();
+    wakeUpUI();
+}
+
+function applyZoomViewLogic() {
+    const vidEl = document.getElementById('modal-video');
+    const imgEl = document.getElementById('modal-img');
+    const el = vidEl.style.display === 'block' ? vidEl : imgEl;
+    if (!el) return;
+    
+    vidEl.classList.remove('fit-cover', 'fit-fill');
+    imgEl.classList.remove('fit-cover', 'fit-fill');
+    
+    if (currentZoomMode === 1) el.classList.add('fit-cover');
+    if (currentZoomMode === 2) el.classList.add('fit-fill');
+    
+    updateZoomButtonUI();
+    checkOrientationAndTip();
+}
+
+function updateZoomButtonUI() {
+    const btn = document.getElementById('video-zoom-btn');
+    if(!btn) return;
+    
+    if(currentZoomMode === 0) {
+        btn.style.color = 'white';
+        btn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        btn.style.boxShadow = 'none';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>';
+    } else if(currentZoomMode === 1) {
+        btn.style.color = 'var(--pink)';
+        btn.style.borderColor = 'var(--pink)';
+        btn.style.boxShadow = 'var(--neon-shadow)';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1" fill="currentColor"/></svg>';
+    } else if(currentZoomMode === 2) {
+        btn.style.color = '#00fff0';
+        btn.style.borderColor = '#00fff0';
+        btn.style.boxShadow = '0 0 15px rgba(0, 255, 240, 0.8)';
+        
+        const isPortrait = window.innerWidth < window.innerHeight;
+        if(isPortrait) {
+            btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="7" y="2" width="10" height="20" rx="1.5"/></svg>';
+        } else {
+            btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="10" rx="1.5"/></svg>';
+        }
+    }
+}
+
+function resetMediaPosition() {
+    document.getElementById('modal-video').style.objectPosition = '50% 50%';
+    document.getElementById('modal-img').style.objectPosition = '50% 50%';
+}
+
+// Globaler Inaktivitäts-Listener für das Modal
 document.getElementById('modal').addEventListener('mousemove', wakeUpUI);
 document.getElementById('modal').addEventListener('touchstart', wakeUpUI);
 document.getElementById('modal').addEventListener('mousedown', wakeUpUI);
